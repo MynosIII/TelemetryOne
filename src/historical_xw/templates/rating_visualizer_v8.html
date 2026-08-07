@@ -1,0 +1,1594 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore retrospective, car-adjusted Formula 1 driver ELO from 1950 onward.">
+  <title>F1 Historical Rating Lab</title>
+  <script src="https://cdn.plot.ly/plotly-3.1.0.min.js" charset="utf-8"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f5f4ef;
+      --muted: #9e9d98;
+      --faint: #6e6e69;
+      --surface: #131412;
+      --surface-raised: #1a1b18;
+      --surface-soft: #22231f;
+      --line: #33342f;
+      --accent: #ff453a;
+      --accent-bright: #ff6b61;
+      --lime: #c7f36b;
+      --blue: #65b8ff;
+      --radius: 18px;
+      --shadow: 0 24px 64px rgba(0, 0, 0, .28);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        radial-gradient(circle at 84% -10%, rgba(255, 69, 58, .13), transparent 34rem),
+        radial-gradient(circle at -5% 42%, rgba(199, 243, 107, .05), transparent 30rem),
+        #0c0d0b;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    button, input { font: inherit; }
+
+    button { color: inherit; }
+
+    a { color: inherit; }
+
+    :focus-visible {
+      outline: 3px solid rgba(101, 184, 255, .7);
+      outline-offset: 3px;
+    }
+
+    .shell {
+      width: min(1500px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 40px;
+      align-items: end;
+      padding: 64px 0 34px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 14px;
+      color: var(--lime);
+      font-size: .74rem;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 24px;
+      height: 2px;
+      background: currentColor;
+      content: "";
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 900px;
+      margin-bottom: 13px;
+      font-size: clamp(2.45rem, 6vw, 5.9rem);
+      font-weight: 850;
+      letter-spacing: -.065em;
+      line-height: .92;
+    }
+
+    .intro {
+      max-width: 760px;
+      margin: 0;
+      color: #b8b7b1;
+      font-size: clamp(1rem, 1.5vw, 1.2rem);
+    }
+
+    .model-stamp {
+      min-width: 240px;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(19, 20, 18, .72);
+      box-shadow: var(--shadow);
+    }
+
+    .model-stamp span {
+      display: block;
+      color: var(--faint);
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .model-stamp strong {
+      display: block;
+      margin-top: 4px;
+      font-size: .94rem;
+    }
+
+    .dataset-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-block: 1px solid var(--line);
+    }
+
+    .dataset-stat {
+      padding: 22px 20px 22px 0;
+    }
+
+    .dataset-stat + .dataset-stat {
+      padding-left: 24px;
+      border-left: 1px solid var(--line);
+    }
+
+    .dataset-stat strong {
+      display: block;
+      font-size: clamp(1.25rem, 2.4vw, 2rem);
+      letter-spacing: -.03em;
+    }
+
+    .dataset-stat span {
+      color: var(--muted);
+      font-size: .79rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    main { padding: 46px 0 80px; }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 20px;
+    }
+
+    .section-heading h2 {
+      margin-bottom: 4px;
+      font-size: clamp(1.65rem, 3vw, 2.65rem);
+      letter-spacing: -.045em;
+    }
+
+    .section-heading p {
+      max-width: 640px;
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+
+    .explorer {
+      overflow: visible;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(19, 20, 18, .88);
+      box-shadow: var(--shadow);
+    }
+
+    .toolbar {
+      position: relative;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: minmax(340px, 1.25fr) minmax(260px, .75fr) auto;
+      gap: 12px;
+      align-items: end;
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .view-control { grid-column: 1 / 3; }
+
+    .plot-control {
+      grid-column: 3;
+      align-self: end;
+    }
+
+    .comparison-control { grid-column: 1 / 2; }
+
+    .axis-control { grid-column: 3; }
+
+    .view-picker {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .view-option {
+      min-height: 62px;
+      padding: 9px 12px;
+      border: 1px solid #3b3c36;
+      border-radius: 11px;
+      background: #11120f;
+      color: var(--muted);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .view-option strong,
+    .view-option small { display: block; }
+
+    .view-option strong { color: var(--ink); font-size: .88rem; }
+
+    .view-option small { margin-top: 2px; color: var(--faint); font-size: .72rem; }
+
+    .view-option[aria-pressed="true"] {
+      border-color: var(--lime);
+      background: rgba(199, 243, 107, .08);
+      box-shadow: inset 0 0 0 1px rgba(199, 243, 107, .14);
+    }
+
+    .search-wrap { position: relative; }
+
+    .control-label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .search-field {
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      top: 50%;
+      left: 14px;
+      width: 18px;
+      height: 18px;
+      translate: 0 -50%;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    #driver-search {
+      width: 100%;
+      height: 46px;
+      padding: 0 42px;
+      border: 1px solid #3b3c36;
+      border-radius: 11px;
+      background: #0f100e;
+      color: var(--ink);
+    }
+
+    #driver-search::placeholder { color: #777872; }
+
+    #driver-search:focus { border-color: var(--blue); outline: none; }
+
+    .search-clear {
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      width: 30px;
+      height: 30px;
+      translate: 0 -50%;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .search-clear:hover { background: var(--surface-soft); color: var(--ink); }
+
+    .action-group { display: flex; gap: 8px; }
+
+    .button {
+      min-height: 46px;
+      padding: 0 15px;
+      border: 1px solid #3b3c36;
+      border-radius: 11px;
+      background: #1c1d19;
+      font-weight: 750;
+      cursor: pointer;
+      transition: border-color .16s ease, background .16s ease, translate .16s ease;
+    }
+
+    .button:hover:not(:disabled) {
+      border-color: #62635b;
+      background: #262722;
+      translate: 0 -1px;
+    }
+
+    .button:disabled { opacity: .38; cursor: not-allowed; }
+
+    .button.danger { color: #ffaca6; }
+
+    .button.primary {
+      min-width: 176px;
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(255, 69, 58, .2);
+    }
+
+    .button.primary:hover:not(:disabled) {
+      border-color: var(--accent-bright);
+      background: var(--accent-bright);
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: 46px;
+      padding: 3px;
+      border: 1px solid #3b3c36;
+      border-radius: 11px;
+      background: #0f100e;
+    }
+
+    .segment {
+      padding: 0 13px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-size: .84rem;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .segment[aria-pressed="true"] {
+      background: #30312b;
+      color: var(--ink);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .28);
+    }
+
+    .selection-bar {
+      display: flex;
+      min-height: 58px;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .selection-count {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: .76rem;
+      font-weight: 800;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .selection-placeholder {
+      color: var(--faint);
+      font-size: .8rem;
+    }
+
+    .chips {
+      display: flex;
+      min-width: 0;
+      gap: 7px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+
+    .chip {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 7px;
+      min-height: 34px;
+      padding: 0 8px 0 10px;
+      border: 1px solid #3d3e38;
+      border-radius: 999px;
+      background: #1b1c18;
+      color: #deddd7;
+      font-size: .81rem;
+      font-weight: 680;
+    }
+
+    .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--chip-color);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--chip-color) 18%, transparent);
+    }
+
+    .chip button {
+      display: grid;
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: #91928b;
+      cursor: pointer;
+    }
+
+    .chip button:hover { background: #30312b; color: var(--ink); }
+
+    .explorer-main {
+      display: grid;
+      grid-template-columns: 292px minmax(0, 1fr);
+    }
+
+    .driver-index {
+      min-width: 0;
+      border-right: 1px solid var(--line);
+      background: #10110f;
+    }
+
+    .driver-index-head {
+      padding: 17px 14px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .driver-index-help {
+      margin: 8px 0 0;
+      color: var(--faint);
+      font-size: .73rem;
+    }
+
+    .driver-index-list {
+      height: 572px;
+      overflow-y: auto;
+      padding: 6px;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      scrollbar-color: #55564f #171815;
+    }
+
+    .driver-index-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 34px;
+      gap: 4px;
+      margin-bottom: 3px;
+    }
+
+    .driver-select {
+      display: grid;
+      grid-template-columns: 10px minmax(0, 1fr) auto;
+      gap: 9px;
+      align-items: center;
+      min-height: 46px;
+      padding: 7px 9px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .driver-select:hover,
+    .driver-select:focus-visible { background: #20211d; }
+
+    .driver-select[aria-pressed="true"] {
+      border-color: color-mix(in srgb, var(--driver-color) 55%, #3d3e38);
+      background: color-mix(in srgb, var(--driver-color) 9%, #171815);
+    }
+
+    .driver-index-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--driver-color);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--driver-color) 13%, transparent);
+    }
+
+    .driver-index-name,
+    .driver-index-meta { display: block; }
+
+    .driver-index-name {
+      overflow: hidden;
+      color: #e3e2dc;
+      font-size: .81rem;
+      font-weight: 720;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .driver-index-meta { color: var(--faint); font-size: .65rem; }
+
+    .driver-selected-mark {
+      color: var(--lime);
+      font-size: .7rem;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .driver-info {
+      display: grid;
+      min-height: 40px;
+      place-items: center;
+      align-self: center;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--faint);
+      font-family: Georgia, serif;
+      font-size: .95rem;
+      font-style: italic;
+      cursor: pointer;
+    }
+
+    .driver-info:hover,
+    .driver-info:focus-visible { background: #282923; color: var(--ink); }
+
+    .driver-index-empty {
+      padding: 28px 16px;
+      color: var(--muted);
+      font-size: .82rem;
+      text-align: center;
+    }
+
+    .chart-column { min-width: 0; }
+
+    .plot-wrap {
+      position: relative;
+      min-height: 650px;
+      padding: 6px 10px 8px;
+    }
+
+    #rating-chart { width: 100%; height: 640px; }
+
+    .plot-empty {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      display: none;
+      place-items: center;
+      padding: 30px;
+      text-align: center;
+      background: linear-gradient(rgba(19, 20, 18, .96), rgba(19, 20, 18, .96));
+    }
+
+    .plot-empty.visible { display: grid; }
+
+    .empty-inner { max-width: 430px; }
+
+    .empty-mark {
+      display: grid;
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 18px;
+      place-items: center;
+      border: 1px solid #484943;
+      border-radius: 50%;
+      color: var(--lime);
+      font-size: 1.4rem;
+    }
+
+    .empty-inner h3 { margin-bottom: 6px; font-size: 1.25rem; }
+
+    .empty-inner p { margin: 0; color: var(--muted); }
+
+    .chart-note {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 0 20px 17px;
+      color: var(--faint);
+      font-size: .76rem;
+    }
+
+    .chart-note strong { color: #aaa9a3; }
+
+    .records { margin-top: 82px; }
+
+    .records-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, .65fr) minmax(0, .65fr);
+      gap: 16px;
+    }
+
+    .record-card {
+      position: relative;
+      min-height: 222px;
+      overflow: hidden;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .record-card.driver-card { cursor: pointer; }
+
+    .record-card.driver-card:hover,
+    .record-card.driver-card:focus-visible {
+      border-color: #65665e;
+      translate: 0 -2px;
+      box-shadow: 0 16px 38px rgba(0, 0, 0, .24);
+    }
+
+    .record-open-label {
+      display: inline-flex;
+      margin-top: 15px;
+      color: var(--lime);
+      font-size: .69rem;
+      font-weight: 850;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .record-card.hero {
+      grid-row: span 2;
+      min-height: 460px;
+      padding: 0;
+      background: #161713;
+    }
+
+    .hero-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(.78) contrast(1.04);
+    }
+
+    .hero-shade {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(10, 11, 9, .02) 18%, rgba(10, 11, 9, .3) 50%, #0d0e0c 96%),
+        linear-gradient(90deg, rgba(10, 11, 9, .68), transparent 64%);
+    }
+
+    .hero-content {
+      position: absolute;
+      inset: auto 0 0;
+      z-index: 1;
+      padding: 28px;
+    }
+
+    .record-kicker {
+      display: block;
+      margin-bottom: 11px;
+      color: var(--lime);
+      font-size: .7rem;
+      font-weight: 850;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .record-card h3 {
+      margin-bottom: 6px;
+      font-size: clamp(1.25rem, 2.3vw, 2rem);
+      letter-spacing: -.035em;
+    }
+
+    .hero h3 { font-size: clamp(2.1rem, 4.6vw, 4.1rem); line-height: .95; }
+
+    .record-value {
+      margin: 0 0 10px;
+      color: var(--ink);
+      font-size: 1.55rem;
+      font-weight: 820;
+      letter-spacing: -.035em;
+    }
+
+    .hero .record-value { font-size: 1.15rem; color: #d5d4ce; }
+
+    .record-detail { margin: 0; color: var(--muted); font-size: .85rem; }
+
+    .photo-credit {
+      display: inline-block;
+      margin-top: 16px;
+      color: #aaa9a2;
+      font-size: .67rem;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .record-icon {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      margin-bottom: 28px;
+      place-items: center;
+      border: 1px solid #43443e;
+      border-radius: 11px;
+      color: var(--accent-bright);
+      font-weight: 900;
+    }
+
+    .methodology {
+      margin-top: 60px;
+      border-top: 1px solid var(--line);
+    }
+
+    details { border-bottom: 1px solid var(--line); }
+
+    summary {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 22px 0;
+      font-weight: 780;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    summary::after { color: var(--lime); content: "+"; font-size: 1.2rem; }
+
+    details[open] summary::after { content: "−"; }
+
+    .method-copy {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 28px;
+      padding: 0 0 26px;
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .method-copy strong { display: block; margin-bottom: 6px; color: var(--ink); }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 26px 0 48px;
+      color: var(--faint);
+      font-size: .76rem;
+    }
+
+    .driver-dialog {
+      width: min(760px, calc(100% - 28px));
+      max-height: min(780px, calc(100vh - 28px));
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid #484943;
+      border-radius: 20px;
+      background: #151613;
+      color: var(--ink);
+      box-shadow: 0 30px 100px rgba(0, 0, 0, .72);
+    }
+
+    .driver-dialog::backdrop {
+      background: rgba(4, 5, 4, .78);
+      backdrop-filter: blur(8px);
+    }
+
+    .dialog-scroll { max-height: min(780px, calc(100vh - 28px)); overflow-y: auto; }
+
+    .dialog-close {
+      position: sticky;
+      z-index: 3;
+      top: 14px;
+      float: right;
+      width: 38px;
+      height: 38px;
+      margin: 14px 14px -52px 0;
+      border: 1px solid #484943;
+      border-radius: 50%;
+      background: rgba(15, 16, 14, .88);
+      color: var(--ink);
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+
+    .profile-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(220px, .75fr);
+      gap: 26px;
+      padding: 34px 34px 26px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .profile-head h2 {
+      margin-bottom: 7px;
+      font-size: clamp(2rem, 6vw, 3.8rem);
+      letter-spacing: -.055em;
+      line-height: .95;
+    }
+
+    .profile-subtitle { margin: 0; color: var(--muted); }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--line);
+    }
+
+    .profile-stat { padding: 11px 12px; background: #1b1c18; }
+
+    .profile-stat span,
+    .profile-stat strong { display: block; }
+
+    .profile-stat span { color: var(--faint); font-size: .65rem; text-transform: uppercase; }
+
+    .profile-stat strong { margin-top: 2px; font-size: 1rem; }
+
+    .wiki-panel {
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr);
+      gap: 24px;
+      padding: 28px 34px 34px;
+    }
+
+    .wiki-image {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      border-radius: 13px;
+      background: #272822;
+    }
+
+    .wiki-image[hidden] { display: none; }
+
+    .wiki-copy p { color: #bcbbb5; font-size: .9rem; line-height: 1.65; }
+
+    .wiki-link { color: var(--lime); font-size: .8rem; font-weight: 800; }
+
+    .wiki-loading { color: var(--muted); }
+
+    @media (max-width: 1050px) {
+      .masthead { grid-template-columns: 1fr; }
+      .model-stamp { justify-self: start; }
+      .toolbar { grid-template-columns: 1fr auto; }
+      .view-control { grid-column: 1 / -1; }
+      .plot-control { grid-column: 2; grid-row: 2; }
+      .comparison-control { grid-column: 1; grid-row: 2; }
+      .axis-control { grid-column: 1 / -1; grid-row: 3; }
+      .records-grid { grid-template-columns: 1fr 1fr; }
+      .record-card.hero { grid-column: 1 / -1; grid-row: auto; min-height: 480px; }
+    }
+
+    @media (max-width: 700px) {
+      .shell { width: min(100% - 24px, 1500px); }
+      .masthead { padding-top: 38px; }
+      .dataset-strip { grid-template-columns: 1fr 1fr; }
+      .dataset-stat:nth-child(3) { border-left: 0; border-top: 1px solid var(--line); }
+      .dataset-stat:nth-child(4) { border-top: 1px solid var(--line); }
+      .dataset-stat { padding: 16px 12px !important; }
+      main { padding-top: 32px; }
+      .section-heading { display: block; }
+      .toolbar { grid-template-columns: 1fr; }
+      .view-control,
+      .plot-control,
+      .comparison-control,
+      .axis-control { grid-column: auto; grid-row: auto; }
+      .view-picker { grid-template-columns: 1fr; }
+      .view-option { min-height: 54px; }
+      .plot-control .button { width: 100%; }
+      .action-group { display: grid; grid-template-columns: 1fr 1fr; }
+      .button { width: 100%; }
+      .selection-bar { display: block; }
+      .selection-count { display: block; margin-bottom: 8px; }
+      .plot-wrap { min-height: 540px; padding-inline: 0; }
+      .explorer-main { grid-template-columns: 1fr; }
+      .driver-index { border-right: 0; border-bottom: 1px solid var(--line); }
+      .driver-index-list { height: 238px; }
+      #rating-chart { height: 530px; }
+      .chart-note { display: block; }
+      .chart-note span { display: block; margin-top: 4px; }
+      .records { margin-top: 58px; }
+      .records-grid { grid-template-columns: 1fr; }
+      .record-card.hero { min-height: 430px; }
+      .method-copy { grid-template-columns: 1fr; gap: 16px; }
+      .profile-head,
+      .wiki-panel { grid-template-columns: 1fr; }
+      .profile-head,
+      .wiki-panel { padding-inline: 20px; }
+      .wiki-image { max-width: 180px; }
+      footer { display: block; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="shell masthead">
+    <div>
+      <p class="eyebrow">Historical performance model</p>
+      <h1>Every era.<br>One moving field.</h1>
+      <p class="intro">Explore how Formula 1 driver ratings evolved race by race after separating driver performance from car, circuit and race conditions.</p>
+    </div>
+    <div class="model-stamp" aria-label="Model version">
+      <span>Current view</span>
+      <strong id="model-name">Selected rating dataset</strong>
+    </div>
+  </header>
+
+  <div class="shell dataset-strip" aria-label="Dataset summary">
+    <div class="dataset-stat"><strong id="stat-seasons">—</strong><span>Seasons</span></div>
+    <div class="dataset-stat"><strong id="stat-events">—</strong><span>Grand Prix events</span></div>
+    <div class="dataset-stat"><strong id="stat-drivers">—</strong><span>Drivers indexed</span></div>
+    <div class="dataset-stat"><strong id="stat-observations">—</strong><span>Driver-race records</span></div>
+  </div>
+
+  <main class="shell">
+    <section aria-labelledby="explorer-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Race-by-race explorer</p>
+          <h2 id="explorer-title">Build your comparison</h2>
+        </div>
+        <p>Search any driver, remove the field noise, and switch between championship race numbers and named Grand Prix events.</p>
+      </div>
+
+      <div class="explorer">
+        <div class="toolbar">
+          <div class="view-control">
+            <span class="control-label">1 · Choose what to plot</span>
+            <div class="view-picker" role="group" aria-label="Driver view">
+              <button class="view-option" id="view-all" type="button" aria-pressed="true">
+                <strong>All drivers</strong><small>The complete historical field</small>
+              </button>
+              <button class="view-option" id="view-top" type="button" aria-pressed="false">
+                <strong>Top 8</strong><small>A quick all-time overview</small>
+              </button>
+              <button class="view-option" id="view-compare" type="button" aria-pressed="false">
+                <strong>Compare drivers</strong><small>Choose one, two or more</small>
+              </button>
+            </div>
+          </div>
+
+          <div class="plot-control">
+            <span class="control-label">2 · Draw the chart</span>
+            <button class="button primary" id="plot-view" type="button">Plot all drivers</button>
+          </div>
+
+          <div class="comparison-control">
+            <span class="control-label">Comparison list</span>
+            <div class="action-group">
+              <button class="button danger" id="deselect-all" type="button">Deselect all</button>
+            </div>
+          </div>
+
+          <div class="axis-control">
+            <span class="control-label">Horizontal axis</span>
+            <div class="segmented" role="group" aria-label="Horizontal axis display">
+              <button class="segment" id="axis-number" type="button" aria-pressed="true">Race no.</button>
+              <button class="segment" id="axis-name" type="button" aria-pressed="false">Race names</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="selection-bar">
+          <span class="selection-count" id="selection-count">Showing all drivers</span>
+          <div class="chips" id="driver-chips" aria-live="polite"></div>
+        </div>
+
+        <div class="explorer-main">
+          <aside class="driver-index" aria-label="Driver index">
+            <div class="driver-index-head">
+              <label class="control-label" for="driver-search">Driver index</label>
+              <div class="search-field">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.8" stroke="currentColor" stroke-width="2"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <input id="driver-search" type="search" autocomplete="off" placeholder="Search 801 drivers" aria-controls="driver-index-list">
+                <button class="search-clear" id="search-clear" type="button" aria-label="Clear driver search">×</button>
+              </div>
+              <p class="driver-index-help">Select names for a comparison. Use <i>i</i> for a driver profile.</p>
+            </div>
+            <div class="driver-index-list" id="driver-index-list" role="listbox" aria-label="All Formula 1 drivers" aria-multiselectable="true"></div>
+          </aside>
+
+          <div class="chart-column">
+            <div class="plot-wrap">
+              <div id="rating-chart" role="img" aria-label="Historical Formula 1 driver ELO line chart"></div>
+              <div class="plot-empty" id="plot-empty">
+                <div class="empty-inner">
+                  <div class="empty-mark">⌕</div>
+                  <h3>No drivers selected</h3>
+                  <p>Use the driver index to choose one or more names, then press “Plot comparison.”</p>
+                </div>
+              </div>
+            </div>
+            <div class="chart-note">
+              <span><strong>Hover:</strong> driver, event, index position and model components</span>
+              <span>Retirement and multi-season return gaps are shown as breaks.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="records" aria-labelledby="records-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Model records</p>
+          <h2 id="records-title">The shape of greatness</h2>
+        </div>
+        <p>These records use the complete supplied history and ranking files, regardless of which drivers are currently plotted. This page does not invoke or alter a rating model.</p>
+      </div>
+
+      <div class="records-grid">
+        <article class="record-card hero" id="best-prime-card"></article>
+        <article class="record-card" id="best-curve-card"></article>
+        <article class="record-card" id="longest-one-card"></article>
+        <article class="record-card" id="best-car-card"></article>
+        <article class="record-card" id="biggest-rise-card"></article>
+        <article class="record-card" id="worst-curve-card"></article>
+        <article class="record-card" id="lowest-current-card"></article>
+        <article class="record-card" id="worst-moment-card"></article>
+      </div>
+    </section>
+
+    <section class="methodology" aria-label="Metric methodology">
+      <details>
+        <summary>How the publishable records are defined</summary>
+        <div class="method-copy">
+          <p><strong>Current driver index</strong>The post-event ELO rank among drivers who participated in that Grand Prix. It is recalculated at every event.</p>
+          <p><strong>Career curve area</strong>The race-by-race integral of ELO above or below that event's field median. Multi-season retirement gaps are cut, not bridged. Drivers need 25 events.</p>
+          <p><strong>Lowest-rating records</strong>Career and final ELO come from the supplied ranking. The single-race low is the minimum point visible in the full history for drivers with at least five starts.</p>
+          <p><strong>Best car</strong>The highest season-average v6 expected-car-win value for an identified car model with at least four events. It measures model expectation, not championship points.</p>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <dialog class="driver-dialog" id="driver-dialog" aria-labelledby="driver-dialog-title">
+    <div class="dialog-scroll">
+      <button class="dialog-close" id="dialog-close" type="button" aria-label="Close driver profile">×</button>
+      <div class="profile-head">
+        <div>
+          <p class="eyebrow">Driver profile</p>
+          <h2 id="driver-dialog-title">Driver</h2>
+          <p class="profile-subtitle" id="driver-dialog-subtitle"></p>
+        </div>
+        <div class="profile-stats" id="driver-profile-stats"></div>
+      </div>
+      <div class="wiki-panel">
+        <img class="wiki-image" id="wiki-image" alt="" hidden>
+        <div class="wiki-copy">
+          <p class="control-label">From Wikipedia</p>
+          <p class="wiki-loading" id="wiki-summary">Loading biography…</p>
+          <a class="wiki-link" id="wiki-link" href="https://en.wikipedia.org/" target="_blank" rel="noreferrer">Read on Wikipedia ↗</a>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <footer class="shell">
+    <span>Historical xP / ELO research visualizer · v8 interface</span>
+    <span>Model outputs are estimates and should be read with historical data-quality caveats.</span>
+  </footer>
+
+  <script id="visualizer-data" type="application/json">__VISUALIZER_PAYLOAD__</script>
+  <script>
+    (() => {
+      "use strict";
+
+      const payload = JSON.parse(document.getElementById("visualizer-data").textContent);
+      const drivers = payload.drivers;
+      const driverList = Object.values(drivers).sort((a, b) => a.name.localeCompare(b.name));
+      const comparison = new Set();
+      let draftMode = "all";
+      let appliedMode = "all";
+      let appliedComparison = [];
+      let axisMode = "number";
+
+      const chart = document.getElementById("rating-chart");
+      const empty = document.getElementById("plot-empty");
+      const chips = document.getElementById("driver-chips");
+      const count = document.getElementById("selection-count");
+      const search = document.getElementById("driver-search");
+      const driverIndex = document.getElementById("driver-index-list");
+      const deselectButton = document.getElementById("deselect-all");
+      const plotButton = document.getElementById("plot-view");
+      const driverDialog = document.getElementById("driver-dialog");
+      const dialogTitle = document.getElementById("driver-dialog-title");
+      const dialogSubtitle = document.getElementById("driver-dialog-subtitle");
+      const profileStats = document.getElementById("driver-profile-stats");
+      const wikiImage = document.getElementById("wiki-image");
+      const wikiSummary = document.getElementById("wiki-summary");
+      const wikiLink = document.getElementById("wiki-link");
+      let activeProfileId = null;
+      const viewButtons = {
+        all: document.getElementById("view-all"),
+        top: document.getElementById("view-top"),
+        compare: document.getElementById("view-compare")
+      };
+
+      const numberFormat = new Intl.NumberFormat("en-US");
+      const signed = value => `${value > 0 ? "+" : ""}${numberFormat.format(value)}`;
+      const searchKey = value => String(value).normalize("NFD").replace(/\p{Diacritic}/gu, "").toLocaleLowerCase();
+      const esc = value => String(value).replace(/[&<>'"]/g, character => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
+      })[character]);
+      const hoverTemplate =
+        "<b>%{customdata[0]}</b><br>" +
+        "Season %{customdata[1]}<br>" +
+        "Round %{customdata[2]}<br>" +
+        "%{customdata[3]}<br><br>" +
+        "<b>Current driver index</b> #%{customdata[4]} of %{customdata[5]}<br>" +
+        "Retrospective ELO %{y:.1f}<br>" +
+        "Event change %{customdata[7]:+.2f}<br>" +
+        "Observed xP %{customdata[8]:.3f}<br>" +
+        "Expected xP %{customdata[9]:.3f}<br>" +
+        "Expected car win %{customdata[10]:.1%}<br>" +
+        "Constructor %{customdata[6]}<br>" +
+        "Qualifying P%{customdata[11]} · Finish P%{customdata[12]}<br>" +
+        "Status %{customdata[13]}<extra></extra>";
+
+      function colorFor(id) {
+        let hash = 0;
+        for (let index = 0; index < id.length; index += 1) {
+          hash = ((hash << 5) - hash + id.charCodeAt(index)) | 0;
+        }
+        const hue = ((Math.abs(hash) * 137.508) % 360).toFixed(1);
+        return `hsl(${hue} 76% 63%)`;
+      }
+
+      function setDatasetSummary() {
+        const meta = payload.meta;
+        document.getElementById("model-name").textContent = meta.model;
+        document.getElementById("stat-seasons").textContent = `${meta.firstSeason}–${meta.lastSeason}`;
+        document.getElementById("stat-events").textContent = numberFormat.format(meta.events);
+        document.getElementById("stat-drivers").textContent = numberFormat.format(meta.drivers);
+        document.getElementById("stat-observations").textContent = numberFormat.format(meta.observations);
+      }
+
+      function traceFor(driver, overview = false) {
+        const x = [];
+        const y = [];
+        const customdata = [];
+        let previousSeason = null;
+        let previousRace = null;
+        for (const point of driver.points) {
+          if (previousSeason !== null && point[2] - previousSeason > 1) {
+            x.push((previousRace + point[0]) / 2);
+            y.push(null);
+            customdata.push(null);
+          }
+          x.push(point[0]);
+          y.push(point[1]);
+          customdata.push([
+            driver.name, point[2], point[3], point[4], point[5], point[6], point[7],
+            point[8], point[9], point[10], point[11], point[12], point[13], point[14]
+          ]);
+          previousSeason = point[2];
+          previousRace = point[0];
+        }
+        return {
+          type: "scattergl",
+          mode: "lines",
+          name: driver.name,
+          x,
+          y,
+          customdata,
+          connectgaps: false,
+          line: { color: colorFor(driver.id), width: overview ? .85 : 2.4 },
+          opacity: overview ? .42 : 1,
+          hovertemplate: hoverTemplate
+        };
+      }
+
+      function axisSettings() {
+        if (axisMode === "name") {
+          const step = Math.max(1, Math.ceil(payload.events.length / 24));
+          const ticks = payload.events.filter((_, index) => index % step === 0);
+          return {
+            title: { text: "Grand Prix event", standoff: 18 },
+            tickmode: "array",
+            tickvals: ticks.map(event => event.index),
+            ticktext: ticks.map(event => event.short),
+            tickangle: -34,
+            automargin: true
+          };
+        }
+        return {
+          title: { text: "Championship race number", standoff: 14 },
+          tickmode: "auto",
+          nticks: 14,
+          tickangle: 0,
+          automargin: true
+        };
+      }
+
+      function renderChart() {
+        const chosen = appliedMode === "all"
+          ? driverList
+          : appliedMode === "top"
+            ? payload.leaders.map(id => drivers[id]).filter(Boolean)
+            : appliedComparison.map(id => drivers[id]).filter(Boolean);
+        empty.classList.toggle("visible", chosen.length === 0);
+        if (chosen.length === 0) {
+          Plotly.purge(chart);
+          count.textContent = "No drivers plotted";
+          return;
+        }
+        const traces = chosen.map(driver => traceFor(driver, appliedMode === "all"));
+        const selectedRaceIndexes = chosen.flatMap(driver => driver.points.map(point => point[0]));
+        const selectedStart = Math.min(...selectedRaceIndexes);
+        const selectedEnd = Math.max(...selectedRaceIndexes);
+        const selectedPadding = Math.max(8, Math.round((selectedEnd - selectedStart) * .035));
+        count.textContent = appliedMode === "all"
+          ? `Showing all ${numberFormat.format(chosen.length)} drivers`
+          : appliedMode === "top"
+            ? "Showing the top 8 drivers"
+            : `Comparing ${chosen.length} driver${chosen.length === 1 ? "" : "s"}`;
+        const layout = {
+          paper_bgcolor: "#131412",
+          plot_bgcolor: "#131412",
+          font: { family: "Inter, ui-sans-serif, system-ui, sans-serif", color: "#adaca6", size: 12 },
+          margin: { l: 68, r: 26, t: 30, b: axisMode === "name" ? 122 : 72 },
+          hovermode: "closest",
+          hoverlabel: { bgcolor: "#0d0e0c", bordercolor: "#484943", font: { color: "#f5f4ef", size: 13 }, align: "left" },
+          showlegend: false,
+          xaxis: {
+            ...axisSettings(),
+            color: "#85867f",
+            gridcolor: "#292a26",
+            zeroline: false,
+            fixedrange: false,
+            range: appliedMode === "all"
+              ? [1, payload.meta.events]
+              : [
+                  Math.max(1, selectedStart - selectedPadding),
+                  Math.min(payload.meta.events, selectedEnd + selectedPadding)
+                ]
+          },
+          yaxis: {
+            title: { text: "Retrospective driver ELO", standoff: 12 },
+            color: "#85867f",
+            gridcolor: "#292a26",
+            zeroline: false,
+            fixedrange: false,
+            rangemode: "nonnegative",
+            minallowed: 0
+          },
+          dragmode: "pan",
+          transition: { duration: 180 }
+        };
+        Plotly.react(chart, traces, layout, {
+          responsive: true,
+          displaylogo: false,
+          scrollZoom: true,
+          modeBarButtonsToRemove: ["lasso2d", "select2d", "autoScale2d"]
+        });
+      }
+
+      function renderChips() {
+        chips.replaceChildren();
+        const fragment = document.createDocumentFragment();
+        for (const id of comparison) {
+          const driver = drivers[id];
+          if (!driver) continue;
+          const chip = document.createElement("span");
+          chip.className = "chip";
+          chip.style.setProperty("--chip-color", colorFor(id));
+          chip.innerHTML = `<span class="chip-dot" aria-hidden="true"></span><span>${esc(driver.name)}</span>`;
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.setAttribute("aria-label", `Remove ${driver.name}`);
+          remove.textContent = "×";
+          remove.addEventListener("click", () => {
+            comparison.delete(id);
+            renderDraftControls();
+          });
+          chip.appendChild(remove);
+          fragment.appendChild(chip);
+        }
+        if (comparison.size === 0) {
+          const placeholder = document.createElement("span");
+          placeholder.className = "selection-placeholder";
+          placeholder.textContent = "Search above to prepare a one-driver or multi-driver comparison.";
+          fragment.appendChild(placeholder);
+        }
+        chips.appendChild(fragment);
+      }
+
+      function setDraftMode(mode) {
+        draftMode = mode;
+        for (const [name, button] of Object.entries(viewButtons)) {
+          button.setAttribute("aria-pressed", String(name === mode));
+        }
+        plotButton.disabled = mode === "compare" && comparison.size === 0;
+        plotButton.textContent = mode === "all"
+          ? "Plot all drivers"
+          : mode === "top"
+            ? "Plot top 8"
+            : `Plot comparison${comparison.size ? ` (${comparison.size})` : ""}`;
+      }
+
+      function renderDraftControls() {
+        renderChips();
+        renderDriverIndex(search.value);
+        deselectButton.disabled = (
+          comparison.size === 0 && appliedMode === "compare" && appliedComparison.length === 0
+        );
+        setDraftMode(draftMode);
+      }
+
+      function toggleDriver(id) {
+        if (comparison.has(id)) comparison.delete(id);
+        else comparison.add(id);
+        setDraftMode("compare");
+        renderDraftControls();
+      }
+
+      function renderDriverIndex(query = "") {
+        const normalized = searchKey(query.trim());
+        const matches = normalized
+          ? driverList.filter(driver => searchKey(driver.name).includes(normalized))
+          : driverList;
+        driverIndex.replaceChildren();
+        const fragment = document.createDocumentFragment();
+        for (const driver of matches) {
+          const row = document.createElement("div");
+          row.className = "driver-index-row";
+
+          const select = document.createElement("button");
+          select.type = "button";
+          select.className = "driver-select";
+          select.style.setProperty("--driver-color", colorFor(driver.id));
+          select.setAttribute("role", "option");
+          select.setAttribute("aria-selected", String(comparison.has(driver.id)));
+          select.setAttribute("aria-pressed", String(comparison.has(driver.id)));
+          select.innerHTML = `
+            <span class="driver-index-dot" aria-hidden="true"></span>
+            <span><span class="driver-index-name">${esc(driver.name)}</span><span class="driver-index-meta">${driver.debut}–${driver.lastSeason} · ${numberFormat.format(driver.races)} starts</span></span>
+            <span class="driver-selected-mark">${comparison.has(driver.id) ? "Selected" : ""}</span>`;
+          select.addEventListener("click", () => toggleDriver(driver.id));
+
+          const info = document.createElement("button");
+          info.type = "button";
+          info.className = "driver-info";
+          info.textContent = "i";
+          info.setAttribute("aria-label", `Open ${driver.name} profile`);
+          info.addEventListener("click", () => openDriverProfile(driver.id));
+
+          row.append(select, info);
+          fragment.appendChild(row);
+        }
+        if (matches.length === 0) {
+          const message = document.createElement("div");
+          message.className = "driver-index-empty";
+          message.textContent = "No matching driver. Try a surname or shorter spelling.";
+          fragment.appendChild(message);
+        }
+        driverIndex.appendChild(fragment);
+      }
+
+      function profileStat(label, value) {
+        return `<div class="profile-stat"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`;
+      }
+
+      function displayNumber(value, digits = 1) {
+        return value === null || value === undefined
+          ? "—"
+          : Number(value).toLocaleString("en-US", { maximumFractionDigits: digits });
+      }
+
+      async function loadWikipedia(driver) {
+        const profileId = driver.id;
+        const searchUrl = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(`${driver.name} Formula One driver`)}`;
+        wikiImage.hidden = true;
+        wikiImage.removeAttribute("src");
+        wikiSummary.className = "wiki-loading";
+        wikiSummary.textContent = "Loading biography…";
+        wikiLink.href = searchUrl;
+
+        const parameters = new URLSearchParams({
+          action: "query",
+          generator: "search",
+          gsrsearch: `${driver.name} Formula One driver`,
+          gsrnamespace: "0",
+          gsrlimit: "1",
+          prop: "extracts|pageimages|info",
+          exintro: "1",
+          explaintext: "1",
+          exsentences: "4",
+          piprop: "thumbnail",
+          pithumbsize: "720",
+          inprop: "url",
+          redirects: "1",
+          format: "json",
+          formatversion: "2",
+          origin: "*"
+        });
+
+        try {
+          const response = await fetch(`https://en.wikipedia.org/w/api.php?${parameters}`);
+          if (!response.ok) throw new Error(`Wikipedia returned ${response.status}`);
+          const data = await response.json();
+          const page = data?.query?.pages?.[0];
+          if (!page || activeProfileId !== profileId) return;
+          wikiSummary.className = "";
+          wikiSummary.textContent = page.extract || "Wikipedia has no introductory summary for this driver.";
+          wikiLink.href = page.fullurl || searchUrl;
+          if (page.thumbnail?.source) {
+            wikiImage.src = page.thumbnail.source;
+            wikiImage.alt = `${driver.name} — image from Wikipedia`;
+            wikiImage.hidden = false;
+          }
+        } catch (error) {
+          if (activeProfileId !== profileId) return;
+          wikiSummary.className = "";
+          wikiSummary.textContent = "Wikipedia information is unavailable right now. The link below opens a direct search.";
+        }
+      }
+
+      function openDriverProfile(driverId) {
+        const driver = drivers[driverId];
+        if (!driver) return;
+        activeProfileId = driverId;
+        dialogTitle.textContent = driver.name;
+        dialogSubtitle.textContent = `${driver.debut}–${driver.lastSeason} · ${numberFormat.format(driver.races)} recorded starts · ${payload.meta.model}`;
+        profileStats.innerHTML = [
+          profileStat("All-time rank", driver.rank ? `#${driver.rank}` : "—"),
+          profileStat("Wins", displayNumber(driver.wins, 0)),
+          profileStat("Current ELO", displayNumber(driver.currentRating)),
+          profileStat("Career ELO", displayNumber(driver.careerRating)),
+          profileStat("Sustained prime", displayNumber(driver.sustainedPrime)),
+          profileStat("Peak ELO", displayNumber(driver.peakRating)),
+          profileStat("Expected wins", displayNumber(driver.expectedWins, 2)),
+          profileStat("Wins vs expected", driver.winsAboveExpected == null ? "—" : `${driver.winsAboveExpected > 0 ? "+" : ""}${displayNumber(driver.winsAboveExpected, 2)}`),
+          profileStat("xP residual", driver.performanceAboveExpected == null ? "—" : `${driver.performanceAboveExpected > 0 ? "+" : ""}${displayNumber(driver.performanceAboveExpected, 2)}`),
+          profileStat("Eligible races", displayNumber(driver.eligibleRaces, 0))
+        ].join("");
+        if (!driverDialog.open) driverDialog.showModal();
+        loadWikipedia(driver);
+      }
+
+      function makeDriverCard(cardId, driverId) {
+        if (!driverId) return;
+        const card = document.getElementById(cardId);
+        card.classList.add("driver-card");
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-label", `Open ${drivers[driverId]?.name || "driver"} profile`);
+        card.addEventListener("click", event => {
+          if (!event.target.closest("a")) openDriverProfile(driverId);
+        });
+        card.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openDriverProfile(driverId);
+          }
+        });
+      }
+
+      function simpleCard(id, icon, kicker, name, value, detail, driverId = null) {
+        document.getElementById(id).innerHTML = `
+          <div class="record-icon" aria-hidden="true">${icon}</div>
+          <span class="record-kicker">${esc(kicker)}</span>
+          <h3>${esc(name)}</h3>
+          <p class="record-value">${esc(value)}</p>
+          <p class="record-detail">${esc(detail)}</p>
+          ${driverId ? '<span class="record-open-label">View driver profile ↗</span>' : ""}`;
+        makeDriverCard(id, driverId);
+      }
+
+      function renderRecords() {
+        const metrics = payload.metrics;
+        const prime = metrics.bestPrime;
+        const photo = prime.photo;
+        document.getElementById("best-prime-card").innerHTML = `
+          ${photo ? `<img class="hero-photo" src="${esc(photo.url)}" alt="${esc(prime.driver)} with his Formula 1 car" loading="lazy">` : ""}
+          <div class="hero-shade"></div>
+          <div class="hero-content">
+            <span class="record-kicker">Best sustained prime</span>
+            <h3>${esc(prime.driver)}</h3>
+            <p class="record-value">${numberFormat.format(prime.value)} prime ELO · ${numberFormat.format(prime.peak)} peak</p>
+            <p class="record-detail">Highest sustained-prime rating across ${numberFormat.format(prime.races)} recorded starts.</p>
+            <span class="record-open-label">View driver profile ↗</span>
+            ${photo ? `<a class="photo-credit" href="${esc(photo.source)}" target="_blank" rel="noreferrer">${esc(photo.credit)}</a>` : ""}
+          </div>`;
+        makeDriverCard("best-prime-card", prime.driverId);
+
+        const bestCurve = metrics.bestCareerCurve;
+        simpleCard("best-curve-card", "∫", "Best driver of all time", bestCurve.driver,
+          `${signed(bestCurve.value)} rating-races`,
+          `${signed(bestCurve.meanAdvantage)} average vs field median · ${bestCurve.stints} active stint${bestCurve.stints === 1 ? "" : "s"}`,
+          bestCurve.driverId);
+
+        const atOne = metrics.longestAtOne;
+        simpleCard("longest-one-card", "#1", "Longest at the top", atOne.driver,
+          `${numberFormat.format(atOne.value)} events at #1`,
+          "Most Grand Prix appearances leading the event-level driver index.",
+          atOne.driverId);
+
+        const car = metrics.bestCar;
+        simpleCard("best-car-card", "W", "Highest car expectation", `${car.season} ${car.constructor}`,
+          `${car.value}% expected car win`,
+          `${car.model.replace("constructor:", "")} · season average across ${car.events} events`);
+
+        const rise = metrics.biggestRise;
+        simpleCard("biggest-rise-card", "↗", "Biggest one-race rise", rise.driver,
+          `+${rise.value} ELO`, `${rise.season} ${rise.event}`, rise.driverId);
+
+        const lowestCareer = metrics.lowestCareerRating;
+        simpleCard("worst-curve-card", "↓", "Lowest career rating", lowestCareer.driver,
+          `${displayNumber(lowestCareer.value)} career ELO`,
+          `${numberFormat.format(lowestCareer.races)} starts · ${displayNumber(lowestCareer.prime)} sustained-prime ELO`,
+          lowestCareer.driverId);
+
+        const lowestCurrent = metrics.lowestCurrentRating;
+        simpleCard("lowest-current-card", "⌁", "Lowest final rating", lowestCurrent.driver,
+          `${displayNumber(lowestCurrent.value)} final ELO`,
+          `${numberFormat.format(lowestCurrent.races)} recorded starts`,
+          lowestCurrent.driverId);
+
+        const worstMoment = metrics.worstMoment;
+        simpleCard("worst-moment-card", "⇣", "Lowest single-race rating", worstMoment.driver,
+          `${displayNumber(worstMoment.value)} ELO`,
+          `${worstMoment.season} ${worstMoment.event}`,
+          worstMoment.driverId);
+      }
+
+      search.addEventListener("input", event => renderDriverIndex(event.target.value));
+      search.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          const normalized = searchKey(search.value.trim());
+          const match = driverList.find(driver => searchKey(driver.name).includes(normalized));
+          if (normalized && match) toggleDriver(match.id);
+        }
+      });
+      document.getElementById("search-clear").addEventListener("click", () => {
+        search.value = "";
+        renderDriverIndex();
+        search.focus();
+      });
+      document.getElementById("dialog-close").addEventListener("click", () => driverDialog.close());
+      driverDialog.addEventListener("click", event => {
+        if (event.target === driverDialog) driverDialog.close();
+      });
+      deselectButton.addEventListener("click", () => {
+        comparison.clear();
+        appliedComparison = [];
+        appliedMode = "compare";
+        setDraftMode("compare");
+        renderDraftControls();
+        renderChart();
+        search.focus();
+      });
+      for (const [mode, button] of Object.entries(viewButtons)) {
+        button.addEventListener("click", () => setDraftMode(mode));
+      }
+      plotButton.addEventListener("click", () => {
+        if (draftMode === "compare" && comparison.size === 0) return;
+        appliedMode = draftMode;
+        appliedComparison = [...comparison];
+        renderChart();
+      });
+      document.getElementById("axis-number").addEventListener("click", () => {
+        axisMode = "number";
+        document.getElementById("axis-number").setAttribute("aria-pressed", "true");
+        document.getElementById("axis-name").setAttribute("aria-pressed", "false");
+        renderChart();
+      });
+      document.getElementById("axis-name").addEventListener("click", () => {
+        axisMode = "name";
+        document.getElementById("axis-number").setAttribute("aria-pressed", "false");
+        document.getElementById("axis-name").setAttribute("aria-pressed", "true");
+        renderChart();
+      });
+
+      setDatasetSummary();
+      renderRecords();
+      renderDraftControls();
+      renderChart();
+    })();
+  </script>
+</body>
+</html>

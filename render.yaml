@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: telemetry-one
+    runtime: static
+    plan: free
+    buildCommand: echo "TelemetryOne static site ready"
+    staticPublishPath: ./public
+

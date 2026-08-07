@@ -128,6 +128,10 @@ def test_writer_builds_standalone_gui_from_existing_parquets(tmp_path: Path) -> 
     assert "Lowest final rating" in html
     assert "Wikipedia" in html
     assert 'minallowed: 0' in html
+    assert 'id="language-toggle"' in html
+    assert "Cada era." in html
+    assert "es.wikipedia.org" in html
+    assert "document.documentElement.lang = language" in html
     assert "__VISUALIZER_PAYLOAD__" not in html
 
 

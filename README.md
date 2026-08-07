@@ -13,6 +13,8 @@ The production site is deployed as a Render Static Site from `public/index.html`
 ## Interface
 
 - All 801 indexed drivers are visible by default with stable individual colors.
+- An accessible EN/ES switch translates the interface, chart labels, statistics, and
+  Wikipedia biography source without reloading the page.
 - A fixed-height driver index supports search, selection, and multi-driver comparisons.
 - The horizontal axis switches between championship race number and Grand Prix names.
 - Hover details include the race, event-level driver index, ELO change, xP, car expectation,

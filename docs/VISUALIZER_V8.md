@@ -7,6 +7,8 @@ ranking output. It does not import, rerun or alter a rating engine.
 
 - Browse all 801 drivers in a fixed-height, scrollable index and filter it with
   accent-insensitive search.
+- Switch the complete interface between English and Spanish, including chart hover text,
+  record definitions, driver statistics and the matching Wikipedia language edition.
 - Select drivers from the index for comparison or open a statistics profile with
   Wikipedia biography and image enrichment.
 - Plot the complete historical field by default with a stable distinct color for every

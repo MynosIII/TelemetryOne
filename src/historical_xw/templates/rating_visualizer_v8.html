@@ -110,6 +110,41 @@
       box-shadow: var(--shadow);
     }
 
+    .masthead-actions {
+      display: grid;
+      gap: 10px;
+      justify-items: end;
+    }
+
+    .language-toggle {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      gap: 10px;
+      padding: 0 8px 0 14px;
+      border: 1px solid #3b3c36;
+      border-radius: 999px;
+      background: #151613;
+      color: var(--ink);
+      font-size: .75rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .language-toggle:hover { border-color: var(--lime); background: #20211d; }
+
+    .language-code {
+      display: grid;
+      min-width: 30px;
+      height: 30px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--lime);
+      color: #11120f;
+      font-size: .66rem;
+      letter-spacing: .04em;
+    }
+
     .model-stamp span {
       display: block;
       color: var(--faint);
@@ -849,6 +884,7 @@
 
     @media (max-width: 1050px) {
       .masthead { grid-template-columns: 1fr; }
+      .masthead-actions { justify-items: start; }
       .model-stamp { justify-self: start; }
       .toolbar { grid-template-columns: 1fr auto; }
       .view-control { grid-column: 1 / -1; }
@@ -907,67 +943,73 @@
 <body>
   <header class="shell masthead">
     <div>
-      <p class="eyebrow">Historical performance model</p>
-      <h1>Every era.<br>One moving field.</h1>
-      <p class="intro">Explore how Formula 1 driver ratings evolved race by race after separating driver performance from car, circuit and race conditions.</p>
+      <p class="eyebrow" data-i18n="heroEyebrow">Historical performance model</p>
+      <h1 data-i18n-html="heroTitle">Every era.<br>One moving field.</h1>
+      <p class="intro" data-i18n="heroIntro">Explore how Formula 1 driver ratings evolved race by race after separating driver performance from car, circuit and race conditions.</p>
     </div>
-    <div class="model-stamp" aria-label="Model version">
-      <span>Current view</span>
-      <strong id="model-name">Selected rating dataset</strong>
+    <div class="masthead-actions">
+      <button class="language-toggle" id="language-toggle" type="button" aria-label="Cambiar el sitio a español">
+        <span id="language-toggle-copy">Español</span>
+        <span class="language-code" id="language-toggle-code" aria-hidden="true">ES</span>
+      </button>
+      <div class="model-stamp" aria-label="Model version" data-i18n-aria="modelVersion">
+        <span data-i18n="currentView">Current view</span>
+        <strong id="model-name">Selected rating dataset</strong>
+      </div>
     </div>
   </header>
 
-  <div class="shell dataset-strip" aria-label="Dataset summary">
-    <div class="dataset-stat"><strong id="stat-seasons">—</strong><span>Seasons</span></div>
-    <div class="dataset-stat"><strong id="stat-events">—</strong><span>Grand Prix events</span></div>
-    <div class="dataset-stat"><strong id="stat-drivers">—</strong><span>Drivers indexed</span></div>
-    <div class="dataset-stat"><strong id="stat-observations">—</strong><span>Driver-race records</span></div>
+  <div class="shell dataset-strip" aria-label="Dataset summary" data-i18n-aria="datasetSummary">
+    <div class="dataset-stat"><strong id="stat-seasons">—</strong><span data-i18n="seasons">Seasons</span></div>
+    <div class="dataset-stat"><strong id="stat-events">—</strong><span data-i18n="events">Grand Prix events</span></div>
+    <div class="dataset-stat"><strong id="stat-drivers">—</strong><span data-i18n="driversIndexed">Drivers indexed</span></div>
+    <div class="dataset-stat"><strong id="stat-observations">—</strong><span data-i18n="driverRaceRecords">Driver-race records</span></div>
   </div>
 
   <main class="shell">
     <section aria-labelledby="explorer-title">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">Race-by-race explorer</p>
-          <h2 id="explorer-title">Build your comparison</h2>
+          <p class="eyebrow" data-i18n="explorerEyebrow">Race-by-race explorer</p>
+          <h2 id="explorer-title" data-i18n="explorerTitle">Build your comparison</h2>
         </div>
-        <p>Search any driver, remove the field noise, and switch between championship race numbers and named Grand Prix events.</p>
+        <p data-i18n="explorerIntro">Search any driver, remove the field noise, and switch between championship race numbers and named Grand Prix events.</p>
       </div>
 
       <div class="explorer">
         <div class="toolbar">
           <div class="view-control">
-            <span class="control-label">1 · Choose what to plot</span>
-            <div class="view-picker" role="group" aria-label="Driver view">
+            <span class="control-label" data-i18n="choosePlot">1 · Choose what to plot</span>
+            <div class="view-picker" role="group" aria-label="Driver view" data-i18n-aria="driverView">
               <button class="view-option" id="view-all" type="button" aria-pressed="true">
-                <strong>All drivers</strong><small>The complete historical field</small>
+                <strong data-i18n="allDrivers">All drivers</strong><small data-i18n="allDriversHelp">The complete historical field</small>
               </button>
               <button class="view-option" id="view-top" type="button" aria-pressed="false">
-                <strong>Top 8</strong><small>A quick all-time overview</small>
+                <strong data-i18n="topEight">Top 8</strong><small data-i18n="topEightHelp">A quick all-time overview</small>
               </button>
               <button class="view-option" id="view-compare" type="button" aria-pressed="false">
-                <strong>Compare drivers</strong><small>Choose one, two or more</small>
+                <strong data-i18n="compareDrivers">Compare drivers</strong><small data-i18n="compareDriversHelp">Choose one, two or more</small>
               </button>
             </div>
           </div>
 
           <div class="plot-control">
-            <span class="control-label">2 · Draw the chart</span>
+            <span class="control-label" data-i18n="drawChart">2 · Draw the chart</span>
             <button class="button primary" id="plot-view" type="button">Plot all drivers</button>
           </div>
 
           <div class="comparison-control">
-            <span class="control-label">Comparison list</span>
+            <span class="control-label" data-i18n="comparisonList">Comparison list</span>
             <div class="action-group">
-              <button class="button danger" id="deselect-all" type="button">Deselect all</button>
+              <button class="button danger" id="deselect-all" type="button" data-i18n="deselectAll">Deselect all</button>
             </div>
           </div>
 
           <div class="axis-control">
-            <span class="control-label">Horizontal axis</span>
-            <div class="segmented" role="group" aria-label="Horizontal axis display">
-              <button class="segment" id="axis-number" type="button" aria-pressed="true">Race no.</button>
-              <button class="segment" id="axis-name" type="button" aria-pressed="false">Race names</button>
+            <span class="control-label" data-i18n="horizontalAxis">Horizontal axis</span>
+            <div class="segmented" role="group" aria-label="Horizontal axis display" data-i18n-aria="horizontalAxisDisplay">
+              <button class="segment" id="axis-number" type="button" aria-pressed="true" data-i18n="raceNumber">Race no.</button>
+              <button class="segment" id="axis-name" type="button" aria-pressed="false" data-i18n="raceNames">Race names</button>
             </div>
           </div>
         </div>
@@ -978,33 +1020,33 @@
         </div>
 
         <div class="explorer-main">
-          <aside class="driver-index" aria-label="Driver index">
+          <aside class="driver-index" aria-label="Driver index" data-i18n-aria="driverIndex">
             <div class="driver-index-head">
-              <label class="control-label" for="driver-search">Driver index</label>
+              <label class="control-label" for="driver-search" data-i18n="driverIndex">Driver index</label>
               <div class="search-field">
                 <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.8" stroke="currentColor" stroke-width="2"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <input id="driver-search" type="search" autocomplete="off" placeholder="Search 801 drivers" aria-controls="driver-index-list">
-                <button class="search-clear" id="search-clear" type="button" aria-label="Clear driver search">×</button>
+                <button class="search-clear" id="search-clear" type="button" aria-label="Clear driver search" data-i18n-aria="clearSearch">×</button>
               </div>
-              <p class="driver-index-help">Select names for a comparison. Use <i>i</i> for a driver profile.</p>
+              <p class="driver-index-help" data-i18n-html="driverIndexHelp">Select names for a comparison. Use <i>i</i> for a driver profile.</p>
             </div>
-            <div class="driver-index-list" id="driver-index-list" role="listbox" aria-label="All Formula 1 drivers" aria-multiselectable="true"></div>
+            <div class="driver-index-list" id="driver-index-list" role="listbox" aria-label="All Formula 1 drivers" data-i18n-aria="allFormulaOneDrivers" aria-multiselectable="true"></div>
           </aside>
 
           <div class="chart-column">
             <div class="plot-wrap">
-              <div id="rating-chart" role="img" aria-label="Historical Formula 1 driver ELO line chart"></div>
+              <div id="rating-chart" role="img" aria-label="Historical Formula 1 driver ELO line chart" data-i18n-aria="chartAria"></div>
               <div class="plot-empty" id="plot-empty">
                 <div class="empty-inner">
                   <div class="empty-mark">⌕</div>
-                  <h3>No drivers selected</h3>
-                  <p>Use the driver index to choose one or more names, then press “Plot comparison.”</p>
+                  <h3 data-i18n="noDriversSelected">No drivers selected</h3>
+                  <p data-i18n="emptyHelp">Use the driver index to choose one or more names, then press “Plot comparison.”</p>
                 </div>
               </div>
             </div>
             <div class="chart-note">
-              <span><strong>Hover:</strong> driver, event, index position and model components</span>
-              <span>Retirement and multi-season return gaps are shown as breaks.</span>
+              <span><strong data-i18n="hoverLabel">Hover:</strong> <span data-i18n="hoverHelp">driver, event, index position and model components</span></span>
+              <span data-i18n="gapHelp">Retirement and multi-season return gaps are shown as breaks.</span>
             </div>
           </div>
         </div>
@@ -1014,10 +1056,10 @@
     <section class="records" aria-labelledby="records-title">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">Model records</p>
-          <h2 id="records-title">The shape of greatness</h2>
+          <p class="eyebrow" data-i18n="recordsEyebrow">Model records</p>
+          <h2 id="records-title" data-i18n="recordsTitle">The shape of greatness</h2>
         </div>
-        <p>These records use the complete supplied history and ranking files, regardless of which drivers are currently plotted. This page does not invoke or alter a rating model.</p>
+        <p data-i18n="recordsIntro">These records use the complete supplied history and ranking files, regardless of which drivers are currently plotted. This page does not invoke or alter a rating model.</p>
       </div>
 
       <div class="records-grid">
@@ -1032,14 +1074,14 @@
       </div>
     </section>
 
-    <section class="methodology" aria-label="Metric methodology">
+    <section class="methodology" aria-label="Metric methodology" data-i18n-aria="metricMethodology">
       <details>
-        <summary>How the publishable records are defined</summary>
+        <summary data-i18n="methodTitle">How the publishable records are defined</summary>
         <div class="method-copy">
-          <p><strong>Current driver index</strong>The post-event ELO rank among drivers who participated in that Grand Prix. It is recalculated at every event.</p>
-          <p><strong>Career curve area</strong>The race-by-race integral of ELO above or below that event's field median. Multi-season retirement gaps are cut, not bridged. Drivers need 25 events.</p>
-          <p><strong>Lowest-rating records</strong>Career and final ELO come from the supplied ranking. The single-race low is the minimum point visible in the full history for drivers with at least five starts.</p>
-          <p><strong>Best car</strong>The highest season-average v6 expected-car-win value for an identified car model with at least four events. It measures model expectation, not championship points.</p>
+          <p data-i18n-html="methodIndex"><strong>Current driver index</strong>The post-event ELO rank among drivers who participated in that Grand Prix. It is recalculated at every event.</p>
+          <p data-i18n-html="methodCurve"><strong>Career curve area</strong>The race-by-race integral of ELO above or below that event's field median. Multi-season retirement gaps are cut, not bridged. Drivers need 25 events.</p>
+          <p data-i18n-html="methodLows"><strong>Lowest-rating records</strong>Career and final ELO come from the supplied ranking. The single-race low is the minimum point visible in the full history for drivers with at least five starts.</p>
+          <p data-i18n-html="methodCar"><strong>Best car</strong>The highest season-average v6 expected-car-win value for an identified car model with at least four events. It measures model expectation, not championship points.</p>
         </div>
       </details>
     </section>
@@ -1047,10 +1089,10 @@
 
   <dialog class="driver-dialog" id="driver-dialog" aria-labelledby="driver-dialog-title">
     <div class="dialog-scroll">
-      <button class="dialog-close" id="dialog-close" type="button" aria-label="Close driver profile">×</button>
+      <button class="dialog-close" id="dialog-close" type="button" aria-label="Close driver profile" data-i18n-aria="closeProfile">×</button>
       <div class="profile-head">
         <div>
-          <p class="eyebrow">Driver profile</p>
+          <p class="eyebrow" data-i18n="driverProfile">Driver profile</p>
           <h2 id="driver-dialog-title">Driver</h2>
           <p class="profile-subtitle" id="driver-dialog-subtitle"></p>
         </div>
@@ -1059,17 +1101,17 @@
       <div class="wiki-panel">
         <img class="wiki-image" id="wiki-image" alt="" hidden>
         <div class="wiki-copy">
-          <p class="control-label">From Wikipedia</p>
+          <p class="control-label" data-i18n="fromWikipedia">From Wikipedia</p>
           <p class="wiki-loading" id="wiki-summary">Loading biography…</p>
-          <a class="wiki-link" id="wiki-link" href="https://en.wikipedia.org/" target="_blank" rel="noreferrer">Read on Wikipedia ↗</a>
+          <a class="wiki-link" id="wiki-link" href="https://en.wikipedia.org/" target="_blank" rel="noreferrer" data-i18n="readWikipedia">Read on Wikipedia ↗</a>
         </div>
       </div>
     </div>
   </dialog>
 
   <footer class="shell">
-    <span>Historical xP / ELO research visualizer · v8 interface</span>
-    <span>Model outputs are estimates and should be read with historical data-quality caveats.</span>
+    <span data-i18n="footerProduct">Historical xP / ELO research visualizer · v8 interface</span>
+    <span data-i18n="footerCaveat">Model outputs are estimates and should be read with historical data-quality caveats.</span>
   </footer>
 
   <script id="visualizer-data" type="application/json">__VISUALIZER_PAYLOAD__</script>
@@ -1085,6 +1127,264 @@
       let appliedMode = "all";
       let appliedComparison = [];
       let axisMode = "number";
+      let language = "en";
+
+      const translations = {
+        en: {
+          pageTitle: "F1 Historical Rating Lab",
+          heroEyebrow: "Historical performance model",
+          heroTitle: "Every era.<br>One moving field.",
+          heroIntro: "Explore how Formula 1 driver ratings evolved race by race after separating driver performance from car, circuit and race conditions.",
+          modelVersion: "Model version",
+          currentView: "Current view",
+          datasetSummary: "Dataset summary",
+          seasons: "Seasons",
+          events: "Grand Prix events",
+          driversIndexed: "Drivers indexed",
+          driverRaceRecords: "Driver-race records",
+          explorerEyebrow: "Race-by-race explorer",
+          explorerTitle: "Build your comparison",
+          explorerIntro: "Search any driver, remove the field noise, and switch between championship race numbers and named Grand Prix events.",
+          choosePlot: "1 · Choose what to plot",
+          driverView: "Driver view",
+          allDrivers: "All drivers",
+          allDriversHelp: "The complete historical field",
+          topEight: "Top 8",
+          topEightHelp: "A quick all-time overview",
+          compareDrivers: "Compare drivers",
+          compareDriversHelp: "Choose one, two or more",
+          drawChart: "2 · Draw the chart",
+          comparisonList: "Comparison list",
+          deselectAll: "Deselect all",
+          horizontalAxis: "Horizontal axis",
+          horizontalAxisDisplay: "Horizontal axis display",
+          raceNumber: "Race no.",
+          raceNames: "Race names",
+          driverIndex: "Driver index",
+          clearSearch: "Clear driver search",
+          driverIndexHelp: "Select names for a comparison. Use <i>i</i> for a driver profile.",
+          allFormulaOneDrivers: "All Formula 1 drivers",
+          chartAria: "Historical Formula 1 driver ELO line chart",
+          noDriversSelected: "No drivers selected",
+          emptyHelp: "Use the driver index to choose one or more names, then press “Plot comparison.”",
+          hoverLabel: "Hover:",
+          hoverHelp: "driver, event, index position and model components",
+          gapHelp: "Retirement and multi-season return gaps are shown as breaks.",
+          recordsEyebrow: "Model records",
+          recordsTitle: "The shape of greatness",
+          recordsIntro: "These records use the complete supplied history and ranking files, regardless of which drivers are currently plotted. This page does not invoke or alter a rating model.",
+          metricMethodology: "Metric methodology",
+          methodTitle: "How the publishable records are defined",
+          methodIndex: "<strong>Current driver index</strong>The post-event ELO rank among drivers who participated in that Grand Prix. It is recalculated at every event.",
+          methodCurve: "<strong>Career curve area</strong>The race-by-race integral of ELO above or below that event's field median. Multi-season retirement gaps are cut, not bridged. Drivers need 25 events.",
+          methodLows: "<strong>Lowest-rating records</strong>Career and final ELO come from the supplied ranking. The single-race low is the minimum point visible in the full history for drivers with at least five starts.",
+          methodCar: "<strong>Best car</strong>The highest season-average v6 expected-car-win value for an identified car model with at least four events. It measures model expectation, not championship points.",
+          closeProfile: "Close driver profile",
+          driverProfile: "Driver profile",
+          fromWikipedia: "From Wikipedia",
+          readWikipedia: "Read on Wikipedia ↗",
+          footerProduct: "Historical xP / ELO research visualizer · v8 interface",
+          footerCaveat: "Model outputs are estimates and should be read with historical data-quality caveats.",
+          languageCopy: "Español",
+          languageCode: "ES",
+          languageAria: "Change the site to Spanish",
+          searchPlaceholder: "Search {count} drivers",
+          plotAll: "Plot all drivers",
+          plotTop: "Plot top 8",
+          plotComparison: "Plot comparison{count}",
+          showingAll: "Showing all {count} drivers",
+          showingTop: "Showing the top 8 drivers",
+          comparingOne: "Comparing 1 driver",
+          comparingMany: "Comparing {count} drivers",
+          noDriversPlotted: "No drivers plotted",
+          comparisonPlaceholder: "Search above to prepare a one-driver or multi-driver comparison.",
+          removeDriver: "Remove {driver}",
+          starts: "starts",
+          selected: "Selected",
+          openProfile: "Open {driver} profile",
+          noMatch: "No matching driver. Try a surname or shorter spelling.",
+          eventAxisTitle: "Grand Prix event",
+          raceAxisTitle: "Championship race number",
+          yAxisTitle: "Retrospective driver ELO",
+          hoverSeason: "Season",
+          hoverRound: "Round",
+          hoverIndex: "Current driver index",
+          hoverOf: "of",
+          hoverElo: "Retrospective ELO",
+          hoverChange: "Event change",
+          hoverObserved: "Observed xP",
+          hoverExpected: "Expected xP",
+          hoverCarWin: "Expected car win",
+          hoverConstructor: "Constructor",
+          hoverQualifying: "Qualifying",
+          hoverFinish: "Finish",
+          hoverStatus: "Status",
+          recordedStarts: "recorded starts",
+          allTimeRank: "All-time rank",
+          wins: "Wins",
+          currentElo: "Current ELO",
+          careerElo: "Career ELO",
+          sustainedPrime: "Sustained prime",
+          peakElo: "Peak ELO",
+          expectedWins: "Expected wins",
+          winsVsExpected: "Wins vs expected",
+          xpResidual: "xP residual",
+          eligibleRaces: "Eligible races",
+          loadingBiography: "Loading biography…",
+          wikiNoIntro: "Wikipedia has no introductory summary for this driver.",
+          wikiUnavailable: "Wikipedia information is unavailable right now. The link below opens a direct search.",
+          wikiImageAlt: "{driver} — image from Wikipedia",
+          viewProfile: "View driver profile ↗",
+          bestPrime: "Best sustained prime",
+          primeValue: "{prime} prime ELO · {peak} peak",
+          primeDetail: "Highest sustained-prime rating across {races} recorded starts.",
+          bestDriver: "Best driver of all time",
+          ratingRaces: "{value} rating-races",
+          curveDetailOne: "{mean} average vs field median · 1 active stint",
+          curveDetailMany: "{mean} average vs field median · {stints} active stints",
+          longestTop: "Longest at the top",
+          eventsAtOne: "{events} events at #1",
+          longestTopDetail: "Most Grand Prix appearances leading the event-level driver index.",
+          highestCar: "Highest car expectation",
+          expectedCarWin: "{value}% expected car win",
+          carDetail: "{model} · season average across {events} events",
+          biggestRise: "Biggest one-race rise",
+          lowestCareer: "Lowest career rating",
+          careerValue: "{value} career ELO",
+          careerDetail: "{races} starts · {prime} sustained-prime ELO",
+          lowestFinal: "Lowest final rating",
+          finalValue: "{value} final ELO",
+          finalDetail: "{races} recorded starts",
+          lowestRace: "Lowest single-race rating"
+        },
+        es: {
+          pageTitle: "Laboratorio histórico de ELO de F1",
+          heroEyebrow: "Modelo histórico de rendimiento",
+          heroTitle: "Cada era.<br>Una parrilla en evolución.",
+          heroIntro: "Explora cómo evolucionaron las valoraciones de los pilotos de Fórmula 1 carrera a carrera, separando el rendimiento del piloto del coche, el circuito y las condiciones de carrera.",
+          modelVersion: "Versión del modelo",
+          currentView: "Vista actual",
+          datasetSummary: "Resumen del conjunto de datos",
+          seasons: "Temporadas",
+          events: "Grandes Premios",
+          driversIndexed: "Pilotos indexados",
+          driverRaceRecords: "Registros piloto-carrera",
+          explorerEyebrow: "Explorador carrera a carrera",
+          explorerTitle: "Crea tu comparación",
+          explorerIntro: "Busca cualquier piloto, elimina el ruido de la parrilla y alterna entre el número de carrera y el nombre del Gran Premio.",
+          choosePlot: "1 · Elige qué mostrar",
+          driverView: "Vista de pilotos",
+          allDrivers: "Todos los pilotos",
+          allDriversHelp: "La parrilla histórica completa",
+          topEight: "Mejores 8",
+          topEightHelp: "Una vista histórica rápida",
+          compareDrivers: "Comparar pilotos",
+          compareDriversHelp: "Elige uno, dos o más",
+          drawChart: "2 · Dibuja el gráfico",
+          comparisonList: "Lista de comparación",
+          deselectAll: "Deseleccionar todos",
+          horizontalAxis: "Eje horizontal",
+          horizontalAxisDisplay: "Visualización del eje horizontal",
+          raceNumber: "N.º de carrera",
+          raceNames: "Nombres de carreras",
+          driverIndex: "Índice de pilotos",
+          clearSearch: "Borrar búsqueda de pilotos",
+          driverIndexHelp: "Selecciona nombres para comparar. Usa <i>i</i> para abrir el perfil del piloto.",
+          allFormulaOneDrivers: "Todos los pilotos de Fórmula 1",
+          chartAria: "Gráfico histórico de ELO de pilotos de Fórmula 1",
+          noDriversSelected: "No hay pilotos seleccionados",
+          emptyHelp: "Usa el índice para elegir uno o más pilotos y luego pulsa «Graficar comparación».",
+          hoverLabel: "Pasa el cursor:",
+          hoverHelp: "piloto, evento, posición del índice y componentes del modelo",
+          gapHelp: "Los retiros y regresos tras varias temporadas se muestran como cortes.",
+          recordsEyebrow: "Récords del modelo",
+          recordsTitle: "La forma de la grandeza",
+          recordsIntro: "Estos récords usan los archivos completos de historial y clasificación, sin importar qué pilotos estén visibles. Esta página no ejecuta ni modifica el modelo de valoración.",
+          metricMethodology: "Metodología de las métricas",
+          methodTitle: "Cómo se definen los récords publicados",
+          methodIndex: "<strong>Índice actual del piloto</strong>La posición ELO posterior al evento entre los pilotos que participaron en ese Gran Premio. Se recalcula en cada evento.",
+          methodCurve: "<strong>Área de la curva profesional</strong>La integral carrera a carrera del ELO por encima o por debajo de la mediana del evento. Los intervalos de retiro no se conectan. Se exigen 25 eventos.",
+          methodLows: "<strong>Récords de valoración más baja</strong>El ELO profesional y final proviene de la clasificación suministrada. El mínimo de una carrera es el punto más bajo del historial completo entre pilotos con al menos cinco largadas.",
+          methodCar: "<strong>Mejor coche</strong>El mayor promedio estacional v6 de victoria esperada para un modelo identificado con al menos cuatro eventos. Mide la expectativa del modelo, no los puntos del campeonato.",
+          closeProfile: "Cerrar perfil del piloto",
+          driverProfile: "Perfil del piloto",
+          fromWikipedia: "De Wikipedia",
+          readWikipedia: "Leer en Wikipedia ↗",
+          footerProduct: "Visualizador histórico de investigación xP / ELO · interfaz v8",
+          footerCaveat: "Los resultados del modelo son estimaciones y deben interpretarse considerando las limitaciones de los datos históricos.",
+          languageCopy: "English",
+          languageCode: "EN",
+          languageAria: "Cambiar el sitio a inglés",
+          searchPlaceholder: "Buscar entre {count} pilotos",
+          plotAll: "Graficar todos los pilotos",
+          plotTop: "Graficar los mejores 8",
+          plotComparison: "Graficar comparación{count}",
+          showingAll: "Mostrando los {count} pilotos",
+          showingTop: "Mostrando los mejores 8 pilotos",
+          comparingOne: "Comparando 1 piloto",
+          comparingMany: "Comparando {count} pilotos",
+          noDriversPlotted: "No hay pilotos graficados",
+          comparisonPlaceholder: "Busca arriba para preparar una comparación de uno o varios pilotos.",
+          removeDriver: "Quitar a {driver}",
+          starts: "largadas",
+          selected: "Seleccionado",
+          openProfile: "Abrir el perfil de {driver}",
+          noMatch: "No se encontró ningún piloto. Prueba con un apellido o una búsqueda más corta.",
+          eventAxisTitle: "Gran Premio",
+          raceAxisTitle: "Número de carrera del campeonato",
+          yAxisTitle: "ELO retrospectivo del piloto",
+          hoverSeason: "Temporada",
+          hoverRound: "Ronda",
+          hoverIndex: "Índice actual del piloto",
+          hoverOf: "de",
+          hoverElo: "ELO retrospectivo",
+          hoverChange: "Cambio del evento",
+          hoverObserved: "xP observado",
+          hoverExpected: "xP esperado",
+          hoverCarWin: "Victoria esperada del coche",
+          hoverConstructor: "Constructor",
+          hoverQualifying: "Clasificación",
+          hoverFinish: "Llegada",
+          hoverStatus: "Estado",
+          recordedStarts: "largadas registradas",
+          allTimeRank: "Posición histórica",
+          wins: "Victorias",
+          currentElo: "ELO actual",
+          careerElo: "ELO profesional",
+          sustainedPrime: "Nivel sostenido",
+          peakElo: "ELO máximo",
+          expectedWins: "Victorias esperadas",
+          winsVsExpected: "Victorias vs. esperadas",
+          xpResidual: "Residual de xP",
+          eligibleRaces: "Carreras elegibles",
+          loadingBiography: "Cargando biografía…",
+          wikiNoIntro: "Wikipedia no tiene un resumen introductorio para este piloto.",
+          wikiUnavailable: "La información de Wikipedia no está disponible ahora. El enlace abre una búsqueda directa.",
+          wikiImageAlt: "{driver} — imagen de Wikipedia",
+          viewProfile: "Ver perfil del piloto ↗",
+          bestPrime: "Mejor nivel sostenido",
+          primeValue: "{prime} ELO sostenido · {peak} máximo",
+          primeDetail: "Mayor valoración sostenida entre {races} largadas registradas.",
+          bestDriver: "Mejor piloto de todos los tiempos",
+          ratingRaces: "{value} ELO-carreras",
+          curveDetailOne: "{mean} de promedio sobre la mediana · 1 etapa activa",
+          curveDetailMany: "{mean} de promedio sobre la mediana · {stints} etapas activas",
+          longestTop: "Más tiempo en la cima",
+          eventsAtOne: "{events} eventos como #1",
+          longestTopDetail: "Mayor cantidad de apariciones liderando el índice de pilotos del evento.",
+          highestCar: "Mayor expectativa del coche",
+          expectedCarWin: "{value}% de victoria esperada del coche",
+          carDetail: "{model} · promedio estacional en {events} eventos",
+          biggestRise: "Mayor subida en una carrera",
+          lowestCareer: "ELO profesional más bajo",
+          careerValue: "{value} de ELO profesional",
+          careerDetail: "{races} largadas · {prime} de ELO sostenido",
+          lowestFinal: "ELO final más bajo",
+          finalValue: "{value} de ELO final",
+          finalDetail: "{races} largadas registradas",
+          lowestRace: "ELO más bajo en una carrera"
+        }
+      };
 
       const chart = document.getElementById("rating-chart");
       const empty = document.getElementById("plot-empty");
@@ -1101,6 +1401,7 @@
       const wikiImage = document.getElementById("wiki-image");
       const wikiSummary = document.getElementById("wiki-summary");
       const wikiLink = document.getElementById("wiki-link");
+      const languageToggle = document.getElementById("language-toggle");
       let activeProfileId = null;
       const viewButtons = {
         all: document.getElementById("view-all"),
@@ -1108,26 +1409,28 @@
         compare: document.getElementById("view-compare")
       };
 
-      const numberFormat = new Intl.NumberFormat("en-US");
+      let numberFormat = new Intl.NumberFormat("en-US");
+      const t = key => translations[language][key];
+      const tr = (key, values = {}) => t(key).replace(/\{(\w+)\}/g, (_, name) => values[name] ?? "");
       const signed = value => `${value > 0 ? "+" : ""}${numberFormat.format(value)}`;
       const searchKey = value => String(value).normalize("NFD").replace(/\p{Diacritic}/gu, "").toLocaleLowerCase();
       const esc = value => String(value).replace(/[&<>'"]/g, character => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
       })[character]);
-      const hoverTemplate =
+      const hoverTemplate = () =>
         "<b>%{customdata[0]}</b><br>" +
-        "Season %{customdata[1]}<br>" +
-        "Round %{customdata[2]}<br>" +
+        `${t("hoverSeason")} %{customdata[1]}<br>` +
+        `${t("hoverRound")} %{customdata[2]}<br>` +
         "%{customdata[3]}<br><br>" +
-        "<b>Current driver index</b> #%{customdata[4]} of %{customdata[5]}<br>" +
-        "Retrospective ELO %{y:.1f}<br>" +
-        "Event change %{customdata[7]:+.2f}<br>" +
-        "Observed xP %{customdata[8]:.3f}<br>" +
-        "Expected xP %{customdata[9]:.3f}<br>" +
-        "Expected car win %{customdata[10]:.1%}<br>" +
-        "Constructor %{customdata[6]}<br>" +
-        "Qualifying P%{customdata[11]} · Finish P%{customdata[12]}<br>" +
-        "Status %{customdata[13]}<extra></extra>";
+        `<b>${t("hoverIndex")}</b> #%{customdata[4]} ${t("hoverOf")} %{customdata[5]}<br>` +
+        `${t("hoverElo")} %{y:.1f}<br>` +
+        `${t("hoverChange")} %{customdata[7]:+.2f}<br>` +
+        `${t("hoverObserved")} %{customdata[8]:.3f}<br>` +
+        `${t("hoverExpected")} %{customdata[9]:.3f}<br>` +
+        `${t("hoverCarWin")} %{customdata[10]:.1%}<br>` +
+        `${t("hoverConstructor")} %{customdata[6]}<br>` +
+        `${t("hoverQualifying")} P%{customdata[11]} · ${t("hoverFinish")} P%{customdata[12]}<br>` +
+        `${t("hoverStatus")} %{customdata[13]}<extra></extra>`;
 
       function colorFor(id) {
         let hash = 0;
@@ -1136,6 +1439,25 @@
         }
         const hue = ((Math.abs(hash) * 137.508) % 360).toFixed(1);
         return `hsl(${hue} 76% 63%)`;
+      }
+
+      function applyStaticTranslations() {
+        document.documentElement.lang = language;
+        document.title = t("pageTitle");
+        numberFormat = new Intl.NumberFormat(language === "es" ? "es-AR" : "en-US");
+        document.querySelectorAll("[data-i18n]").forEach(element => {
+          element.textContent = t(element.dataset.i18n);
+        });
+        document.querySelectorAll("[data-i18n-html]").forEach(element => {
+          element.innerHTML = t(element.dataset.i18nHtml);
+        });
+        document.querySelectorAll("[data-i18n-aria]").forEach(element => {
+          element.setAttribute("aria-label", t(element.dataset.i18nAria));
+        });
+        languageToggle.setAttribute("aria-label", t("languageAria"));
+        document.getElementById("language-toggle-copy").textContent = t("languageCopy");
+        document.getElementById("language-toggle-code").textContent = t("languageCode");
+        search.placeholder = tr("searchPlaceholder", { count: numberFormat.format(payload.meta.drivers) });
       }
 
       function setDatasetSummary() {
@@ -1178,7 +1500,7 @@
           connectgaps: false,
           line: { color: colorFor(driver.id), width: overview ? .85 : 2.4 },
           opacity: overview ? .42 : 1,
-          hovertemplate: hoverTemplate
+          hovertemplate: hoverTemplate()
         };
       }
 
@@ -1187,7 +1509,7 @@
           const step = Math.max(1, Math.ceil(payload.events.length / 24));
           const ticks = payload.events.filter((_, index) => index % step === 0);
           return {
-            title: { text: "Grand Prix event", standoff: 18 },
+            title: { text: t("eventAxisTitle"), standoff: 18 },
             tickmode: "array",
             tickvals: ticks.map(event => event.index),
             ticktext: ticks.map(event => event.short),
@@ -1196,7 +1518,7 @@
           };
         }
         return {
-          title: { text: "Championship race number", standoff: 14 },
+          title: { text: t("raceAxisTitle"), standoff: 14 },
           tickmode: "auto",
           nticks: 14,
           tickangle: 0,
@@ -1213,7 +1535,7 @@
         empty.classList.toggle("visible", chosen.length === 0);
         if (chosen.length === 0) {
           Plotly.purge(chart);
-          count.textContent = "No drivers plotted";
+          count.textContent = t("noDriversPlotted");
           return;
         }
         const traces = chosen.map(driver => traceFor(driver, appliedMode === "all"));
@@ -1222,10 +1544,12 @@
         const selectedEnd = Math.max(...selectedRaceIndexes);
         const selectedPadding = Math.max(8, Math.round((selectedEnd - selectedStart) * .035));
         count.textContent = appliedMode === "all"
-          ? `Showing all ${numberFormat.format(chosen.length)} drivers`
+          ? tr("showingAll", { count: numberFormat.format(chosen.length) })
           : appliedMode === "top"
-            ? "Showing the top 8 drivers"
-            : `Comparing ${chosen.length} driver${chosen.length === 1 ? "" : "s"}`;
+            ? t("showingTop")
+            : chosen.length === 1
+              ? t("comparingOne")
+              : tr("comparingMany", { count: numberFormat.format(chosen.length) });
         const layout = {
           paper_bgcolor: "#131412",
           plot_bgcolor: "#131412",
@@ -1248,7 +1572,7 @@
                 ]
           },
           yaxis: {
-            title: { text: "Retrospective driver ELO", standoff: 12 },
+            title: { text: t("yAxisTitle"), standoff: 12 },
             color: "#85867f",
             gridcolor: "#292a26",
             zeroline: false,
@@ -1279,7 +1603,7 @@
           chip.innerHTML = `<span class="chip-dot" aria-hidden="true"></span><span>${esc(driver.name)}</span>`;
           const remove = document.createElement("button");
           remove.type = "button";
-          remove.setAttribute("aria-label", `Remove ${driver.name}`);
+          remove.setAttribute("aria-label", tr("removeDriver", { driver: driver.name }));
           remove.textContent = "×";
           remove.addEventListener("click", () => {
             comparison.delete(id);
@@ -1291,7 +1615,7 @@
         if (comparison.size === 0) {
           const placeholder = document.createElement("span");
           placeholder.className = "selection-placeholder";
-          placeholder.textContent = "Search above to prepare a one-driver or multi-driver comparison.";
+          placeholder.textContent = t("comparisonPlaceholder");
           fragment.appendChild(placeholder);
         }
         chips.appendChild(fragment);
@@ -1304,10 +1628,12 @@
         }
         plotButton.disabled = mode === "compare" && comparison.size === 0;
         plotButton.textContent = mode === "all"
-          ? "Plot all drivers"
+          ? t("plotAll")
           : mode === "top"
-            ? "Plot top 8"
-            : `Plot comparison${comparison.size ? ` (${comparison.size})` : ""}`;
+            ? t("plotTop")
+            : tr("plotComparison", {
+                count: comparison.size ? ` (${numberFormat.format(comparison.size)})` : ""
+              });
       }
 
       function renderDraftControls() {
@@ -1346,15 +1672,15 @@
           select.setAttribute("aria-pressed", String(comparison.has(driver.id)));
           select.innerHTML = `
             <span class="driver-index-dot" aria-hidden="true"></span>
-            <span><span class="driver-index-name">${esc(driver.name)}</span><span class="driver-index-meta">${driver.debut}–${driver.lastSeason} · ${numberFormat.format(driver.races)} starts</span></span>
-            <span class="driver-selected-mark">${comparison.has(driver.id) ? "Selected" : ""}</span>`;
+            <span><span class="driver-index-name">${esc(driver.name)}</span><span class="driver-index-meta">${driver.debut}–${driver.lastSeason} · ${numberFormat.format(driver.races)} ${t("starts")}</span></span>
+            <span class="driver-selected-mark">${comparison.has(driver.id) ? t("selected") : ""}</span>`;
           select.addEventListener("click", () => toggleDriver(driver.id));
 
           const info = document.createElement("button");
           info.type = "button";
           info.className = "driver-info";
           info.textContent = "i";
-          info.setAttribute("aria-label", `Open ${driver.name} profile`);
+          info.setAttribute("aria-label", tr("openProfile", { driver: driver.name }));
           info.addEventListener("click", () => openDriverProfile(driver.id));
 
           row.append(select, info);
@@ -1363,7 +1689,7 @@
         if (matches.length === 0) {
           const message = document.createElement("div");
           message.className = "driver-index-empty";
-          message.textContent = "No matching driver. Try a surname or shorter spelling.";
+          message.textContent = t("noMatch");
           fragment.appendChild(message);
         }
         driverIndex.appendChild(fragment);
@@ -1376,22 +1702,29 @@
       function displayNumber(value, digits = 1) {
         return value === null || value === undefined
           ? "—"
-          : Number(value).toLocaleString("en-US", { maximumFractionDigits: digits });
+          : Number(value).toLocaleString(language === "es" ? "es-AR" : "en-US", {
+              maximumFractionDigits: digits
+            });
       }
 
       async function loadWikipedia(driver) {
         const profileId = driver.id;
-        const searchUrl = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(`${driver.name} Formula One driver`)}`;
+        const profileLanguage = language;
+        const wikiHost = language === "es" ? "es.wikipedia.org" : "en.wikipedia.org";
+        const searchTerm = language === "es"
+          ? `${driver.name} piloto de Fórmula 1`
+          : `${driver.name} Formula One driver`;
+        const searchUrl = `https://${wikiHost}/wiki/Special:Search?search=${encodeURIComponent(searchTerm)}`;
         wikiImage.hidden = true;
         wikiImage.removeAttribute("src");
         wikiSummary.className = "wiki-loading";
-        wikiSummary.textContent = "Loading biography…";
+        wikiSummary.textContent = t("loadingBiography");
         wikiLink.href = searchUrl;
 
         const parameters = new URLSearchParams({
           action: "query",
           generator: "search",
-          gsrsearch: `${driver.name} Formula One driver`,
+          gsrsearch: searchTerm,
           gsrnamespace: "0",
           gsrlimit: "1",
           prop: "extracts|pageimages|info",
@@ -1408,23 +1741,23 @@
         });
 
         try {
-          const response = await fetch(`https://en.wikipedia.org/w/api.php?${parameters}`);
+          const response = await fetch(`https://${wikiHost}/w/api.php?${parameters}`);
           if (!response.ok) throw new Error(`Wikipedia returned ${response.status}`);
           const data = await response.json();
           const page = data?.query?.pages?.[0];
-          if (!page || activeProfileId !== profileId) return;
+          if (!page || activeProfileId !== profileId || language !== profileLanguage) return;
           wikiSummary.className = "";
-          wikiSummary.textContent = page.extract || "Wikipedia has no introductory summary for this driver.";
+          wikiSummary.textContent = page.extract || t("wikiNoIntro");
           wikiLink.href = page.fullurl || searchUrl;
           if (page.thumbnail?.source) {
             wikiImage.src = page.thumbnail.source;
-            wikiImage.alt = `${driver.name} — image from Wikipedia`;
+            wikiImage.alt = tr("wikiImageAlt", { driver: driver.name });
             wikiImage.hidden = false;
           }
         } catch (error) {
-          if (activeProfileId !== profileId) return;
+          if (activeProfileId !== profileId || language !== profileLanguage) return;
           wikiSummary.className = "";
-          wikiSummary.textContent = "Wikipedia information is unavailable right now. The link below opens a direct search.";
+          wikiSummary.textContent = t("wikiUnavailable");
         }
       }
 
@@ -1433,18 +1766,18 @@
         if (!driver) return;
         activeProfileId = driverId;
         dialogTitle.textContent = driver.name;
-        dialogSubtitle.textContent = `${driver.debut}–${driver.lastSeason} · ${numberFormat.format(driver.races)} recorded starts · ${payload.meta.model}`;
+        dialogSubtitle.textContent = `${driver.debut}–${driver.lastSeason} · ${numberFormat.format(driver.races)} ${t("recordedStarts")} · ${payload.meta.model}`;
         profileStats.innerHTML = [
-          profileStat("All-time rank", driver.rank ? `#${driver.rank}` : "—"),
-          profileStat("Wins", displayNumber(driver.wins, 0)),
-          profileStat("Current ELO", displayNumber(driver.currentRating)),
-          profileStat("Career ELO", displayNumber(driver.careerRating)),
-          profileStat("Sustained prime", displayNumber(driver.sustainedPrime)),
-          profileStat("Peak ELO", displayNumber(driver.peakRating)),
-          profileStat("Expected wins", displayNumber(driver.expectedWins, 2)),
-          profileStat("Wins vs expected", driver.winsAboveExpected == null ? "—" : `${driver.winsAboveExpected > 0 ? "+" : ""}${displayNumber(driver.winsAboveExpected, 2)}`),
-          profileStat("xP residual", driver.performanceAboveExpected == null ? "—" : `${driver.performanceAboveExpected > 0 ? "+" : ""}${displayNumber(driver.performanceAboveExpected, 2)}`),
-          profileStat("Eligible races", displayNumber(driver.eligibleRaces, 0))
+          profileStat(t("allTimeRank"), driver.rank ? `#${driver.rank}` : "—"),
+          profileStat(t("wins"), displayNumber(driver.wins, 0)),
+          profileStat(t("currentElo"), displayNumber(driver.currentRating)),
+          profileStat(t("careerElo"), displayNumber(driver.careerRating)),
+          profileStat(t("sustainedPrime"), displayNumber(driver.sustainedPrime)),
+          profileStat(t("peakElo"), displayNumber(driver.peakRating)),
+          profileStat(t("expectedWins"), displayNumber(driver.expectedWins, 2)),
+          profileStat(t("winsVsExpected"), driver.winsAboveExpected == null ? "—" : `${driver.winsAboveExpected > 0 ? "+" : ""}${displayNumber(driver.winsAboveExpected, 2)}`),
+          profileStat(t("xpResidual"), driver.performanceAboveExpected == null ? "—" : `${driver.performanceAboveExpected > 0 ? "+" : ""}${displayNumber(driver.performanceAboveExpected, 2)}`),
+          profileStat(t("eligibleRaces"), displayNumber(driver.eligibleRaces, 0))
         ].join("");
         if (!driverDialog.open) driverDialog.showModal();
         loadWikipedia(driver);
@@ -1456,16 +1789,18 @@
         card.classList.add("driver-card");
         card.tabIndex = 0;
         card.setAttribute("role", "button");
-        card.setAttribute("aria-label", `Open ${drivers[driverId]?.name || "driver"} profile`);
-        card.addEventListener("click", event => {
+        card.setAttribute("aria-label", tr("openProfile", {
+          driver: drivers[driverId]?.name || (language === "es" ? "piloto" : "driver")
+        }));
+        card.onclick = event => {
           if (!event.target.closest("a")) openDriverProfile(driverId);
-        });
-        card.addEventListener("keydown", event => {
+        };
+        card.onkeydown = event => {
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
             openDriverProfile(driverId);
           }
-        });
+        };
       }
 
       function simpleCard(id, icon, kicker, name, value, detail, driverId = null) {
@@ -1475,7 +1810,7 @@
           <h3>${esc(name)}</h3>
           <p class="record-value">${esc(value)}</p>
           <p class="record-detail">${esc(detail)}</p>
-          ${driverId ? '<span class="record-open-label">View driver profile ↗</span>' : ""}`;
+          ${driverId ? `<span class="record-open-label">${t("viewProfile")}</span>` : ""}`;
         makeDriverCard(id, driverId);
       }
 
@@ -1484,53 +1819,62 @@
         const prime = metrics.bestPrime;
         const photo = prime.photo;
         document.getElementById("best-prime-card").innerHTML = `
-          ${photo ? `<img class="hero-photo" src="${esc(photo.url)}" alt="${esc(prime.driver)} with his Formula 1 car" loading="lazy">` : ""}
+          ${photo ? `<img class="hero-photo" src="${esc(photo.url)}" alt="${esc(prime.driver)} — Formula 1" loading="lazy">` : ""}
           <div class="hero-shade"></div>
           <div class="hero-content">
-            <span class="record-kicker">Best sustained prime</span>
+            <span class="record-kicker">${t("bestPrime")}</span>
             <h3>${esc(prime.driver)}</h3>
-            <p class="record-value">${numberFormat.format(prime.value)} prime ELO · ${numberFormat.format(prime.peak)} peak</p>
-            <p class="record-detail">Highest sustained-prime rating across ${numberFormat.format(prime.races)} recorded starts.</p>
-            <span class="record-open-label">View driver profile ↗</span>
+            <p class="record-value">${tr("primeValue", { prime: numberFormat.format(prime.value), peak: numberFormat.format(prime.peak) })}</p>
+            <p class="record-detail">${tr("primeDetail", { races: numberFormat.format(prime.races) })}</p>
+            <span class="record-open-label">${t("viewProfile")}</span>
             ${photo ? `<a class="photo-credit" href="${esc(photo.source)}" target="_blank" rel="noreferrer">${esc(photo.credit)}</a>` : ""}
           </div>`;
         makeDriverCard("best-prime-card", prime.driverId);
 
         const bestCurve = metrics.bestCareerCurve;
-        simpleCard("best-curve-card", "∫", "Best driver of all time", bestCurve.driver,
-          `${signed(bestCurve.value)} rating-races`,
-          `${signed(bestCurve.meanAdvantage)} average vs field median · ${bestCurve.stints} active stint${bestCurve.stints === 1 ? "" : "s"}`,
+        simpleCard("best-curve-card", "∫", t("bestDriver"), bestCurve.driver,
+          tr("ratingRaces", { value: signed(bestCurve.value) }),
+          tr(bestCurve.stints === 1 ? "curveDetailOne" : "curveDetailMany", {
+            mean: signed(bestCurve.meanAdvantage),
+            stints: numberFormat.format(bestCurve.stints)
+          }),
           bestCurve.driverId);
 
         const atOne = metrics.longestAtOne;
-        simpleCard("longest-one-card", "#1", "Longest at the top", atOne.driver,
-          `${numberFormat.format(atOne.value)} events at #1`,
-          "Most Grand Prix appearances leading the event-level driver index.",
+        simpleCard("longest-one-card", "#1", t("longestTop"), atOne.driver,
+          tr("eventsAtOne", { events: numberFormat.format(atOne.value) }),
+          t("longestTopDetail"),
           atOne.driverId);
 
         const car = metrics.bestCar;
-        simpleCard("best-car-card", "W", "Highest car expectation", `${car.season} ${car.constructor}`,
-          `${car.value}% expected car win`,
-          `${car.model.replace("constructor:", "")} · season average across ${car.events} events`);
+        simpleCard("best-car-card", "W", t("highestCar"), `${car.season} ${car.constructor}`,
+          tr("expectedCarWin", { value: displayNumber(car.value) }),
+          tr("carDetail", {
+            model: car.model.replace("constructor:", ""),
+            events: numberFormat.format(car.events)
+          }));
 
         const rise = metrics.biggestRise;
-        simpleCard("biggest-rise-card", "↗", "Biggest one-race rise", rise.driver,
+        simpleCard("biggest-rise-card", "↗", t("biggestRise"), rise.driver,
           `+${rise.value} ELO`, `${rise.season} ${rise.event}`, rise.driverId);
 
         const lowestCareer = metrics.lowestCareerRating;
-        simpleCard("worst-curve-card", "↓", "Lowest career rating", lowestCareer.driver,
-          `${displayNumber(lowestCareer.value)} career ELO`,
-          `${numberFormat.format(lowestCareer.races)} starts · ${displayNumber(lowestCareer.prime)} sustained-prime ELO`,
+        simpleCard("worst-curve-card", "↓", t("lowestCareer"), lowestCareer.driver,
+          tr("careerValue", { value: displayNumber(lowestCareer.value) }),
+          tr("careerDetail", {
+            races: numberFormat.format(lowestCareer.races),
+            prime: displayNumber(lowestCareer.prime)
+          }),
           lowestCareer.driverId);
 
         const lowestCurrent = metrics.lowestCurrentRating;
-        simpleCard("lowest-current-card", "⌁", "Lowest final rating", lowestCurrent.driver,
-          `${displayNumber(lowestCurrent.value)} final ELO`,
-          `${numberFormat.format(lowestCurrent.races)} recorded starts`,
+        simpleCard("lowest-current-card", "⌁", t("lowestFinal"), lowestCurrent.driver,
+          tr("finalValue", { value: displayNumber(lowestCurrent.value) }),
+          tr("finalDetail", { races: numberFormat.format(lowestCurrent.races) }),
           lowestCurrent.driverId);
 
         const worstMoment = metrics.worstMoment;
-        simpleCard("worst-moment-card", "⇣", "Lowest single-race rating", worstMoment.driver,
+        simpleCard("worst-moment-card", "⇣", t("lowestRace"), worstMoment.driver,
           `${displayNumber(worstMoment.value)} ELO`,
           `${worstMoment.season} ${worstMoment.event}`,
           worstMoment.driverId);
@@ -1583,7 +1927,17 @@
         document.getElementById("axis-name").setAttribute("aria-pressed", "true");
         renderChart();
       });
+      languageToggle.addEventListener("click", () => {
+        language = language === "en" ? "es" : "en";
+        applyStaticTranslations();
+        setDatasetSummary();
+        renderRecords();
+        renderDraftControls();
+        renderChart();
+        if (driverDialog.open && activeProfileId) openDriverProfile(activeProfileId);
+      });
 
+      applyStaticTranslations();
       setDatasetSummary();
       renderRecords();
       renderDraftControls();

@@ -6,7 +6,9 @@ changing the analytical model.
 
 ## Live site
 
-The production site is deployed as a Render Static Site from `public/index.html`.
+The production site is deployed as a Render Static Site from `public/index.html`:
+
+**https://telemetry-one.onrender.com**
 
 ## Interface
 
@@ -66,4 +68,3 @@ python -m historical_xw.visualizer_cli_v8 `
 python -m pytest -q
 python -m ruff check src tests
 ```
-

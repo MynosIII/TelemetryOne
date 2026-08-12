@@ -1,8 +1,8 @@
 # TelemetryOne
 
 TelemetryOne is an interactive Formula 1 historical driver-rating visualizer. It presents
-the already-calculated Pairwise Margin + Rookie Backcast v7.4 retrospective ELO history
-without rerunning or changing the analytical model.
+the already-calculated Circuit Shape + Pairwise Margin + Rookie Backcast v7.6
+retrospective ELO history without rerunning or changing the analytical model.
 
 ## Live site
 
@@ -12,7 +12,7 @@ The production site is deployed as a Render Static Site from `public/index.html`
 
 ## Interface
 
-- All 801 indexed drivers are visible by default with stable individual colors.
+- All 698 indexed drivers are visible by default with stable individual colors.
 - An accessible EN/ES switch translates the interface, chart labels, statistics, and
   Wikipedia biography source without reloading the page.
 - A fixed-height driver index supports search, selection, and multi-driver comparisons.

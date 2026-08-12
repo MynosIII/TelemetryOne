@@ -133,6 +133,7 @@ def test_writer_builds_standalone_gui_from_existing_parquets(tmp_path: Path) -> 
     assert "es.wikipedia.org" in html
     assert "document.documentElement.lang = language" in html
     assert "__VISUALIZER_PAYLOAD__" not in html
+    assert "__VISUALIZER_DATA__" not in html
 
 
 def test_cli_defaults_to_v7_1_but_accepts_any_source_directory() -> None:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -10,6 +11,7 @@ from historical_xw.visualizer_v8 import (
     build_visualizer_payload_v8,
     infer_visualizer_source_label_v8,
     resolve_visualizer_inputs_v8,
+    write_visualizer_catalog_v8,
     write_visualizer_v8,
 )
 
@@ -132,8 +134,61 @@ def test_writer_builds_standalone_gui_from_existing_parquets(tmp_path: Path) -> 
     assert "Cada era." in html
     assert "es.wikipedia.org" in html
     assert "document.documentElement.lang = language" in html
+    assert 'id="dataset-picker-button"' in html
     assert "__VISUALIZER_PAYLOAD__" not in html
+    assert "__DATASET_CATALOG__" not in html
     assert "__VISUALIZER_DATA__" not in html
+
+
+def test_catalog_writer_builds_lazy_datasets_and_planned_slots(tmp_path: Path) -> None:
+    history, ranking = _inputs()
+    history = pd.concat([history.assign(event_index=lambda frame: frame.event_index + 2 * i)
+                         for i in range(13)], ignore_index=True)
+    history["round"] = history.groupby("driver_id").cumcount() + 1
+    for version in ("v7", "v7_2"):
+        source = tmp_path / version
+        source.mkdir()
+        history.to_parquet(source / f"driver_rating_history_retrospective_{version}.parquet", index=False)
+        ranking.to_parquet(source / f"driver_ranking_retrospective_{version}.parquet", index=False)
+    catalog = {
+        "schemaVersion": 1,
+        "defaultId": "v7_2",
+        "datasets": [
+            {
+                "id": "v7",
+                "label": "v7",
+                "title": "First model",
+                "status": "available",
+                "sourceDir": "v7",
+                "dataFile": "data/datasets/v7.json",
+            },
+            {
+                "id": "v7_2",
+                "label": "v7.2",
+                "title": "Second model",
+                "status": "available",
+                "sourceDir": "v7_2",
+                "dataFile": "data/datasets/v7_2.json",
+            },
+            {
+                "id": "speed_only",
+                "label": "Speed only",
+                "title": "Pace analysis",
+                "status": "planned",
+            },
+        ],
+    }
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
+    output = write_visualizer_catalog_v8(catalog_path, tmp_path / "public")
+    html = output.read_text(encoding="utf-8")
+    v7_payload = json.loads((tmp_path / "public/data/datasets/v7.json").read_text(encoding="utf-8"))
+    assert v7_payload["meta"]["datasetId"] == "v7"
+    assert 'id="dataset-catalog"' in html
+    assert '"defaultId":"v7_2"' in html
+    assert '"status":"planned"' in html
+    assert "sourceDir" not in html
+    assert "__DATASET_CATALOG__" not in html
 
 
 def test_cli_defaults_to_v7_1_but_accepts_any_source_directory() -> None:

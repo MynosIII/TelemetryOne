@@ -7,6 +7,10 @@ ranking output. It does not import, rerun or alter a rating engine.
 
 - Browse all 801 drivers in a fixed-height, scrollable index and filter it with
   accent-insensitive search.
+- Open the current database card to switch the entire page among v7, v7.1, v7.2, v7.3,
+  v7.4, v7.5, and v7.6. Each choice has bilingual methodology copy and a linkable
+  `?dataset=` URL.
+- See disabled placeholders for future position-only and speed-only calculation families.
 - Switch the complete interface between English and Spanish, including chart hover text,
   record definitions, driver statistics and the matching Wikipedia language edition.
 - Select drivers from the index for comparison or open a statistics profile with
@@ -53,7 +57,21 @@ currently visible in the chart.
 The Lewis Hamilton feature uses a CC0 photograph by Vsbraga from Wikimedia Commons;
 the source and credit are linked inside the visualizer.
 
-## Generate
+## Generate the multi-dataset site
+
+The manifest in `dataset_catalog.json` declares the available sources, bilingual copy,
+vertical-axis metric name, capabilities, and output JSON location. The default payload is
+embedded in the HTML; alternatives load only when selected.
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m historical_xw.catalog_cli_v8 --catalog dataset_catalog.json --output-dir public
+```
+
+The builder writes `public/index.html` plus `public/data/datasets/*.json`. It reads existing
+Parquet outputs only and never calls a rating engine.
+
+## Generate a one-dataset standalone file
 
 The default source is v7.1:
 
@@ -85,5 +103,6 @@ With the default source, the generated output is:
 `--source-dir` discovery looks only for existing retrospective history and ranking
 Parquets. It never calls the rookie, car, circuit, xP or ranking engines.
 
-The output is one HTML file with embedded model data. Plotly and the credited driver
-photo are loaded over HTTPS, so those visual elements require an internet connection.
+The single-dataset command still produces one HTML file with embedded model data. Plotly and
+the credited driver photo are loaded over HTTPS, so those visual elements require an internet
+connection.

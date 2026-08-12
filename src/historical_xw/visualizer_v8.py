@@ -413,10 +413,110 @@ def write_visualizer_v8(
         ranking,
         source_label=source_label or infer_visualizer_source_label_v8(history_path.parent),
     )
+    catalog = {
+        "schemaVersion": 1,
+        "defaultId": "single",
+        "datasets": [
+            {
+                "id": "single",
+                "label": source_label or payload["meta"]["model"],
+                "title": "Selected rating dataset",
+                "titleEs": "Conjunto de valoración seleccionado",
+                "family": "Retrospective driver ELO",
+                "familyEs": "ELO retrospectivo de pilotos",
+                "description": "Standalone embedded rating history.",
+                "descriptionEs": "Historial de valoraciones independiente e integrado.",
+                "status": "available",
+                "embedded": True,
+                "metric": {
+                    "label": "Retrospective driver ELO",
+                    "labelEs": "ELO retrospectivo del piloto",
+                },
+                "capabilities": {"records": True, "driverProfiles": True},
+            }
+        ],
+    }
+    html = _render_visualizer_html_v8(payload, catalog)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(html, encoding="utf-8")
+    return output_path
+
+
+def _render_visualizer_html_v8(
+    payload: dict[str, Any], catalog: dict[str, Any]
+) -> str:
     template_path = Path(__file__).parent / "templates" / "rating_visualizer_v8.html"
     template = template_path.read_text(encoding="utf-8")
     payload_json = json.dumps(payload, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
-    html = template.replace("__VISUALIZER_PAYLOAD__", payload_json.replace("</", "<\\/"))
+    catalog_json = json.dumps(catalog, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
+    return (
+        template.replace("__VISUALIZER_PAYLOAD__", payload_json.replace("</", "<\\/"))
+        .replace("__DATASET_CATALOG__", catalog_json.replace("</", "<\\/"))
+    )
+
+
+def write_visualizer_catalog_v8(catalog_path: Path, output_dir: Path) -> Path:
+    """Build one static shell plus lazy-loaded normalized dataset payloads."""
+
+    catalog_path = catalog_path.resolve()
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    if catalog.get("schemaVersion") != 1:
+        raise ValueError("Dataset catalog schemaVersion must be 1")
+    datasets = catalog.get("datasets")
+    if not isinstance(datasets, list) or not datasets:
+        raise ValueError("Dataset catalog must contain a non-empty datasets list")
+    identifiers = [str(dataset.get("id", "")) for dataset in datasets]
+    if any(not identifier for identifier in identifiers) or len(set(identifiers)) != len(
+        identifiers
+    ):
+        raise ValueError("Every catalog dataset needs a unique non-empty id")
+    default_id = str(catalog.get("defaultId", ""))
+    if default_id not in identifiers:
+        raise ValueError("Dataset catalog defaultId must refer to a catalog entry")
+
+    output_dir = output_dir.resolve()
+    default_payload: dict[str, Any] | None = None
+    public_datasets: list[dict[str, Any]] = []
+    for dataset in datasets:
+        public_entry = {key: value for key, value in dataset.items() if key != "sourceDir"}
+        public_datasets.append(public_entry)
+        if dataset.get("status") != "available":
+            continue
+        source_dir_value = dataset.get("sourceDir")
+        data_file_value = dataset.get("dataFile")
+        if not source_dir_value or not data_file_value:
+            raise ValueError(
+                f"Available dataset {dataset['id']} needs sourceDir and dataFile"
+            )
+        source_dir = (catalog_path.parent / str(source_dir_value)).resolve()
+        history_path, ranking_path = resolve_visualizer_inputs_v8(source_dir)
+        history = pd.read_parquet(history_path)
+        ranking = pd.read_parquet(ranking_path)
+        source_label = f"{dataset['label']} · {dataset['title']}"
+        payload = build_visualizer_payload_v8(history, ranking, source_label=source_label)
+        payload["meta"]["datasetId"] = str(dataset["id"])
+        payload["meta"]["sourceFiles"] = [history_path.name, ranking_path.name]
+        data_path = (output_dir / str(data_file_value)).resolve()
+        if output_dir not in data_path.parents:
+            raise ValueError(f"Dataset dataFile escapes output directory: {data_file_value}")
+        data_path.parent.mkdir(parents=True, exist_ok=True)
+        data_path.write_text(
+            json.dumps(payload, ensure_ascii=False, allow_nan=False, separators=(",", ":")),
+            encoding="utf-8",
+        )
+        if str(dataset["id"]) == default_id:
+            default_payload = payload
+
+    if default_payload is None:
+        raise ValueError("The default catalog dataset must be available")
+    public_catalog = {
+        "schemaVersion": 1,
+        "defaultId": default_id,
+        "datasets": public_datasets,
+    }
+    output_path = output_dir / "index.html"
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(html, encoding="utf-8")
+    output_path.write_text(
+        _render_visualizer_html_v8(default_payload, public_catalog), encoding="utf-8"
+    )
     return output_path

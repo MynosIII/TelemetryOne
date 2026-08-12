@@ -15,6 +15,7 @@ dev = ["pytest>=8.3", "ruff>=0.6"]
 
 [project.scripts]
 telemetry-one-build = "historical_xw.visualizer_cli_v8:main"
+telemetry-one-catalog = "historical_xw.catalog_cli_v8:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/historical_xw"]
@@ -26,4 +27,3 @@ addopts = "-q"
 [tool.ruff]
 line-length = 100
 target-version = "py312"
-

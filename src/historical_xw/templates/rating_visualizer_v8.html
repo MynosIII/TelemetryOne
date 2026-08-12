@@ -101,14 +101,122 @@
       font-size: clamp(1rem, 1.5vw, 1.2rem);
     }
 
+    .dataset-picker {
+      position: relative;
+      width: min(420px, calc(100vw - 40px));
+    }
+
     .model-stamp {
-      min-width: 240px;
+      width: 100%;
+      min-width: 280px;
       padding: 16px 18px;
       border: 1px solid var(--line);
       border-radius: 14px;
       background: rgba(19, 20, 18, .72);
+      color: var(--ink);
       box-shadow: var(--shadow);
     }
+
+    .model-picker-button {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .model-picker-button:hover,
+    .model-picker-button[aria-expanded="true"] {
+      border-color: var(--lime);
+      background: #20211d;
+    }
+
+    .model-picker-button:focus-visible { outline: 3px solid rgba(200, 255, 62, .34); outline-offset: 3px; }
+
+    .model-copy { min-width: 0; text-transform: none !important; }
+    .model-copy strong { color: var(--ink); text-transform: none; }
+
+    .model-description {
+      display: -webkit-box !important;
+      margin-top: 7px;
+      overflow: hidden;
+      color: var(--muted) !important;
+      font-size: .74rem !important;
+      font-weight: 500 !important;
+      letter-spacing: 0 !important;
+      line-height: 1.35;
+      text-transform: none !important;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .model-chevron {
+      color: var(--lime) !important;
+      font-size: 1rem !important;
+      transition: transform .18s ease;
+    }
+
+    .model-picker-button[aria-expanded="true"] .model-chevron { transform: rotate(180deg); }
+
+    .dataset-menu {
+      position: absolute;
+      z-index: 50;
+      top: calc(100% + 10px);
+      right: 0;
+      width: min(520px, calc(100vw - 40px));
+      max-height: min(72vh, 690px);
+      overflow: auto;
+      border: 1px solid #41423c;
+      border-radius: 16px;
+      background: #11120f;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .56);
+    }
+
+    .dataset-menu[hidden] { display: none; }
+
+    .dataset-menu-head {
+      position: sticky;
+      z-index: 2;
+      top: 0;
+      padding: 20px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(17, 18, 15, .97);
+      backdrop-filter: blur(14px);
+    }
+
+    .dataset-menu-head strong { display: block; font-size: 1rem; }
+    .dataset-menu-head p { margin: 6px 0 0; color: var(--muted); font-size: .78rem; line-height: 1.45; }
+    .dataset-options { padding: 10px; }
+    .dataset-group + .dataset-group { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+    .dataset-group-title { margin: 4px 8px 8px; color: var(--faint); font-size: .69rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+
+    .dataset-option {
+      display: grid;
+      width: 100%;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: start;
+      padding: 13px 14px;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      background: transparent;
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .dataset-option + .dataset-option { margin-top: 4px; }
+    .dataset-option:hover:not(:disabled) { border-color: #44463e; background: #20211d; }
+    .dataset-option[aria-current="true"] { border-color: rgba(200, 255, 62, .48); background: rgba(200, 255, 62, .08); }
+    .dataset-option:disabled { color: #8e8f88; cursor: not-allowed; opacity: .68; }
+    .dataset-option-title { display: flex; align-items: baseline; gap: 9px; font-size: .9rem; font-weight: 800; }
+    .dataset-option-label { color: var(--lime); font-size: .75rem; }
+    .dataset-option-description { display: block; margin-top: 5px; color: var(--muted); font-size: .74rem; line-height: 1.42; }
+    .dataset-option-state { margin-top: 1px; padding: 4px 7px; border-radius: 999px; background: #292a25; color: #bdbeb5; font-size: .62rem; font-weight: 800; white-space: nowrap; }
+    .dataset-option[aria-current="true"] .dataset-option-state { background: var(--lime); color: #11120f; }
+    .dataset-error { margin: 0; padding: 0 20px 18px; color: #ff8e86; font-size: .77rem; }
+    .dataset-picker.is-loading .model-picker-button { cursor: progress; opacity: .72; }
 
     .masthead-actions {
       display: grid;
@@ -952,9 +1060,23 @@
         <span id="language-toggle-copy">Español</span>
         <span class="language-code" id="language-toggle-code" aria-hidden="true">ES</span>
       </button>
-      <div class="model-stamp" aria-label="Model version" data-i18n-aria="modelVersion">
-        <span data-i18n="currentView">Current view</span>
-        <strong id="model-name">Selected rating dataset</strong>
+      <div class="dataset-picker" id="dataset-picker">
+        <button class="model-stamp model-picker-button" id="dataset-picker-button" type="button" aria-expanded="false" aria-controls="dataset-menu" aria-label="Choose database and analysis" data-i18n-aria="chooseDataset">
+          <span class="model-copy">
+            <span data-i18n="currentView">Database &amp; analysis</span>
+            <strong id="model-name">Selected rating dataset</strong>
+            <span class="model-description" id="model-description"></span>
+          </span>
+          <span class="model-chevron" aria-hidden="true">⌄</span>
+        </button>
+        <div class="dataset-menu" id="dataset-menu" role="dialog" aria-label="Choose database and analysis" data-i18n-aria="chooseDataset" hidden>
+          <div class="dataset-menu-head">
+            <strong data-i18n="datasetMenuTitle">Choose database and analysis</strong>
+            <p data-i18n="datasetMenuIntro">Switch the complete plot and its records. Future calculation families will appear here too.</p>
+          </div>
+          <div class="dataset-options" id="dataset-options"></div>
+          <p class="dataset-error" id="dataset-error" role="alert" hidden></p>
+        </div>
       </div>
     </div>
   </header>
@@ -1053,7 +1175,7 @@
       </div>
     </section>
 
-    <section class="records" aria-labelledby="records-title">
+    <section class="records" id="records-section" aria-labelledby="records-title">
       <div class="section-heading">
         <div>
           <p class="eyebrow" data-i18n="recordsEyebrow">Model records</p>
@@ -1074,7 +1196,7 @@
       </div>
     </section>
 
-    <section class="methodology" aria-label="Metric methodology" data-i18n-aria="metricMethodology">
+    <section class="methodology" id="methodology-section" aria-label="Metric methodology" data-i18n-aria="metricMethodology">
       <details>
         <summary data-i18n="methodTitle">How the publishable records are defined</summary>
         <div class="method-copy">
@@ -1115,13 +1237,17 @@
   </footer>
 
   <script id="visualizer-data" type="application/json">__VISUALIZER_PAYLOAD__</script>
+  <script id="dataset-catalog" type="application/json">__DATASET_CATALOG__</script>
   <script>
     (() => {
       "use strict";
 
-      const payload = JSON.parse(document.getElementById("visualizer-data").textContent);
-      const drivers = payload.drivers;
-      const driverList = Object.values(drivers).sort((a, b) => a.name.localeCompare(b.name));
+      let payload = JSON.parse(document.getElementById("visualizer-data").textContent);
+      const datasetCatalog = JSON.parse(document.getElementById("dataset-catalog").textContent);
+      let drivers = payload.drivers;
+      let driverList = Object.values(drivers).sort((a, b) => a.name.localeCompare(b.name));
+      let activeDatasetId = payload.meta.datasetId || datasetCatalog.defaultId;
+      let datasetLoading = false;
       const comparison = new Set();
       let draftMode = "all";
       let appliedMode = "all";
@@ -1136,7 +1262,16 @@
           heroTitle: "Every era.<br>One moving field.",
           heroIntro: "Explore how Formula 1 driver ratings evolved race by race after separating driver performance from car, circuit and race conditions.",
           modelVersion: "Model version",
-          currentView: "Current view",
+          currentView: "Database & analysis",
+          chooseDataset: "Choose database and analysis",
+          datasetMenuTitle: "Choose database and analysis",
+          datasetMenuIntro: "Switch the complete plot and its records. Future calculation families will appear here too.",
+          availableDatasets: "Available databases",
+          plannedDatasets: "Planned analyses",
+          currentDataset: "Current",
+          comingSoon: "Coming soon",
+          loadingDataset: "Loading {dataset}…",
+          datasetLoadError: "Could not load {dataset}. The current plot has been kept.",
           datasetSummary: "Dataset summary",
           seasons: "Seasons",
           events: "Grand Prix events",
@@ -1263,7 +1398,16 @@
           heroTitle: "Cada era.<br>Una parrilla en evolución.",
           heroIntro: "Explora cómo evolucionaron las valoraciones de los pilotos de Fórmula 1 carrera a carrera, separando el rendimiento del piloto del coche, el circuito y las condiciones de carrera.",
           modelVersion: "Versión del modelo",
-          currentView: "Vista actual",
+          currentView: "Base de datos y análisis",
+          chooseDataset: "Elegir base de datos y análisis",
+          datasetMenuTitle: "Elige la base de datos y el análisis",
+          datasetMenuIntro: "Cambia el gráfico completo y sus récords. Las futuras familias de cálculo también aparecerán aquí.",
+          availableDatasets: "Bases disponibles",
+          plannedDatasets: "Análisis previstos",
+          currentDataset: "Actual",
+          comingSoon: "Próximamente",
+          loadingDataset: "Cargando {dataset}…",
+          datasetLoadError: "No se pudo cargar {dataset}. Se mantuvo el gráfico actual.",
           datasetSummary: "Resumen del conjunto de datos",
           seasons: "Temporadas",
           events: "Grandes Premios",
@@ -1402,6 +1546,11 @@
       const wikiSummary = document.getElementById("wiki-summary");
       const wikiLink = document.getElementById("wiki-link");
       const languageToggle = document.getElementById("language-toggle");
+      const datasetPicker = document.getElementById("dataset-picker");
+      const datasetPickerButton = document.getElementById("dataset-picker-button");
+      const datasetMenu = document.getElementById("dataset-menu");
+      const datasetOptions = document.getElementById("dataset-options");
+      const datasetError = document.getElementById("dataset-error");
       let activeProfileId = null;
       const viewButtons = {
         all: document.getElementById("view-all"),
@@ -1417,13 +1566,20 @@
       const esc = value => String(value).replace(/[&<>'"]/g, character => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
       })[character]);
+      const catalogEntry = (id = activeDatasetId) => datasetCatalog.datasets.find(dataset => dataset.id === id);
+      const localized = (entry, key) => {
+        if (!entry) return "";
+        const localizedKey = language === "es" ? `${key}Es` : key;
+        return entry[localizedKey] || entry[key] || "";
+      };
+      const metricLabel = () => localized(catalogEntry()?.metric, "label") || t("yAxisTitle");
       const hoverTemplate = () =>
         "<b>%{customdata[0]}</b><br>" +
         `${t("hoverSeason")} %{customdata[1]}<br>` +
         `${t("hoverRound")} %{customdata[2]}<br>` +
         "%{customdata[3]}<br><br>" +
         `<b>${t("hoverIndex")}</b> #%{customdata[4]} ${t("hoverOf")} %{customdata[5]}<br>` +
-        `${t("hoverElo")} %{y:.1f}<br>` +
+        `${metricLabel()} %{y:.1f}<br>` +
         `${t("hoverChange")} %{customdata[7]:+.2f}<br>` +
         `${t("hoverObserved")} %{customdata[8]:.3f}<br>` +
         `${t("hoverExpected")} %{customdata[9]:.3f}<br>` +
@@ -1458,15 +1614,118 @@
         document.getElementById("language-toggle-copy").textContent = t("languageCopy");
         document.getElementById("language-toggle-code").textContent = t("languageCode");
         search.placeholder = tr("searchPlaceholder", { count: numberFormat.format(payload.meta.drivers) });
+        renderDatasetMenu();
       }
 
       function setDatasetSummary() {
         const meta = payload.meta;
-        document.getElementById("model-name").textContent = meta.model;
+        const entry = catalogEntry();
+        document.getElementById("model-name").textContent = entry
+          ? `${entry.label} · ${localized(entry, "title")}`
+          : meta.model;
+        document.getElementById("model-description").textContent = localized(entry, "description");
         document.getElementById("stat-seasons").textContent = `${meta.firstSeason}–${meta.lastSeason}`;
         document.getElementById("stat-events").textContent = numberFormat.format(meta.events);
         document.getElementById("stat-drivers").textContent = numberFormat.format(meta.drivers);
         document.getElementById("stat-observations").textContent = numberFormat.format(meta.observations);
+        const capabilities = entry?.capabilities || {};
+        document.getElementById("records-section").hidden = capabilities.records === false;
+        document.getElementById("methodology-section").hidden = capabilities.records === false;
+      }
+
+      function renderDatasetMenu() {
+        datasetOptions.replaceChildren();
+        for (const status of ["available", "planned"]) {
+          const entries = datasetCatalog.datasets.filter(dataset => dataset.status === status);
+          if (entries.length === 0) continue;
+          const group = document.createElement("section");
+          group.className = "dataset-group";
+          const title = document.createElement("h3");
+          title.className = "dataset-group-title";
+          title.textContent = t(status === "available" ? "availableDatasets" : "plannedDatasets");
+          group.appendChild(title);
+          for (const entry of entries) {
+            const button = document.createElement("button");
+            const current = entry.id === activeDatasetId;
+            button.type = "button";
+            button.className = "dataset-option";
+            button.dataset.datasetId = entry.id;
+            button.disabled = status !== "available" || datasetLoading;
+            button.setAttribute("aria-current", String(current));
+            button.innerHTML = `
+              <span>
+                <span class="dataset-option-title"><span class="dataset-option-label">${esc(entry.label)}</span>${esc(localized(entry, "title"))}</span>
+                <span class="dataset-option-description">${esc(localized(entry, "description"))}</span>
+              </span>
+              <span class="dataset-option-state">${current ? t("currentDataset") : status === "planned" ? t("comingSoon") : esc(localized(entry, "family"))}</span>`;
+            if (status === "available") {
+              button.addEventListener("click", () => selectDataset(entry.id));
+            }
+            group.appendChild(button);
+          }
+          datasetOptions.appendChild(group);
+        }
+      }
+
+      function setDatasetMenuOpen(open) {
+        datasetMenu.hidden = !open;
+        datasetPickerButton.setAttribute("aria-expanded", String(open));
+        if (open) renderDatasetMenu();
+      }
+
+      async function selectDataset(datasetId, updateUrl = true) {
+        const entry = catalogEntry(datasetId);
+        if (!entry || entry.status !== "available" || datasetLoading || datasetId === activeDatasetId) {
+          if (datasetId === activeDatasetId) setDatasetMenuOpen(false);
+          return;
+        }
+        datasetLoading = true;
+        datasetPicker.classList.add("is-loading");
+        datasetPickerButton.disabled = true;
+        datasetError.hidden = true;
+        datasetPickerButton.querySelector("#model-name").textContent = tr("loadingDataset", { dataset: entry.label });
+        renderDatasetMenu();
+        try {
+          if (!entry.dataFile) throw new Error("Dataset has no data file");
+          const response = await fetch(new URL(entry.dataFile, window.location.href));
+          if (!response.ok) throw new Error(`Dataset returned ${response.status}`);
+          const nextPayload = await response.json();
+          if (!nextPayload?.meta || !nextPayload?.drivers || !nextPayload?.events || !nextPayload?.metrics) {
+            throw new Error("Dataset payload is incomplete");
+          }
+          payload = nextPayload;
+          drivers = payload.drivers;
+          driverList = Object.values(drivers).sort((a, b) => a.name.localeCompare(b.name));
+          activeDatasetId = datasetId;
+          comparison.clear();
+          appliedComparison = [];
+          draftMode = "all";
+          appliedMode = "all";
+          activeProfileId = null;
+          if (driverDialog.open) driverDialog.close();
+          search.value = "";
+          if (updateUrl) {
+            const url = new URL(window.location.href);
+            url.searchParams.set("dataset", datasetId);
+            history.pushState({ datasetId }, "", url);
+          }
+          applyStaticTranslations();
+          setDatasetSummary();
+          renderRecords();
+          renderDraftControls();
+          renderChart();
+          setDatasetMenuOpen(false);
+        } catch (error) {
+          console.error(error);
+          datasetError.textContent = tr("datasetLoadError", { dataset: entry.label });
+          datasetError.hidden = false;
+          setDatasetSummary();
+        } finally {
+          datasetLoading = false;
+          datasetPicker.classList.remove("is-loading");
+          datasetPickerButton.disabled = false;
+          renderDatasetMenu();
+        }
       }
 
       function traceFor(driver, overview = false) {
@@ -1572,7 +1831,7 @@
                 ]
           },
           yaxis: {
-            title: { text: t("yAxisTitle"), standoff: 12 },
+            title: { text: metricLabel(), standoff: 12 },
             color: "#85867f",
             gridcolor: "#292a26",
             zeroline: false,
@@ -1936,12 +2195,32 @@
         renderChart();
         if (driverDialog.open && activeProfileId) openDriverProfile(activeProfileId);
       });
+      datasetPickerButton.addEventListener("click", () => {
+        if (!datasetLoading) setDatasetMenuOpen(datasetMenu.hidden);
+      });
+      document.addEventListener("click", event => {
+        if (!datasetPicker.contains(event.target)) setDatasetMenuOpen(false);
+      });
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !datasetMenu.hidden) {
+          setDatasetMenuOpen(false);
+          datasetPickerButton.focus();
+        }
+      });
+      window.addEventListener("popstate", () => {
+        const requested = new URLSearchParams(window.location.search).get("dataset") || datasetCatalog.defaultId;
+        selectDataset(requested, false);
+      });
 
       applyStaticTranslations();
       setDatasetSummary();
       renderRecords();
       renderDraftControls();
       renderChart();
+      const requestedDataset = new URLSearchParams(window.location.search).get("dataset");
+      if (requestedDataset && requestedDataset !== activeDatasetId) {
+        selectDataset(requestedDataset, false);
+      }
     })();
   </script>
 </body>

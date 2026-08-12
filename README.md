@@ -1,8 +1,8 @@
 # TelemetryOne
 
-TelemetryOne is an interactive Formula 1 historical driver-rating visualizer. It presents
-the already-calculated Circuit Shape + Pairwise Margin + Rookie Backcast v7.6
-retrospective ELO history without rerunning or changing the analytical model.
+TelemetryOne is an interactive Formula 1 historical driver-rating visualizer. It can switch
+between several already-calculated retrospective ELO releases without rerunning or changing
+any analytical model. Circuit Shape + Pairwise Margin + Rookie Backcast v7.6 is the default.
 
 ## Live site
 
@@ -13,6 +13,10 @@ The production site is deployed as a Render Static Site from `public/index.html`
 ## Interface
 
 - All 698 indexed drivers are visible by default with stable individual colors.
+- The database and analysis card opens a version picker for v7 through v7.6; selecting one
+  replaces the complete plot, driver index, records, and summary without reloading the page.
+- Planned position-only and speed-only analysis families are visible as disabled extension
+  slots, so they can be added without redesigning the interface.
 - An accessible EN/ES switch translates the interface, chart labels, statistics, and
   Wikipedia biography source without reloading the page.
 - A fixed-height driver index supports search, selection, and multi-driver comparisons.
@@ -36,9 +40,12 @@ the drivers currently selected in the chart:
 
 ## Repository layout
 
-- `public/index.html` — standalone production artifact with the rating data embedded.
+- `dataset_catalog.json` — bilingual manifest of available and planned analyses.
+- `public/index.html` — production shell with the default dataset embedded.
+- `public/data/datasets/*.json` — lazy-loaded payloads for the other releases.
 - `src/historical_xw/visualizer_v8.py` — payload and record calculations.
 - `src/historical_xw/visualizer_cli_v8.py` — presentation-only build command.
+- `src/historical_xw/catalog_cli_v8.py` — multi-dataset site build command.
 - `src/historical_xw/templates/rating_visualizer_v8.html` — GUI template.
 - `tests/test_visualizer_v8.py` — focused generator and interface tests.
 - `docs/VISUALIZER_V8.md` — detailed interface and regeneration notes.
@@ -53,16 +60,20 @@ Then open `http://127.0.0.1:8765`.
 
 ## Regenerating from compatible model outputs
 
-The published HTML is self-contained. Regeneration requires compatible retrospective history
-and ranking Parquet files produced elsewhere; raw model datasets are intentionally not copied
-into this presentation repository.
+Regeneration requires compatible retrospective history and ranking Parquet files produced
+elsewhere. The catalog build normalizes those outputs into presentation-only JSON files; it
+never invokes a rating engine.
 
 ```powershell
 python -m pip install -e ".[dev]"
-python -m historical_xw.visualizer_cli_v8 `
-  --source-dir path/to/release `
-  --output public/index.html
+python -m historical_xw.catalog_cli_v8 `
+  --catalog dataset_catalog.json `
+  --output-dir public
 ```
+
+To add a future calculation, emit the same normalized payload shape, add an `available` entry
+to `dataset_catalog.json`, and rebuild. Use `metric.label` / `metric.labelEs` for its vertical
+axis and `capabilities.records: false` when that analysis does not provide record cards.
 
 ## Validation
 

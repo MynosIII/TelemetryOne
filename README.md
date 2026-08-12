@@ -13,6 +13,10 @@ The production site is deployed as a Render Static Site from `public/index.html`
 ## Interface
 
 - All 698 indexed drivers are visible by default with stable individual colors.
+- A Driver plot / Car plot switch provides the complete historical ELO view or a
+  circuit-sensitive expected-car-win view, each with its own searchable index and comparisons.
+- Searchable driver and car tables can be sorted by the best single moment or by the
+  accumulated career/model area. Clicking a row sends that entity directly to the plot.
 - The database and analysis card opens a version picker for v7 through v7.6; selecting one
   replaces the complete plot, driver index, records, and summary without reloading the page.
 - Planned position-only and speed-only analysis families are visible as disabled extension
@@ -37,6 +41,16 @@ the drivers currently selected in the chart:
   least five starts.
 - **Best driver of all time:** greatest integral of ELO relative to each event's active-field
   median, with retirement gaps split and a 25-event minimum.
+- **Sustained greatness:** the same driver area calculation exposed for every eligible driver;
+  it rewards being above the contemporary field for many races, not career length alone.
+- **Sustained dominance:** the sum of a car model's expected-win probability over every event
+  it entered, expressed as xW points. The plot uses v7.6 car strength when that release provides
+  it and otherwise uses the compatible v6 estimate.
+- **Best moment:** the maximum event-level retrospective ELO for a driver or expected-win
+  probability for a car.
+
+Older constructor-only car records are kept as explicit season-scoped unresolved models so
+the interface does not merge ambiguous chassis into a fictitious long-running car.
 
 ## Repository layout
 

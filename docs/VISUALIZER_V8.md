@@ -11,6 +11,12 @@ ranking output. It does not import, rerun or alter a rating engine.
   v7.4, v7.5, and v7.6. Each choice has bilingual methodology copy and a linkable
   `?dataset=` URL.
 - See disabled placeholders for future position-only and speed-only calculation families.
+- Switch the explorer between drivers and cars. The car view plots the expected car-win
+  probability at every circuit and provides the same all/top-eight/comparison workflow.
+- Search cars by model or constructor. Exact F1DB-backed models are preserved across their
+  real lifespan; unresolved constructor identities are kept separate by season.
+- Use complete searchable rankings for drivers and cars, sort each table by peak moment or
+  accumulated area, and click a row to send it directly to the plot.
 - Switch the complete interface between English and Spanish, including chart hover text,
   record definitions, driver statistics and the matching Wikipedia language edition.
 - Select drivers from the index for comparison or open a statistics profile with
@@ -53,6 +59,19 @@ keeps the model statistics and offers a direct search link.
 
 Records are calculated from the complete supplied files, not from whichever subset is
 currently visible in the chart.
+
+## Peak and accumulated-area rankings
+
+- **Driver best moment:** maximum retrospective ELO at one event.
+- **Sustained greatness:** signed area of driver ELO relative to each event's active-field
+  median. Retirement gaps are split and drivers require 25 events.
+- **Car best moment:** maximum expected-car-win probability at one event.
+- **Sustained dominance:** sum of expected-car-win probability across the events entered by
+  that model, displayed as xW points. This intentionally rewards both strength and duration.
+
+The v7.6 car plot and rankings use `expected_car_win_v7_6`; compatible older releases use
+`expected_car_win_v6`. These are presentation summaries of existing outputs, not a new car
+rating engine.
 
 The Lewis Hamilton feature uses a CC0 photograph by Vsbraga from Wikimedia Commons;
 the source and credit are linked inside the visualizer.

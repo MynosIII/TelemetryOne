@@ -327,6 +327,33 @@
       box-shadow: var(--shadow);
     }
 
+    .entity-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 8px;
+      border-bottom: 1px solid var(--line);
+      background: #0f100e;
+    }
+
+    .entity-tab {
+      min-height: 52px;
+      padding: 8px 16px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .entity-tab strong,
+    .entity-tab small { display: block; }
+    .entity-tab strong { color: var(--ink); font-size: .9rem; }
+    .entity-tab small { margin-top: 2px; color: var(--faint); font-size: .72rem; }
+    .entity-tab[aria-selected="true"] { border-color: var(--blue); background: rgba(74, 163, 255, .1); }
+    .entity-tab:focus-visible { outline: 3px solid rgba(74, 163, 255, .25); outline-offset: 2px; }
+
     .toolbar {
       position: relative;
       z-index: 10;
@@ -853,6 +880,44 @@
       font-weight: 900;
     }
 
+    .rankings { margin-top: 82px; }
+
+    .ranking-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .ranking-panel {
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #131412;
+      box-shadow: var(--shadow);
+    }
+
+    .ranking-panel-head { padding: 20px; border-bottom: 1px solid var(--line); }
+    .ranking-panel-head h3 { margin-bottom: 5px; font-size: 1.18rem; }
+    .ranking-panel-head p { margin: 0; color: var(--muted); font-size: .78rem; line-height: 1.5; }
+    .ranking-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 9px; margin-top: 15px; }
+    .ranking-search { width: 100%; min-width: 0; height: 42px; padding: 0 13px; border: 1px solid #3b3c36; border-radius: 10px; background: #0f100e; color: var(--ink); }
+    .ranking-search:focus { border-color: var(--blue); outline: none; }
+    .ranking-sort { display: flex; padding: 3px; border: 1px solid #3b3c36; border-radius: 10px; background: #0f100e; }
+    .ranking-sort button { min-height: 34px; padding: 0 10px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); font-size: .7rem; font-weight: 800; cursor: pointer; }
+    .ranking-sort button[aria-pressed="true"] { background: #30312b; color: var(--ink); }
+    .ranking-table-wrap { max-height: 570px; overflow: auto; scrollbar-width: thin; }
+    .ranking-table { width: 100%; border-collapse: collapse; font-size: .76rem; }
+    .ranking-table th { position: sticky; z-index: 1; top: 0; padding: 10px 12px; background: #1b1c18; color: var(--faint); font-size: .64rem; letter-spacing: .06em; text-align: right; text-transform: uppercase; }
+    .ranking-table th:nth-child(2) { text-align: left; }
+    .ranking-table td { padding: 10px 12px; border-top: 1px solid #292a26; color: var(--muted); text-align: right; white-space: nowrap; }
+    .ranking-table td:nth-child(2) { max-width: 250px; color: var(--ink); font-weight: 720; text-align: left; white-space: normal; }
+    .ranking-table tbody tr { cursor: pointer; }
+    .ranking-table tbody tr:hover { background: #20211d; }
+    .ranking-position { color: var(--faint) !important; font-variant-numeric: tabular-nums; }
+    .ranking-primary { color: var(--lime) !important; font-weight: 800; }
+    .ranking-empty { padding: 34px 20px; color: var(--muted); text-align: center; }
+
     .methodology {
       margin-top: 60px;
       border-top: 1px solid var(--line);
@@ -1000,6 +1065,7 @@
       .comparison-control { grid-column: 1; grid-row: 2; }
       .axis-control { grid-column: 1 / -1; grid-row: 3; }
       .records-grid { grid-template-columns: 1fr 1fr; }
+      .ranking-grid { grid-template-columns: 1fr; }
       .record-card.hero { grid-column: 1 / -1; grid-row: auto; min-height: 480px; }
     }
 
@@ -1032,7 +1098,11 @@
       .chart-note { display: block; }
       .chart-note span { display: block; margin-top: 4px; }
       .records { margin-top: 58px; }
+      .rankings { margin-top: 58px; }
       .records-grid { grid-template-columns: 1fr; }
+      .ranking-controls { grid-template-columns: 1fr; }
+      .ranking-sort { display: grid; grid-template-columns: 1fr 1fr; }
+      .ranking-table-wrap { max-height: 480px; }
       .record-card.hero { min-height: 430px; }
       .method-copy { grid-template-columns: 1fr; gap: 16px; }
       .profile-head,
@@ -1099,18 +1169,28 @@
       </div>
 
       <div class="explorer">
+        <div class="entity-tabs" role="tablist" aria-label="Plot subject" data-i18n-aria="plotSubject">
+          <button class="entity-tab" id="entity-drivers" type="button" role="tab" aria-selected="true">
+            <strong data-i18n="driverPlot">Driver plot</strong>
+            <small data-i18n="driverPlotHelp">Retrospective ELO by Grand Prix</small>
+          </button>
+          <button class="entity-tab" id="entity-cars" type="button" role="tab" aria-selected="false">
+            <strong data-i18n="carPlot">Car plot</strong>
+            <small data-i18n="carPlotHelp">Expected car win by circuit</small>
+          </button>
+        </div>
         <div class="toolbar">
           <div class="view-control">
             <span class="control-label" data-i18n="choosePlot">1 · Choose what to plot</span>
             <div class="view-picker" role="group" aria-label="Driver view" data-i18n-aria="driverView">
               <button class="view-option" id="view-all" type="button" aria-pressed="true">
-                <strong data-i18n="allDrivers">All drivers</strong><small data-i18n="allDriversHelp">The complete historical field</small>
+                <strong id="view-all-label">All drivers</strong><small id="view-all-help">The complete historical field</small>
               </button>
               <button class="view-option" id="view-top" type="button" aria-pressed="false">
-                <strong data-i18n="topEight">Top 8</strong><small data-i18n="topEightHelp">A quick all-time overview</small>
+                <strong id="view-top-label">Top 8</strong><small id="view-top-help">A quick all-time overview</small>
               </button>
               <button class="view-option" id="view-compare" type="button" aria-pressed="false">
-                <strong data-i18n="compareDrivers">Compare drivers</strong><small data-i18n="compareDriversHelp">Choose one, two or more</small>
+                <strong id="view-compare-label">Compare drivers</strong><small id="view-compare-help">Choose one, two or more</small>
               </button>
             </div>
           </div>
@@ -1144,13 +1224,13 @@
         <div class="explorer-main">
           <aside class="driver-index" aria-label="Driver index" data-i18n-aria="driverIndex">
             <div class="driver-index-head">
-              <label class="control-label" for="driver-search" data-i18n="driverIndex">Driver index</label>
+              <label class="control-label" for="driver-search" id="entity-index-label">Driver index</label>
               <div class="search-field">
                 <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.8" stroke="currentColor" stroke-width="2"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <input id="driver-search" type="search" autocomplete="off" placeholder="Search 801 drivers" aria-controls="driver-index-list">
                 <button class="search-clear" id="search-clear" type="button" aria-label="Clear driver search" data-i18n-aria="clearSearch">×</button>
               </div>
-              <p class="driver-index-help" data-i18n-html="driverIndexHelp">Select names for a comparison. Use <i>i</i> for a driver profile.</p>
+              <p class="driver-index-help" id="entity-index-help">Select names for a comparison. Use <i>i</i> for a driver profile.</p>
             </div>
             <div class="driver-index-list" id="driver-index-list" role="listbox" aria-label="All Formula 1 drivers" data-i18n-aria="allFormulaOneDrivers" aria-multiselectable="true"></div>
           </aside>
@@ -1161,17 +1241,67 @@
               <div class="plot-empty" id="plot-empty">
                 <div class="empty-inner">
                   <div class="empty-mark">⌕</div>
-                  <h3 data-i18n="noDriversSelected">No drivers selected</h3>
-                  <p data-i18n="emptyHelp">Use the driver index to choose one or more names, then press “Plot comparison.”</p>
+                  <h3 id="empty-title">No drivers selected</h3>
+                  <p id="empty-help">Use the driver index to choose one or more names, then press “Plot comparison.”</p>
                 </div>
               </div>
             </div>
             <div class="chart-note">
-              <span><strong data-i18n="hoverLabel">Hover:</strong> <span data-i18n="hoverHelp">driver, event, index position and model components</span></span>
+              <span><strong data-i18n="hoverLabel">Hover:</strong> <span id="hover-help">driver, event, index position and model components</span></span>
               <span data-i18n="gapHelp">Retirement and multi-season return gaps are shown as breaks.</span>
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="rankings" id="rankings-section" aria-labelledby="rankings-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow" data-i18n="rankingsEyebrow">Searchable all-time tables</p>
+          <h2 id="rankings-title" data-i18n="rankingsTitle">Peak and sustained excellence</h2>
+        </div>
+        <p data-i18n="rankingsIntro">Sort by the greatest single moment or by accumulated strength across an active career.</p>
+      </div>
+      <div class="ranking-grid">
+        <article class="ranking-panel">
+          <div class="ranking-panel-head">
+            <h3 data-i18n="driverRankingTitle">Driver ranking</h3>
+            <p data-i18n="driverRankingHelp">Sustained greatness is the area of ELO above the contemporary field median, with retirement gaps cut.</p>
+            <div class="ranking-controls">
+              <input class="ranking-search" id="driver-ranking-search" type="search" placeholder="Search drivers" data-i18n-placeholder="searchDrivers">
+              <div class="ranking-sort" role="group" aria-label="Driver ranking sort" data-i18n-aria="driverRankingSort">
+                <button id="driver-sort-peak" type="button" aria-pressed="false" data-i18n="bestMoment">Best moment</button>
+                <button id="driver-sort-area" type="button" aria-pressed="true" data-i18n="sustainedGreatness">Sustained greatness</button>
+              </div>
+            </div>
+          </div>
+          <div class="ranking-table-wrap">
+            <table class="ranking-table">
+              <thead><tr><th data-i18n="rankShort">#</th><th data-i18n="driver">Driver</th><th data-i18n="peakEloShort">Peak ELO</th><th data-i18n="greatnessScore">Greatness score</th><th data-i18n="eventsShort">Events</th></tr></thead>
+              <tbody id="driver-ranking-body"></tbody>
+            </table>
+          </div>
+        </article>
+        <article class="ranking-panel">
+          <div class="ranking-panel-head">
+            <h3 data-i18n="carRankingTitle">Car ranking</h3>
+            <p data-i18n="carRankingHelp">Sustained dominance is the accumulated expected-win area across every Grand Prix entered by that model.</p>
+            <div class="ranking-controls">
+              <input class="ranking-search" id="car-ranking-search" type="search" placeholder="Search cars or constructors" data-i18n-placeholder="searchCars">
+              <div class="ranking-sort" role="group" aria-label="Car ranking sort" data-i18n-aria="carRankingSort">
+                <button id="car-sort-peak" type="button" aria-pressed="false" data-i18n="bestMoment">Best moment</button>
+                <button id="car-sort-area" type="button" aria-pressed="true" data-i18n="sustainedDominance">Sustained dominance</button>
+              </div>
+            </div>
+          </div>
+          <div class="ranking-table-wrap">
+            <table class="ranking-table">
+              <thead><tr><th data-i18n="rankShort">#</th><th data-i18n="car">Car</th><th data-i18n="peakExpectedWin">Peak xW</th><th data-i18n="dominanceScore">Dominance score</th><th data-i18n="eventsShort">Events</th></tr></thead>
+              <tbody id="car-ranking-body"></tbody>
+            </table>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -1203,7 +1333,9 @@
           <p data-i18n-html="methodIndex"><strong>Current driver index</strong>The post-event ELO rank among drivers who participated in that Grand Prix. It is recalculated at every event.</p>
           <p data-i18n-html="methodCurve"><strong>Career curve area</strong>The race-by-race integral of ELO above or below that event's field median. Multi-season retirement gaps are cut, not bridged. Drivers need 25 events.</p>
           <p data-i18n-html="methodLows"><strong>Lowest-rating records</strong>Career and final ELO come from the supplied ranking. The single-race low is the minimum point visible in the full history for drivers with at least five starts.</p>
-          <p data-i18n-html="methodCar"><strong>Best car</strong>The highest season-average v6 expected-car-win value for an identified car model with at least four events. It measures model expectation, not championship points.</p>
+          <p data-i18n-html="methodCar"><strong>Best car</strong>The highest season-average expected-car-win value in the selected release for a model with at least four events. It measures model expectation, not championship points.</p>
+          <p data-i18n-html="methodDriverRanking"><strong>Sustained greatness</strong>The signed area of driver ELO above or below each event’s field median. Drivers need 25 events and retirement gaps are not bridged.</p>
+          <p data-i18n-html="methodCarRanking"><strong>Sustained dominance</strong>The sum of a car model’s expected-win probability across entered events, expressed as xW points. Ambiguous historical models remain season-scoped.</p>
         </div>
       </details>
     </section>
@@ -1246,6 +1378,9 @@
       const datasetCatalog = JSON.parse(document.getElementById("dataset-catalog").textContent);
       let drivers = payload.drivers;
       let driverList = Object.values(drivers).sort((a, b) => a.name.localeCompare(b.name));
+      let cars = payload.cars || {};
+      let carList = Object.values(cars).sort((a, b) => a.name.localeCompare(b.name));
+      let entityType = "drivers";
       let activeDatasetId = payload.meta.datasetId || datasetCatalog.defaultId;
       let datasetLoading = false;
       const comparison = new Set();
@@ -1272,6 +1407,11 @@
           comingSoon: "Coming soon",
           loadingDataset: "Loading {dataset}…",
           datasetLoadError: "Could not load {dataset}. The current plot has been kept.",
+          plotSubject: "Plot subject",
+          driverPlot: "Driver plot",
+          driverPlotHelp: "Retrospective ELO by Grand Prix",
+          carPlot: "Car plot",
+          carPlotHelp: "Expected car win by circuit",
           datasetSummary: "Dataset summary",
           seasons: "Seasons",
           events: "Grand Prix events",
@@ -1279,7 +1419,7 @@
           driverRaceRecords: "Driver-race records",
           explorerEyebrow: "Race-by-race explorer",
           explorerTitle: "Build your comparison",
-          explorerIntro: "Search any driver, remove the field noise, and switch between championship race numbers and named Grand Prix events.",
+          explorerIntro: "Explore drivers or cars, build focused comparisons, and switch between championship race numbers and named Grand Prix events.",
           choosePlot: "1 · Choose what to plot",
           driverView: "Driver view",
           allDrivers: "All drivers",
@@ -1288,6 +1428,12 @@
           topEightHelp: "A quick all-time overview",
           compareDrivers: "Compare drivers",
           compareDriversHelp: "Choose one, two or more",
+          allCars: "All cars",
+          allCarsHelp: "Every identified historical model",
+          topCars: "Top 8 cars",
+          topCarsHelp: "Highest sustained dominance",
+          compareCars: "Compare cars",
+          compareCarsHelp: "Choose one, two or more models",
           drawChart: "2 · Draw the chart",
           comparisonList: "Comparison list",
           deselectAll: "Deselect all",
@@ -1298,12 +1444,17 @@
           driverIndex: "Driver index",
           clearSearch: "Clear driver search",
           driverIndexHelp: "Select names for a comparison. Use <i>i</i> for a driver profile.",
+          carIndex: "Car index",
+          carIndexHelp: "Search by model or constructor and select cars to compare.",
           allFormulaOneDrivers: "All Formula 1 drivers",
           chartAria: "Historical Formula 1 driver ELO line chart",
           noDriversSelected: "No drivers selected",
           emptyHelp: "Use the driver index to choose one or more names, then press “Plot comparison.”",
           hoverLabel: "Hover:",
           hoverHelp: "driver, event, index position and model components",
+          noCarsSelected: "No cars selected",
+          carEmptyHelp: "Use the car index to choose one or more models, then press “Plot car comparison.”",
+          carHoverHelp: "car model, event, expected win, entries and best finish",
           gapHelp: "Retirement and multi-season return gaps are shown as breaks.",
           recordsEyebrow: "Model records",
           recordsTitle: "The shape of greatness",
@@ -1313,7 +1464,9 @@
           methodIndex: "<strong>Current driver index</strong>The post-event ELO rank among drivers who participated in that Grand Prix. It is recalculated at every event.",
           methodCurve: "<strong>Career curve area</strong>The race-by-race integral of ELO above or below that event's field median. Multi-season retirement gaps are cut, not bridged. Drivers need 25 events.",
           methodLows: "<strong>Lowest-rating records</strong>Career and final ELO come from the supplied ranking. The single-race low is the minimum point visible in the full history for drivers with at least five starts.",
-          methodCar: "<strong>Best car</strong>The highest season-average v6 expected-car-win value for an identified car model with at least four events. It measures model expectation, not championship points.",
+          methodCar: "<strong>Best car</strong>The highest season-average expected-car-win value in the selected release for a model with at least four events. It measures model expectation, not championship points.",
+          methodDriverRanking: "<strong>Sustained greatness</strong>The signed area of driver ELO above or below each event’s field median. Drivers need 25 events and retirement gaps are not bridged.",
+          methodCarRanking: "<strong>Sustained dominance</strong>The sum of a car model’s expected-win probability across entered events, expressed as xW points. Ambiguous historical models remain season-scoped.",
           closeProfile: "Close driver profile",
           driverProfile: "Driver profile",
           fromWikipedia: "From Wikipedia",
@@ -1327,6 +1480,9 @@
           plotAll: "Plot all drivers",
           plotTop: "Plot top 8",
           plotComparison: "Plot comparison{count}",
+          plotAllCars: "Plot all cars",
+          plotTopCars: "Plot top 8 cars",
+          plotCarComparison: "Plot car comparison{count}",
           showingAll: "Showing all {count} drivers",
           showingTop: "Showing the top 8 drivers",
           comparingOne: "Comparing 1 driver",
@@ -1341,6 +1497,10 @@
           eventAxisTitle: "Grand Prix event",
           raceAxisTitle: "Championship race number",
           yAxisTitle: "Retrospective driver ELO",
+          carYAxisTitle: "Expected car win",
+          hoverCarModel: "Car model",
+          hoverEntries: "Entries",
+          hoverBestFinish: "Best finish",
           hoverSeason: "Season",
           hoverRound: "Round",
           hoverIndex: "Current driver index",
@@ -1391,6 +1551,37 @@
           finalValue: "{value} final ELO",
           finalDetail: "{races} recorded starts",
           lowestRace: "Lowest single-race rating"
+          ,rankingsEyebrow: "Searchable all-time tables",
+          rankingsTitle: "Peak and sustained excellence",
+          rankingsIntro: "Sort by the greatest single moment or by accumulated strength across an active career.",
+          driverRankingTitle: "Driver ranking",
+          driverRankingHelp: "Sustained greatness is the area of ELO above the contemporary field median, with retirement gaps cut.",
+          carRankingTitle: "Car ranking",
+          carRankingHelp: "Sustained dominance is the accumulated expected-win area across every Grand Prix entered by that model.",
+          searchDrivers: "Search drivers",
+          searchCars: "Search cars or constructors",
+          driverRankingSort: "Driver ranking sort",
+          carRankingSort: "Car ranking sort",
+          bestMoment: "Best moment",
+          sustainedGreatness: "Sustained greatness",
+          sustainedDominance: "Sustained dominance",
+          rankShort: "#",
+          driver: "Driver",
+          car: "Car",
+          peakEloShort: "Peak ELO",
+          greatnessScore: "Greatness score",
+          peakExpectedWin: "Peak xW",
+          dominanceScore: "Dominance score",
+          eventsShort: "Events",
+          noRankingMatch: "No matching result.",
+          showingAllCars: "Showing all {count} cars",
+          showingTopCars: "Showing the top 8 cars",
+          comparingOneCar: "Comparing 1 car",
+          comparingManyCars: "Comparing {count} cars",
+          noCarsPlotted: "No cars plotted",
+          carSearchPlaceholder: "Search {count} cars",
+          carComparisonPlaceholder: "Search the car index to prepare a model comparison.",
+          removeCar: "Remove {car}"
         },
         es: {
           pageTitle: "Laboratorio histórico de ELO de F1",
@@ -1408,6 +1599,11 @@
           comingSoon: "Próximamente",
           loadingDataset: "Cargando {dataset}…",
           datasetLoadError: "No se pudo cargar {dataset}. Se mantuvo el gráfico actual.",
+          plotSubject: "Sujeto del gráfico",
+          driverPlot: "Gráfico de pilotos",
+          driverPlotHelp: "ELO retrospectivo por Gran Premio",
+          carPlot: "Gráfico de coches",
+          carPlotHelp: "Victoria esperada del coche por circuito",
           datasetSummary: "Resumen del conjunto de datos",
           seasons: "Temporadas",
           events: "Grandes Premios",
@@ -1415,7 +1611,7 @@
           driverRaceRecords: "Registros piloto-carrera",
           explorerEyebrow: "Explorador carrera a carrera",
           explorerTitle: "Crea tu comparación",
-          explorerIntro: "Busca cualquier piloto, elimina el ruido de la parrilla y alterna entre el número de carrera y el nombre del Gran Premio.",
+          explorerIntro: "Explora pilotos o coches, crea comparaciones específicas y alterna entre el número de carrera y el nombre del Gran Premio.",
           choosePlot: "1 · Elige qué mostrar",
           driverView: "Vista de pilotos",
           allDrivers: "Todos los pilotos",
@@ -1424,6 +1620,12 @@
           topEightHelp: "Una vista histórica rápida",
           compareDrivers: "Comparar pilotos",
           compareDriversHelp: "Elige uno, dos o más",
+          allCars: "Todos los coches",
+          allCarsHelp: "Cada modelo histórico identificado",
+          topCars: "Mejores 8 coches",
+          topCarsHelp: "Mayor dominio sostenido",
+          compareCars: "Comparar coches",
+          compareCarsHelp: "Elige uno, dos o más modelos",
           drawChart: "2 · Dibuja el gráfico",
           comparisonList: "Lista de comparación",
           deselectAll: "Deseleccionar todos",
@@ -1434,12 +1636,17 @@
           driverIndex: "Índice de pilotos",
           clearSearch: "Borrar búsqueda de pilotos",
           driverIndexHelp: "Selecciona nombres para comparar. Usa <i>i</i> para abrir el perfil del piloto.",
+          carIndex: "Índice de coches",
+          carIndexHelp: "Busca por modelo o constructor y selecciona coches para comparar.",
           allFormulaOneDrivers: "Todos los pilotos de Fórmula 1",
           chartAria: "Gráfico histórico de ELO de pilotos de Fórmula 1",
           noDriversSelected: "No hay pilotos seleccionados",
           emptyHelp: "Usa el índice para elegir uno o más pilotos y luego pulsa «Graficar comparación».",
           hoverLabel: "Pasa el cursor:",
           hoverHelp: "piloto, evento, posición del índice y componentes del modelo",
+          noCarsSelected: "No hay coches seleccionados",
+          carEmptyHelp: "Usa el índice de coches para elegir uno o más modelos y luego pulsa «Graficar comparación de coches».",
+          carHoverHelp: "modelo, evento, victoria esperada, inscripciones y mejor llegada",
           gapHelp: "Los retiros y regresos tras varias temporadas se muestran como cortes.",
           recordsEyebrow: "Récords del modelo",
           recordsTitle: "La forma de la grandeza",
@@ -1449,7 +1656,9 @@
           methodIndex: "<strong>Índice actual del piloto</strong>La posición ELO posterior al evento entre los pilotos que participaron en ese Gran Premio. Se recalcula en cada evento.",
           methodCurve: "<strong>Área de la curva profesional</strong>La integral carrera a carrera del ELO por encima o por debajo de la mediana del evento. Los intervalos de retiro no se conectan. Se exigen 25 eventos.",
           methodLows: "<strong>Récords de valoración más baja</strong>El ELO profesional y final proviene de la clasificación suministrada. El mínimo de una carrera es el punto más bajo del historial completo entre pilotos con al menos cinco largadas.",
-          methodCar: "<strong>Mejor coche</strong>El mayor promedio estacional v6 de victoria esperada para un modelo identificado con al menos cuatro eventos. Mide la expectativa del modelo, no los puntos del campeonato.",
+          methodCar: "<strong>Mejor coche</strong>El mayor promedio estacional de victoria esperada de la versión seleccionada para un modelo con al menos cuatro eventos. Mide la expectativa del modelo, no los puntos del campeonato.",
+          methodDriverRanking: "<strong>Grandeza sostenida</strong>El área con signo del ELO del piloto sobre o bajo la mediana de cada evento. Se exigen 25 eventos y no se conectan los intervalos de retiro.",
+          methodCarRanking: "<strong>Dominio sostenido</strong>La suma de la probabilidad de victoria esperada del modelo en los eventos disputados, expresada en puntos xW. Los modelos históricos ambiguos quedan limitados a una temporada.",
           closeProfile: "Cerrar perfil del piloto",
           driverProfile: "Perfil del piloto",
           fromWikipedia: "De Wikipedia",
@@ -1463,6 +1672,9 @@
           plotAll: "Graficar todos los pilotos",
           plotTop: "Graficar los mejores 8",
           plotComparison: "Graficar comparación{count}",
+          plotAllCars: "Graficar todos los coches",
+          plotTopCars: "Graficar los mejores 8 coches",
+          plotCarComparison: "Graficar comparación de coches{count}",
           showingAll: "Mostrando los {count} pilotos",
           showingTop: "Mostrando los mejores 8 pilotos",
           comparingOne: "Comparando 1 piloto",
@@ -1477,6 +1689,10 @@
           eventAxisTitle: "Gran Premio",
           raceAxisTitle: "Número de carrera del campeonato",
           yAxisTitle: "ELO retrospectivo del piloto",
+          carYAxisTitle: "Victoria esperada del coche",
+          hoverCarModel: "Modelo del coche",
+          hoverEntries: "Inscripciones",
+          hoverBestFinish: "Mejor llegada",
           hoverSeason: "Temporada",
           hoverRound: "Ronda",
           hoverIndex: "Índice actual del piloto",
@@ -1527,6 +1743,37 @@
           finalValue: "{value} de ELO final",
           finalDetail: "{races} largadas registradas",
           lowestRace: "ELO más bajo en una carrera"
+          ,rankingsEyebrow: "Tablas históricas con búsqueda",
+          rankingsTitle: "Pico y excelencia sostenida",
+          rankingsIntro: "Ordena por el mejor momento individual o por la fuerza acumulada durante una carrera activa.",
+          driverRankingTitle: "Clasificación de pilotos",
+          driverRankingHelp: "La grandeza sostenida es el área de ELO sobre la mediana contemporánea, cortando los intervalos de retiro.",
+          carRankingTitle: "Clasificación de coches",
+          carRankingHelp: "El dominio sostenido es el área acumulada de victoria esperada en cada Gran Premio disputado por ese modelo.",
+          searchDrivers: "Buscar pilotos",
+          searchCars: "Buscar coches o constructores",
+          driverRankingSort: "Orden de pilotos",
+          carRankingSort: "Orden de coches",
+          bestMoment: "Mejor momento",
+          sustainedGreatness: "Grandeza sostenida",
+          sustainedDominance: "Dominio sostenido",
+          rankShort: "#",
+          driver: "Piloto",
+          car: "Coche",
+          peakEloShort: "Pico ELO",
+          greatnessScore: "Puntuación de grandeza",
+          peakExpectedWin: "Pico xW",
+          dominanceScore: "Puntuación de dominio",
+          eventsShort: "Eventos",
+          noRankingMatch: "No hay resultados coincidentes.",
+          showingAllCars: "Mostrando los {count} coches",
+          showingTopCars: "Mostrando los mejores 8 coches",
+          comparingOneCar: "Comparando 1 coche",
+          comparingManyCars: "Comparando {count} coches",
+          noCarsPlotted: "No hay coches graficados",
+          carSearchPlaceholder: "Buscar entre {count} coches",
+          carComparisonPlaceholder: "Busca en el índice de coches para preparar una comparación.",
+          removeCar: "Quitar {car}"
         }
       };
 
@@ -1546,12 +1793,20 @@
       const wikiSummary = document.getElementById("wiki-summary");
       const wikiLink = document.getElementById("wiki-link");
       const languageToggle = document.getElementById("language-toggle");
+      const entityDriversButton = document.getElementById("entity-drivers");
+      const entityCarsButton = document.getElementById("entity-cars");
+      const driverRankingSearch = document.getElementById("driver-ranking-search");
+      const carRankingSearch = document.getElementById("car-ranking-search");
+      const driverRankingBody = document.getElementById("driver-ranking-body");
+      const carRankingBody = document.getElementById("car-ranking-body");
       const datasetPicker = document.getElementById("dataset-picker");
       const datasetPickerButton = document.getElementById("dataset-picker-button");
       const datasetMenu = document.getElementById("dataset-menu");
       const datasetOptions = document.getElementById("dataset-options");
       const datasetError = document.getElementById("dataset-error");
       let activeProfileId = null;
+      let driverRankingSort = "area";
+      let carRankingSort = "area";
       const viewButtons = {
         all: document.getElementById("view-all"),
         top: document.getElementById("view-top"),
@@ -1573,6 +1828,9 @@
         return entry[localizedKey] || entry[key] || "";
       };
       const metricLabel = () => localized(catalogEntry()?.metric, "label") || t("yAxisTitle");
+      const activeEntities = () => entityType === "cars" ? cars : drivers;
+      const activeEntityList = () => entityType === "cars" ? carList : driverList;
+      const activeLeaders = () => entityType === "cars" ? payload.carLeaders || [] : payload.leaders;
       const hoverTemplate = () =>
         "<b>%{customdata[0]}</b><br>" +
         `${t("hoverSeason")} %{customdata[1]}<br>` +
@@ -1587,6 +1845,16 @@
         `${t("hoverConstructor")} %{customdata[6]}<br>` +
         `${t("hoverQualifying")} P%{customdata[11]} · ${t("hoverFinish")} P%{customdata[12]}<br>` +
         `${t("hoverStatus")} %{customdata[13]}<extra></extra>`;
+      const carHoverTemplate = () =>
+        "<b>%{customdata[0]}</b><br>" +
+        `${t("hoverSeason")} %{customdata[1]}<br>` +
+        `${t("hoverRound")} %{customdata[2]}<br>` +
+        "%{customdata[3]}<br><br>" +
+        `<b>${t("carYAxisTitle")}</b> %{y:.1%}<br>` +
+        `${t("hoverConstructor")} %{customdata[4]}<br>` +
+        `${t("hoverCarModel")} %{customdata[5]}<br>` +
+        `${t("hoverEntries")} %{customdata[6]}<br>` +
+        `${t("hoverBestFinish")} P%{customdata[7]}<extra></extra>`;
 
       function colorFor(id) {
         let hash = 0;
@@ -1610,11 +1878,37 @@
         document.querySelectorAll("[data-i18n-aria]").forEach(element => {
           element.setAttribute("aria-label", t(element.dataset.i18nAria));
         });
+        document.querySelectorAll("[data-i18n-placeholder]").forEach(element => {
+          element.setAttribute("placeholder", t(element.dataset.i18nPlaceholder));
+        });
         languageToggle.setAttribute("aria-label", t("languageAria"));
         document.getElementById("language-toggle-copy").textContent = t("languageCopy");
         document.getElementById("language-toggle-code").textContent = t("languageCode");
-        search.placeholder = tr("searchPlaceholder", { count: numberFormat.format(payload.meta.drivers) });
+        renderEntityLabels();
         renderDatasetMenu();
+        renderRankings();
+      }
+
+      function renderEntityLabels() {
+        const isCars = entityType === "cars";
+        const total = activeEntityList().length;
+        entityDriversButton.setAttribute("aria-selected", String(!isCars));
+        entityCarsButton.setAttribute("aria-selected", String(isCars));
+        document.getElementById("view-all-label").textContent = t(isCars ? "allCars" : "allDrivers");
+        document.getElementById("view-all-help").textContent = t(isCars ? "allCarsHelp" : "allDriversHelp");
+        document.getElementById("view-top-label").textContent = t(isCars ? "topCars" : "topEight");
+        document.getElementById("view-top-help").textContent = t(isCars ? "topCarsHelp" : "topEightHelp");
+        document.getElementById("view-compare-label").textContent = t(isCars ? "compareCars" : "compareDrivers");
+        document.getElementById("view-compare-help").textContent = t(isCars ? "compareCarsHelp" : "compareDriversHelp");
+        document.getElementById("entity-index-label").textContent = t(isCars ? "carIndex" : "driverIndex");
+        document.getElementById("entity-index-help").innerHTML = t(isCars ? "carIndexHelp" : "driverIndexHelp");
+        document.getElementById("empty-title").textContent = t(isCars ? "noCarsSelected" : "noDriversSelected");
+        document.getElementById("empty-help").textContent = t(isCars ? "carEmptyHelp" : "emptyHelp");
+        document.getElementById("hover-help").textContent = t(isCars ? "carHoverHelp" : "hoverHelp");
+        search.placeholder = tr(isCars ? "carSearchPlaceholder" : "searchPlaceholder", {
+          count: numberFormat.format(total)
+        });
+        driverIndex.setAttribute("aria-label", t(isCars ? "carIndex" : "allFormulaOneDrivers"));
       }
 
       function setDatasetSummary() {
@@ -1696,6 +1990,8 @@
           payload = nextPayload;
           drivers = payload.drivers;
           driverList = Object.values(drivers).sort((a, b) => a.name.localeCompare(b.name));
+          cars = payload.cars || {};
+          carList = Object.values(cars).sort((a, b) => a.name.localeCompare(b.name));
           activeDatasetId = datasetId;
           comparison.clear();
           appliedComparison = [];
@@ -1704,6 +2000,8 @@
           activeProfileId = null;
           if (driverDialog.open) driverDialog.close();
           search.value = "";
+          driverRankingSearch.value = "";
+          carRankingSearch.value = "";
           if (updateUrl) {
             const url = new URL(window.location.href);
             url.searchParams.set("dataset", datasetId);
@@ -1763,6 +2061,39 @@
         };
       }
 
+      function carTraceFor(car, overview = false) {
+        const x = [];
+        const y = [];
+        const customdata = [];
+        let previousRace = null;
+        for (const point of car.points) {
+          if (previousRace !== null && point[0] - previousRace > 1) {
+            x.push((previousRace + point[0]) / 2);
+            y.push(null);
+            customdata.push(null);
+          }
+          x.push(point[0]);
+          y.push(point[1]);
+          customdata.push([
+            car.name, point[2], point[3], point[4], point[5], point[6], point[7], point[8]
+          ]);
+          previousRace = point[0];
+        }
+        return {
+          type: "scattergl",
+          mode: "lines+markers",
+          name: car.name,
+          x,
+          y,
+          customdata,
+          connectgaps: false,
+          line: { color: colorFor(car.id), width: overview ? .9 : 2.4 },
+          marker: { color: colorFor(car.id), size: overview ? 2 : 5 },
+          opacity: overview ? .38 : 1,
+          hovertemplate: carHoverTemplate()
+        };
+      }
+
       function axisSettings() {
         if (axisMode === "name") {
           const step = Math.max(1, Math.ceil(payload.events.length / 24));
@@ -1786,29 +2117,41 @@
       }
 
       function renderChart() {
+        const entities = activeEntities();
+        const entityList = activeEntityList();
         const chosen = appliedMode === "all"
-          ? driverList
+          ? entityList
           : appliedMode === "top"
-            ? payload.leaders.map(id => drivers[id]).filter(Boolean)
-            : appliedComparison.map(id => drivers[id]).filter(Boolean);
+            ? activeLeaders().map(id => entities[id]).filter(Boolean)
+            : appliedComparison.map(id => entities[id]).filter(Boolean);
         empty.classList.toggle("visible", chosen.length === 0);
         if (chosen.length === 0) {
           Plotly.purge(chart);
-          count.textContent = t("noDriversPlotted");
+          count.textContent = t(entityType === "cars" ? "noCarsPlotted" : "noDriversPlotted");
           return;
         }
-        const traces = chosen.map(driver => traceFor(driver, appliedMode === "all"));
-        const selectedRaceIndexes = chosen.flatMap(driver => driver.points.map(point => point[0]));
+        const traces = chosen.map(entity => entityType === "cars"
+          ? carTraceFor(entity, appliedMode === "all")
+          : traceFor(entity, appliedMode === "all"));
+        const selectedRaceIndexes = chosen.flatMap(entity => entity.points.map(point => point[0]));
         const selectedStart = Math.min(...selectedRaceIndexes);
         const selectedEnd = Math.max(...selectedRaceIndexes);
         const selectedPadding = Math.max(8, Math.round((selectedEnd - selectedStart) * .035));
-        count.textContent = appliedMode === "all"
-          ? tr("showingAll", { count: numberFormat.format(chosen.length) })
-          : appliedMode === "top"
-            ? t("showingTop")
-            : chosen.length === 1
-              ? t("comparingOne")
-              : tr("comparingMany", { count: numberFormat.format(chosen.length) });
+        count.textContent = entityType === "cars"
+          ? appliedMode === "all"
+            ? tr("showingAllCars", { count: numberFormat.format(chosen.length) })
+            : appliedMode === "top"
+              ? t("showingTopCars")
+              : chosen.length === 1
+                ? t("comparingOneCar")
+                : tr("comparingManyCars", { count: numberFormat.format(chosen.length) })
+          : appliedMode === "all"
+            ? tr("showingAll", { count: numberFormat.format(chosen.length) })
+            : appliedMode === "top"
+              ? t("showingTop")
+              : chosen.length === 1
+                ? t("comparingOne")
+                : tr("comparingMany", { count: numberFormat.format(chosen.length) });
         const layout = {
           paper_bgcolor: "#131412",
           plot_bgcolor: "#131412",
@@ -1831,13 +2174,15 @@
                 ]
           },
           yaxis: {
-            title: { text: metricLabel(), standoff: 12 },
+            title: { text: entityType === "cars" ? t("carYAxisTitle") : metricLabel(), standoff: 12 },
             color: "#85867f",
             gridcolor: "#292a26",
             zeroline: false,
             fixedrange: false,
             rangemode: "nonnegative",
-            minallowed: 0
+            minallowed: 0,
+            tickformat: entityType === "cars" ? ".0%" : undefined,
+            range: entityType === "cars" ? [0, 1] : undefined
           },
           dragmode: "pan",
           transition: { duration: 180 }
@@ -1853,16 +2198,19 @@
       function renderChips() {
         chips.replaceChildren();
         const fragment = document.createDocumentFragment();
+        const entities = activeEntities();
         for (const id of comparison) {
-          const driver = drivers[id];
-          if (!driver) continue;
+          const entity = entities[id];
+          if (!entity) continue;
           const chip = document.createElement("span");
           chip.className = "chip";
           chip.style.setProperty("--chip-color", colorFor(id));
-          chip.innerHTML = `<span class="chip-dot" aria-hidden="true"></span><span>${esc(driver.name)}</span>`;
+          chip.innerHTML = `<span class="chip-dot" aria-hidden="true"></span><span>${esc(entity.name)}</span>`;
           const remove = document.createElement("button");
           remove.type = "button";
-          remove.setAttribute("aria-label", tr("removeDriver", { driver: driver.name }));
+          remove.setAttribute("aria-label", entityType === "cars"
+            ? tr("removeCar", { car: entity.name })
+            : tr("removeDriver", { driver: entity.name }));
           remove.textContent = "×";
           remove.addEventListener("click", () => {
             comparison.delete(id);
@@ -1874,7 +2222,7 @@
         if (comparison.size === 0) {
           const placeholder = document.createElement("span");
           placeholder.className = "selection-placeholder";
-          placeholder.textContent = t("comparisonPlaceholder");
+          placeholder.textContent = t(entityType === "cars" ? "carComparisonPlaceholder" : "comparisonPlaceholder");
           fragment.appendChild(placeholder);
         }
         chips.appendChild(fragment);
@@ -1886,13 +2234,18 @@
           button.setAttribute("aria-pressed", String(name === mode));
         }
         plotButton.disabled = mode === "compare" && comparison.size === 0;
-        plotButton.textContent = mode === "all"
-          ? t("plotAll")
-          : mode === "top"
-            ? t("plotTop")
-            : tr("plotComparison", {
-                count: comparison.size ? ` (${numberFormat.format(comparison.size)})` : ""
-              });
+        const suffix = comparison.size ? ` (${numberFormat.format(comparison.size)})` : "";
+        plotButton.textContent = entityType === "cars"
+          ? mode === "all"
+            ? t("plotAllCars")
+            : mode === "top"
+              ? t("plotTopCars")
+              : tr("plotCarComparison", { count: suffix })
+          : mode === "all"
+            ? t("plotAll")
+            : mode === "top"
+              ? t("plotTop")
+              : tr("plotComparison", { count: suffix });
       }
 
       function renderDraftControls() {
@@ -1911,11 +2264,25 @@
         renderDraftControls();
       }
 
+      function setEntityType(nextType) {
+        if (nextType === entityType) return;
+        entityType = nextType;
+        comparison.clear();
+        appliedComparison = [];
+        draftMode = "all";
+        appliedMode = "all";
+        search.value = "";
+        renderEntityLabels();
+        renderDraftControls();
+        renderChart();
+      }
+
       function renderDriverIndex(query = "") {
         const normalized = searchKey(query.trim());
+        const entityList = activeEntityList();
         const matches = normalized
-          ? driverList.filter(driver => searchKey(driver.name).includes(normalized))
-          : driverList;
+          ? entityList.filter(entity => searchKey(`${entity.name} ${entity.constructor || ""} ${entity.model || ""}`).includes(normalized))
+          : entityList;
         driverIndex.replaceChildren();
         const fragment = document.createDocumentFragment();
         for (const driver of matches) {
@@ -1929,20 +2296,27 @@
           select.setAttribute("role", "option");
           select.setAttribute("aria-selected", String(comparison.has(driver.id)));
           select.setAttribute("aria-pressed", String(comparison.has(driver.id)));
+          const entityMeta = entityType === "cars"
+            ? `${driver.debut}${driver.lastSeason !== driver.debut ? `–${driver.lastSeason}` : ""} · ${numberFormat.format(driver.events)} ${t("eventsShort").toLocaleLowerCase()}`
+            : `${driver.debut}–${driver.lastSeason} · ${numberFormat.format(driver.races)} ${t("starts")}`;
           select.innerHTML = `
             <span class="driver-index-dot" aria-hidden="true"></span>
-            <span><span class="driver-index-name">${esc(driver.name)}</span><span class="driver-index-meta">${driver.debut}–${driver.lastSeason} · ${numberFormat.format(driver.races)} ${t("starts")}</span></span>
+            <span><span class="driver-index-name">${esc(driver.name)}</span><span class="driver-index-meta">${esc(entityMeta)}</span></span>
             <span class="driver-selected-mark">${comparison.has(driver.id) ? t("selected") : ""}</span>`;
           select.addEventListener("click", () => toggleDriver(driver.id));
 
-          const info = document.createElement("button");
-          info.type = "button";
-          info.className = "driver-info";
-          info.textContent = "i";
-          info.setAttribute("aria-label", tr("openProfile", { driver: driver.name }));
-          info.addEventListener("click", () => openDriverProfile(driver.id));
-
-          row.append(select, info);
+          if (entityType === "drivers") {
+            const info = document.createElement("button");
+            info.type = "button";
+            info.className = "driver-info";
+            info.textContent = "i";
+            info.setAttribute("aria-label", tr("openProfile", { driver: driver.name }));
+            info.addEventListener("click", () => openDriverProfile(driver.id));
+            row.append(select, info);
+          } else {
+            row.append(select);
+            row.style.gridTemplateColumns = "minmax(0, 1fr)";
+          }
           fragment.appendChild(row);
         }
         if (matches.length === 0) {
@@ -2139,13 +2513,129 @@
           worstMoment.driverId);
       }
 
+      function plotEntityFromRanking(type, id) {
+        if (entityType !== type) setEntityType(type);
+        comparison.clear();
+        comparison.add(id);
+        draftMode = "compare";
+        appliedMode = "compare";
+        appliedComparison = [id];
+        renderDraftControls();
+        renderChart();
+        document.getElementById("explorer-title").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function activateRankingRow(row, type, id) {
+        row.tabIndex = 0;
+        row.setAttribute("role", "button");
+        row.addEventListener("click", () => plotEntityFromRanking(type, id));
+        row.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            plotEntityFromRanking(type, id);
+          }
+        });
+      }
+
+      function renderDriverRanking() {
+        const query = searchKey(driverRankingSearch.value.trim());
+        const scoreKey = driverRankingSort === "peak" ? "peak" : "greatnessScore";
+        const sorted = [...(payload.rankings?.drivers || [])].sort((a, b) =>
+          (b[scoreKey] ?? Number.NEGATIVE_INFINITY) - (a[scoreKey] ?? Number.NEGATIVE_INFINITY));
+        const rankById = new Map(sorted.map((record, index) => [record.id, index + 1]));
+        const records = query
+          ? sorted.filter(record => searchKey(record.name).includes(query))
+          : sorted;
+        driverRankingBody.replaceChildren();
+        if (records.length === 0) {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td colspan="5" class="ranking-empty">${t("noRankingMatch")}</td>`;
+          driverRankingBody.appendChild(row);
+          return;
+        }
+        const fragment = document.createDocumentFragment();
+        for (const record of records) {
+          const row = document.createElement("tr");
+          row.title = `${record.peakSeason} ${record.peakEvent}`;
+          row.innerHTML = `
+            <td class="ranking-position">${numberFormat.format(rankById.get(record.id))}</td>
+            <td>${esc(record.name)}</td>
+            <td class="${driverRankingSort === "peak" ? "ranking-primary" : ""}">${displayNumber(record.peak)}</td>
+            <td class="${driverRankingSort === "area" ? "ranking-primary" : ""}">${record.greatnessScore == null ? "—" : signed(record.greatnessScore)}</td>
+            <td>${numberFormat.format(record.events)}</td>`;
+          activateRankingRow(row, "drivers", record.id);
+          fragment.appendChild(row);
+        }
+        driverRankingBody.appendChild(fragment);
+      }
+
+      function renderCarRanking() {
+        const query = searchKey(carRankingSearch.value.trim());
+        const scoreKey = carRankingSort === "peak" ? "peak" : "dominanceScore";
+        const sorted = [...(payload.rankings?.cars || [])].sort((a, b) => b[scoreKey] - a[scoreKey]);
+        const rankById = new Map(sorted.map((record, index) => [record.id, index + 1]));
+        const records = query
+          ? sorted.filter(record => searchKey(`${record.name} ${record.constructor} ${record.model}`).includes(query))
+          : sorted;
+        carRankingBody.replaceChildren();
+        if (records.length === 0) {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td colspan="5" class="ranking-empty">${t("noRankingMatch")}</td>`;
+          carRankingBody.appendChild(row);
+          return;
+        }
+        const fragment = document.createDocumentFragment();
+        for (const record of records) {
+          const row = document.createElement("tr");
+          row.title = `${record.peakSeason} ${record.peakEvent}`;
+          row.innerHTML = `
+            <td class="ranking-position">${numberFormat.format(rankById.get(record.id))}</td>
+            <td>${esc(record.name)}</td>
+            <td class="${carRankingSort === "peak" ? "ranking-primary" : ""}">${displayNumber(record.peak, 2)}%</td>
+            <td class="${carRankingSort === "area" ? "ranking-primary" : ""}">${displayNumber(record.dominanceScore, 1)}</td>
+            <td>${numberFormat.format(record.events)}</td>`;
+          activateRankingRow(row, "cars", record.id);
+          fragment.appendChild(row);
+        }
+        carRankingBody.appendChild(fragment);
+      }
+
+      function renderRankings() {
+        document.getElementById("driver-sort-peak").setAttribute("aria-pressed", String(driverRankingSort === "peak"));
+        document.getElementById("driver-sort-area").setAttribute("aria-pressed", String(driverRankingSort === "area"));
+        document.getElementById("car-sort-peak").setAttribute("aria-pressed", String(carRankingSort === "peak"));
+        document.getElementById("car-sort-area").setAttribute("aria-pressed", String(carRankingSort === "area"));
+        renderDriverRanking();
+        renderCarRanking();
+      }
+
       search.addEventListener("input", event => renderDriverIndex(event.target.value));
       search.addEventListener("keydown", event => {
         if (event.key === "Enter") {
           const normalized = searchKey(search.value.trim());
-          const match = driverList.find(driver => searchKey(driver.name).includes(normalized));
+          const match = activeEntityList().find(entity => searchKey(entity.name).includes(normalized));
           if (normalized && match) toggleDriver(match.id);
         }
+      });
+      entityDriversButton.addEventListener("click", () => setEntityType("drivers"));
+      entityCarsButton.addEventListener("click", () => setEntityType("cars"));
+      driverRankingSearch.addEventListener("input", renderDriverRanking);
+      carRankingSearch.addEventListener("input", renderCarRanking);
+      document.getElementById("driver-sort-peak").addEventListener("click", () => {
+        driverRankingSort = "peak";
+        renderRankings();
+      });
+      document.getElementById("driver-sort-area").addEventListener("click", () => {
+        driverRankingSort = "area";
+        renderRankings();
+      });
+      document.getElementById("car-sort-peak").addEventListener("click", () => {
+        carRankingSort = "peak";
+        renderRankings();
+      });
+      document.getElementById("car-sort-area").addEventListener("click", () => {
+        carRankingSort = "area";
+        renderRankings();
       });
       document.getElementById("search-clear").addEventListener("click", () => {
         search.value = "";

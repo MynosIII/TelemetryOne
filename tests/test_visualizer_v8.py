@@ -103,6 +103,10 @@ def test_payload_contains_searchable_drivers_and_ordered_hover_fields() -> None:
     assert set(payload["drivers"]) == {"lauda", "reutemann"}
     assert payload["drivers"]["lauda"]["points"][0][2:5] == [1978, 1, "Monaco Grand Prix"]
     assert "bestPrime" in payload["metrics"]
+    assert set(payload["cars"]) == {"car-lauda", "car-reutemann"}
+    assert payload["cars"]["car-lauda"]["peak"] == 40.0
+    assert payload["rankings"]["cars"][0]["dominanceScore"] == 1040.0
+    assert len(payload["rankings"]["drivers"]) == 2
     assert payload["metrics"]["lowestCareerRating"]["driverId"] == "reutemann"
     assert payload["metrics"]["lowestCurrentRating"]["driverId"] == "lauda"
 
@@ -122,6 +126,11 @@ def test_writer_builds_standalone_gui_from_existing_parquets(tmp_path: Path) -> 
     assert "All drivers" in html
     assert "Plot all drivers" in html
     assert "Compare drivers" in html
+    assert "Car plot" in html
+    assert "Sustained greatness" in html
+    assert "Sustained dominance" in html
+    assert 'id="driver-ranking-search"' in html
+    assert 'id="car-ranking-search"' in html
     assert "Deselect all" in html
     assert "Race names" in html
     assert "Current driver index" in html

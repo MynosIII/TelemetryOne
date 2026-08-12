@@ -179,6 +179,123 @@ def _career_curve_areas(data: pd.DataFrame, minimum_races: int = 25) -> pd.DataF
     return pd.DataFrame(rows)
 
 
+def _car_win_column(data: pd.DataFrame) -> str:
+    """Use the newest available car-strength estimate for the selected release."""
+
+    for column in ("expected_car_win_v7_6", "expected_car_win_v6"):
+        if column in data.columns and pd.to_numeric(data[column], errors="coerce").notna().any():
+            return column
+    raise ValueError("Rating history has no usable expected-car-win column")
+
+
+def _pretty_car_model(model_entity_id: str, constructor: str) -> str:
+    model = str(model_entity_id)
+    if model.startswith("constructor:"):
+        return "Model unresolved"
+    tokens = model.replace("_", "-").split("-")
+    constructor_tokens = re.sub(r"[^a-z0-9]+", "-", constructor.lower()).strip("-").split("-")
+    while tokens and constructor_tokens and tokens[0].lower() == constructor_tokens[0]:
+        tokens.pop(0)
+        constructor_tokens.pop(0)
+    if not tokens:
+        return model.replace("-", " ").title()
+    rendered = []
+    for token in tokens:
+        rendered.append(token.upper() if any(character.isdigit() for character in token) else token.title())
+    return " ".join(rendered)
+
+
+def _build_car_data_v8(data: pd.DataFrame) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Build one circuit-sensitive car-strength observation per car and Grand Prix."""
+
+    win_column = _car_win_column(data)
+    eligible = data[data["rating_eligible"]].copy()
+    eligible["car_strength"] = pd.to_numeric(eligible[win_column], errors="coerce")
+    eligible = eligible[eligible["car_strength"].notna()].copy()
+    model_ids = eligible["model_entity_id"].astype(str)
+    exact_model = ~model_ids.str.startswith("constructor:")
+    eligible["car_id"] = np.where(
+        exact_model,
+        model_ids,
+        eligible["season"].astype(str) + ":" + model_ids,
+    )
+    car_events = (
+        eligible.groupby(
+            [
+                "car_id",
+                "model_entity_id",
+                "constructor",
+                "event_index",
+                "race_index",
+                "race_label",
+                "season",
+                "round",
+                "event",
+            ],
+            dropna=False,
+        )
+        .agg(
+            expected_car_win=("car_strength", "mean"),
+            entries=("driver_id", "nunique"),
+            best_finish=("position", "min"),
+        )
+        .reset_index()
+        .sort_values(["car_id", "race_index"], kind="stable")
+    )
+    car_payload: dict[str, Any] = {}
+    car_rankings: list[dict[str, Any]] = []
+    for car_id, history in car_events.groupby("car_id", sort=False):
+        history = history.sort_values("race_index", kind="stable")
+        constructor = str(history.iloc[0]["constructor"])
+        model_entity_id = str(history.iloc[0]["model_entity_id"])
+        first_season = int(history["season"].min())
+        last_season = int(history["season"].max())
+        unresolved = model_entity_id.startswith("constructor:")
+        model_name = _pretty_car_model(model_entity_id, constructor)
+        label = (
+            f"{first_season} {constructor} · model unresolved"
+            if unresolved
+            else f"{constructor} · {model_name}"
+        )
+        peak_row = history.nlargest(1, "expected_car_win").iloc[0]
+        expected = history["expected_car_win"].to_numpy(dtype=float)
+        points = [
+            [
+                int(row.race_index),
+                _json_value(row.expected_car_win, 4),
+                int(row.season),
+                int(row.round),
+                str(row.event),
+                str(row.constructor),
+                str(row.model_entity_id),
+                int(row.entries),
+                _json_value(row.best_finish, 0),
+                str(row.race_label),
+            ]
+            for row in history.itertuples(index=False)
+        ]
+        record = {
+            "id": str(car_id),
+            "name": label,
+            "constructor": constructor,
+            "model": model_name,
+            "modelEntityId": model_entity_id,
+            "identity": "unresolved" if unresolved else "model",
+            "events": int(history["event_index"].nunique()),
+            "debut": first_season,
+            "lastSeason": last_season,
+            "peak": round(100.0 * float(peak_row["expected_car_win"]), 2),
+            "peakSeason": int(peak_row["season"]),
+            "peakEvent": str(peak_row["event"]),
+            "dominanceScore": round(100.0 * float(expected.sum()), 1),
+            "averageStrength": round(100.0 * float(expected.mean()), 2),
+            "points": points,
+        }
+        car_payload[str(car_id)] = record
+        car_rankings.append({key: value for key, value in record.items() if key != "points"})
+    return car_payload, car_rankings
+
+
 def _driver_record(row: pd.Series) -> dict[str, Any]:
     return {
         "driverId": str(row["driver_id"]),
@@ -213,10 +330,11 @@ def compute_visualizer_metrics_v8(
     )
 
     eligible = data[data["rating_eligible"]].copy()
+    car_win_column = _car_win_column(eligible)
     car_events = (
         eligible.groupby(
             ["season", "model_entity_id", "constructor", "event_index"], dropna=False
-        )["expected_car_win_v6"]
+        )[car_win_column]
         .mean()
         .rename("expected_car_win")
         .reset_index()
@@ -300,6 +418,10 @@ def build_visualizer_payload_v8(
 ) -> dict[str, Any]:
     _validate(history, ranking)
     data = add_visualizer_fields_v8(history)
+    car_win_column = _car_win_column(data)
+    data["visualizer_expected_car_win"] = pd.to_numeric(
+        data[car_win_column], errors="coerce"
+    )
     events = (
         data[["event_index", "race_index", "race_label", "season", "round", "event"]]
         .drop_duplicates("event_index")
@@ -326,7 +448,7 @@ def build_visualizer_payload_v8(
                     _json_value(row.retrospective_total_delta, 2),
                     _json_value(row.XP, 3),
                     _json_value(row.retrospective_expected_performance, 3),
-                    _json_value(row.expected_car_win_v6, 3),
+                    _json_value(row.visualizer_expected_car_win, 3),
                     _json_value(getattr(row, "qualifying_position", None), 0),
                     _json_value(row.position, 0),
                     str(row.status_class),
@@ -372,14 +494,57 @@ def build_visualizer_payload_v8(
             "points": points,
         }
 
+    career_areas = _career_curve_areas(data)
+    areas_lookup = career_areas.set_index("driver_id") if not career_areas.empty else None
+    driver_rankings: list[dict[str, Any]] = []
+    for driver_id, career in data.groupby("driver_id", sort=False):
+        driver_id = str(driver_id)
+        career = career.sort_values("race_index", kind="stable").drop_duplicates("event_index")
+        ranked = ranking_lookup.loc[driver_id] if driver_id in ranking_lookup.index else None
+        peak_row = career.nlargest(1, "retrospective_rating").iloc[0]
+        area = (
+            areas_lookup.loc[driver_id]
+            if areas_lookup is not None and driver_id in areas_lookup.index
+            else None
+        )
+        driver_rankings.append(
+            {
+                "id": driver_id,
+                "name": str(career.iloc[0]["driver"]),
+                "peak": round(float(peak_row["retrospective_rating"]), 1),
+                "peakSeason": int(peak_row["season"]),
+                "peakEvent": str(peak_row["event"]),
+                "greatnessScore": (
+                    round(float(area["career_curve_area"])) if area is not None else None
+                ),
+                "meanAdvantage": (
+                    round(float(area["mean_field_advantage"]), 1)
+                    if area is not None
+                    else None
+                ),
+                "events": int(career["event_index"].nunique()),
+                "debut": int(career["season"].min()),
+                "lastSeason": int(career["season"].max()),
+                "rank": int(ranked["rank"]) if ranked is not None else None,
+            }
+        )
+
+    car_payload, car_rankings = _build_car_data_v8(data)
     ranked_drivers = ranking.sort_values("rank")["driver_id"].astype(str).tolist()
     leaders = [driver_id for driver_id in ranked_drivers if driver_id in driver_payload][:8]
+    car_leaders = [
+        record["id"]
+        for record in sorted(
+            car_rankings, key=lambda record: record["dominanceScore"], reverse=True
+        )[:8]
+    ]
     metrics = compute_visualizer_metrics_v8(data, ranking)
     return {
         "meta": {
             "title": "F1 Historical Rating Lab",
             "model": source_label,
             "drivers": len(driver_payload),
+            "cars": len(car_payload),
             "observations": int(len(data)),
             "events": int(events["event_index"].nunique()),
             "seasons": int(data["season"].nunique()),
@@ -396,6 +561,12 @@ def build_visualizer_payload_v8(
         ],
         "drivers": driver_payload,
         "leaders": leaders,
+        "cars": car_payload,
+        "carLeaders": car_leaders,
+        "rankings": {
+            "drivers": driver_rankings,
+            "cars": car_rankings,
+        },
         "metrics": metrics,
     }
 

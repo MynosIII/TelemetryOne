@@ -1,8 +1,8 @@
 # TelemetryOne
 
 TelemetryOne is an interactive Formula 1 historical driver-rating visualizer. It presents
-the already-calculated Rookie Backcast v7.1 retrospective ELO history without rerunning or
-changing the analytical model.
+the already-calculated Pairwise Margin + Rookie Backcast v7.4 retrospective ELO history
+without rerunning or changing the analytical model.
 
 ## Live site
 

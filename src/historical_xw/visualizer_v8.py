@@ -149,6 +149,69 @@ def add_visualizer_fields_v8(history: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
+def build_number_one_reigns_v8(data: pd.DataFrame) -> list[dict[str, Any]]:
+    """Return uninterrupted post-race ELO leadership spells in event order."""
+
+    if data.empty:
+        return []
+    leaders = (
+        data.sort_values(
+            ["event_index", "retrospective_rating", "driver_id"],
+            ascending=[True, False, True],
+            kind="stable",
+        )
+        .drop_duplicates("event_index")
+        .sort_values("race_index", kind="stable")
+        .copy()
+    )
+    leaders["reign_id"] = leaders["driver_id"].ne(
+        leaders["driver_id"].shift()
+    ).cumsum()
+    last_race_index = int(leaders["race_index"].max())
+    driver_reign_counts: dict[str, int] = {}
+    reigns: list[dict[str, Any]] = []
+    for _, spell in leaders.groupby("reign_id", sort=True):
+        spell = spell.sort_values("race_index", kind="stable")
+        first = spell.iloc[0]
+        last = spell.iloc[-1]
+        driver_id = str(first["driver_id"])
+        driver_reign_counts[driver_id] = driver_reign_counts.get(driver_id, 0) + 1
+        start_date = pd.to_datetime(first.get("date"), errors="coerce")
+        end_date = pd.to_datetime(last.get("date"), errors="coerce")
+        calendar_days = (
+            int((end_date - start_date).days)
+            if pd.notna(start_date) and pd.notna(end_date)
+            else None
+        )
+        reigns.append(
+            {
+                "sequence": len(reigns) + 1,
+                "driverId": driver_id,
+                "driver": str(first["driver"]),
+                "driverReign": driver_reign_counts[driver_id],
+                "start": {
+                    "raceIndex": int(first["race_index"]),
+                    "season": int(first["season"]),
+                    "round": int(first["round"]),
+                    "event": str(first["event"]),
+                    "date": start_date.strftime("%Y-%m-%d") if pd.notna(start_date) else None,
+                },
+                "end": {
+                    "raceIndex": int(last["race_index"]),
+                    "season": int(last["season"]),
+                    "round": int(last["round"]),
+                    "event": str(last["event"]),
+                    "date": end_date.strftime("%Y-%m-%d") if pd.notna(end_date) else None,
+                },
+                "consecutiveRaces": int(len(spell)),
+                "calendarDays": calendar_days,
+                "peakElo": round(float(spell["retrospective_rating"].max()), 1),
+                "current": int(last["race_index"]) == last_race_index,
+            }
+        )
+    return reigns
+
+
 def _career_curve_areas(data: pd.DataFrame, minimum_races: int = 25) -> pd.DataFrame:
     rows: list[dict[str, Any]] = []
     for driver_id, career in data.groupby("driver_id", sort=False):
@@ -539,6 +602,7 @@ def build_visualizer_payload_v8(
         )[:8]
     ]
     metrics = compute_visualizer_metrics_v8(data, ranking)
+    number_one_reigns = build_number_one_reigns_v8(data)
     return {
         "meta": {
             "title": "F1 Historical Rating Lab",
@@ -568,6 +632,7 @@ def build_visualizer_payload_v8(
             "cars": car_rankings,
         },
         "metrics": metrics,
+        "numberOneReigns": number_one_reigns,
     }
 
 

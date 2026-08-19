@@ -28,6 +28,8 @@ The production site is deployed as a Render Static Site from `public/index.html`
 - Hover details include the race, event-level driver index, ELO change, xP, car expectation,
   qualifying, finish, and status.
 - Record cards open driver statistics and read-only Wikipedia biography enrichment.
+- A chronological No. 1 table closes the page with every uninterrupted reign at the top,
+  its starting and ending Grands Prix, race and calendar-day lengths, and driver portraits.
 - The ELO axis cannot be zoomed or panned below zero.
 
 ## Record definitions

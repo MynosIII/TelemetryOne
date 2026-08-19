@@ -918,6 +918,119 @@
     .ranking-primary { color: var(--lime) !important; font-weight: 800; }
     .ranking-empty { padding: 34px 20px; color: var(--muted); text-align: center; }
 
+    .number-one { margin-top: 82px; }
+
+    .number-one-table {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #131412;
+      box-shadow: var(--shadow);
+    }
+
+    .number-one-head,
+    .number-one-row {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) minmax(220px, 1.2fr) minmax(180px, 1fr) 110px 110px;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .number-one-head {
+      padding: 12px 20px;
+      background: #1b1c18;
+      color: var(--faint);
+      font-size: .64rem;
+      font-weight: 800;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+
+    .number-one-head span:nth-last-child(-n + 2) { text-align: right; }
+
+    .number-one-row {
+      position: relative;
+      min-height: 96px;
+      padding: 14px 20px;
+      border-top: 1px solid #292a26;
+    }
+
+    .number-one-row::before {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 3px;
+      background: var(--leader-color, var(--lime));
+      content: "";
+      opacity: .82;
+    }
+
+    .number-one-row:hover { background: #181916; }
+
+    .number-one-event strong,
+    .number-one-event span { display: block; }
+
+    .number-one-event strong { color: var(--ink); font-size: .84rem; line-height: 1.35; }
+    .number-one-event span { margin-top: 5px; color: var(--faint); font-size: .68rem; }
+
+    .number-one-driver {
+      display: grid;
+      grid-template-columns: 60px minmax(0, 1fr);
+      align-items: center;
+      gap: 13px;
+      min-width: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .number-one-driver:focus-visible {
+      border-radius: 10px;
+      outline: 2px solid var(--blue);
+      outline-offset: 4px;
+    }
+
+    .number-one-portrait {
+      position: relative;
+      display: grid;
+      width: 60px;
+      height: 68px;
+      overflow: hidden;
+      place-items: center;
+      border: 1px solid #3e3f39;
+      border-radius: 11px;
+      background: #252620;
+      color: var(--lime);
+      font-size: .75rem;
+      font-weight: 850;
+      letter-spacing: .06em;
+    }
+
+    .number-one-portrait img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .number-one-driver-copy { min-width: 0; }
+    .number-one-driver-name { display: block; overflow: hidden; color: var(--ink); font-size: .95rem; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+    .number-one-reign { display: block; margin-top: 4px; color: var(--faint); font-size: .68rem; }
+    .number-one-current { color: var(--lime); }
+
+    .number-one-stat { text-align: right; }
+    .number-one-stat strong,
+    .number-one-stat span { display: block; }
+    .number-one-stat strong { color: var(--ink); font-size: 1.12rem; font-variant-numeric: tabular-nums; }
+    .number-one-stat span { margin-top: 4px; color: var(--faint); font-size: .65rem; }
+
+    .number-one-empty { padding: 34px 20px; color: var(--muted); text-align: center; }
+
     .methodology {
       margin-top: 60px;
       border-top: 1px solid var(--line);
@@ -1099,10 +1212,21 @@
       .chart-note span { display: block; margin-top: 4px; }
       .records { margin-top: 58px; }
       .rankings { margin-top: 58px; }
+      .number-one { margin-top: 58px; }
       .records-grid { grid-template-columns: 1fr; }
       .ranking-controls { grid-template-columns: 1fr; }
       .ranking-sort { display: grid; grid-template-columns: 1fr 1fr; }
       .ranking-table-wrap { max-height: 480px; }
+      .number-one-head { display: none; }
+      .number-one-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 18px 14px;
+        padding: 18px;
+      }
+      .number-one-driver { grid-column: 1 / -1; grid-row: 1; }
+      .number-one-event:nth-of-type(1) { grid-column: 1; }
+      .number-one-event:nth-of-type(2) { grid-column: 2; }
+      .number-one-stat { padding-top: 12px; border-top: 1px solid #2d2e29; text-align: left; }
       .record-card.hero { min-height: 430px; }
       .method-copy { grid-template-columns: 1fr; gap: 16px; }
       .profile-head,
@@ -1336,8 +1460,29 @@
           <p data-i18n-html="methodCar"><strong>Best car</strong>The highest season-average expected-car-win value in the selected release for a model with at least four events. It measures model expectation, not championship points.</p>
           <p data-i18n-html="methodDriverRanking"><strong>Sustained greatness</strong>The signed area of driver ELO above or below each event’s field median. Drivers need 25 events and retirement gaps are not bridged.</p>
           <p data-i18n-html="methodCarRanking"><strong>Sustained dominance</strong>The sum of a car model’s expected-win probability across entered events, expressed as xW points. Ambiguous historical models remain season-scoped.</p>
+          <p data-i18n-html="methodNumberOne"><strong>No. 1 chronology</strong>At each Grand Prix, the highest post-race retrospective ELO among participating drivers is the leader. Adjacent events led by the same driver form one reign.</p>
         </div>
       </details>
+    </section>
+
+    <section class="number-one" id="number-one-section" aria-labelledby="number-one-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow" data-i18n="numberOneEyebrow">Chronological No. 1</p>
+          <h2 id="number-one-title" data-i18n="numberOneTitle">The line of succession</h2>
+        </div>
+        <p data-i18n="numberOneIntro">Every uninterrupted spell leading the post-race retrospective ELO. Drivers return whenever they reclaim the top position.</p>
+      </div>
+      <div class="number-one-table" role="table" aria-label="Chronological Formula 1 number one drivers" data-i18n-aria="numberOneTableLabel">
+        <div class="number-one-head" role="row">
+          <span role="columnheader" data-i18n="becameNumberOne">Became No. 1</span>
+          <span role="columnheader" data-i18n="driver">Driver</span>
+          <span role="columnheader" data-i18n="heldThrough">Held through</span>
+          <span role="columnheader" data-i18n="consecutiveRaces">Races</span>
+          <span role="columnheader" data-i18n="calendarDays">Days</span>
+        </div>
+        <div id="number-one-body" role="rowgroup"></div>
+      </div>
     </section>
   </main>
 
@@ -1467,6 +1612,7 @@
           methodCar: "<strong>Best car</strong>The highest season-average expected-car-win value in the selected release for a model with at least four events. It measures model expectation, not championship points.",
           methodDriverRanking: "<strong>Sustained greatness</strong>The signed area of driver ELO above or below each event’s field median. Drivers need 25 events and retirement gaps are not bridged.",
           methodCarRanking: "<strong>Sustained dominance</strong>The sum of a car model’s expected-win probability across entered events, expressed as xW points. Ambiguous historical models remain season-scoped.",
+          methodNumberOne: "<strong>No. 1 chronology</strong>At each Grand Prix, the highest post-race retrospective ELO among participating drivers is the leader. Adjacent events led by the same driver form one reign.",
           closeProfile: "Close driver profile",
           driverProfile: "Driver profile",
           fromWikipedia: "From Wikipedia",
@@ -1574,6 +1720,21 @@
           dominanceScore: "Dominance score",
           eventsShort: "Events",
           noRankingMatch: "No matching result.",
+          numberOneEyebrow: "Chronological No. 1",
+          numberOneTitle: "The line of succession",
+          numberOneIntro: "Every uninterrupted spell leading the post-race retrospective ELO. Drivers return whenever they reclaim the top position.",
+          numberOneTableLabel: "Chronological Formula 1 number one drivers",
+          becameNumberOne: "Became No. 1",
+          heldThrough: "Held through",
+          consecutiveRaces: "Races",
+          calendarDays: "Days",
+          reignNumber: "No. 1 reign {number}",
+          latestDatasetEvent: "Latest GP in dataset",
+          raceCountOne: "1 consecutive race",
+          raceCountMany: "{count} consecutive races",
+          dayCountOne: "1 calendar day",
+          dayCountMany: "{count} calendar days",
+          noNumberOneHistory: "No chronological leadership history is available for this dataset.",
           showingAllCars: "Showing all {count} cars",
           showingTopCars: "Showing the top 8 cars",
           comparingOneCar: "Comparing 1 car",
@@ -1659,6 +1820,7 @@
           methodCar: "<strong>Mejor coche</strong>El mayor promedio estacional de victoria esperada de la versión seleccionada para un modelo con al menos cuatro eventos. Mide la expectativa del modelo, no los puntos del campeonato.",
           methodDriverRanking: "<strong>Grandeza sostenida</strong>El área con signo del ELO del piloto sobre o bajo la mediana de cada evento. Se exigen 25 eventos y no se conectan los intervalos de retiro.",
           methodCarRanking: "<strong>Dominio sostenido</strong>La suma de la probabilidad de victoria esperada del modelo en los eventos disputados, expresada en puntos xW. Los modelos históricos ambiguos quedan limitados a una temporada.",
+          methodNumberOne: "<strong>Cronología del n.º 1</strong>En cada Gran Premio, lidera el ELO retrospectivo posterior a la carrera más alto entre los pilotos participantes. Los eventos adyacentes liderados por el mismo piloto forman un reinado.",
           closeProfile: "Cerrar perfil del piloto",
           driverProfile: "Perfil del piloto",
           fromWikipedia: "De Wikipedia",
@@ -1766,6 +1928,21 @@
           dominanceScore: "Puntuación de dominio",
           eventsShort: "Eventos",
           noRankingMatch: "No hay resultados coincidentes.",
+          numberOneEyebrow: "N.º 1 cronológico",
+          numberOneTitle: "La línea de sucesión",
+          numberOneIntro: "Cada período ininterrumpido liderando el ELO retrospectivo posterior a la carrera. Los pilotos vuelven a aparecer cuando recuperan la cima.",
+          numberOneTableLabel: "Pilotos número uno cronológicos de Fórmula 1",
+          becameNumberOne: "Llegó al n.º 1",
+          heldThrough: "Lideró hasta",
+          consecutiveRaces: "Carreras",
+          calendarDays: "Días",
+          reignNumber: "Reinado n.º 1 #{number}",
+          latestDatasetEvent: "Último GP del conjunto",
+          raceCountOne: "1 carrera consecutiva",
+          raceCountMany: "{count} carreras consecutivas",
+          dayCountOne: "1 día calendario",
+          dayCountMany: "{count} días calendario",
+          noNumberOneHistory: "Este conjunto no tiene un historial cronológico de liderazgo.",
           showingAllCars: "Mostrando los {count} coches",
           showingTopCars: "Mostrando los mejores 8 coches",
           comparingOneCar: "Comparando 1 coche",
@@ -1799,6 +1976,7 @@
       const carRankingSearch = document.getElementById("car-ranking-search");
       const driverRankingBody = document.getElementById("driver-ranking-body");
       const carRankingBody = document.getElementById("car-ranking-body");
+      const numberOneBody = document.getElementById("number-one-body");
       const datasetPicker = document.getElementById("dataset-picker");
       const datasetPickerButton = document.getElementById("dataset-picker-button");
       const datasetMenu = document.getElementById("dataset-menu");
@@ -1807,6 +1985,13 @@
       let activeProfileId = null;
       let driverRankingSort = "area";
       let carRankingSort = "area";
+      const numberOnePhotoCache = new Map();
+      const numberOneWikipediaTitles = {
+        "John Watson": "John Watson (racing driver)",
+        "Juan Fangio": "Juan Manuel Fangio",
+        "Nino Farina": "Giuseppe Farina"
+      };
+      let numberOnePhotoObserver = null;
       const viewButtons = {
         all: document.getElementById("view-all"),
         top: document.getElementById("view-top"),
@@ -1887,6 +2072,7 @@
         renderEntityLabels();
         renderDatasetMenu();
         renderRankings();
+        renderNumberOneReigns();
       }
 
       function renderEntityLabels() {
@@ -1925,6 +2111,9 @@
         const capabilities = entry?.capabilities || {};
         document.getElementById("records-section").hidden = capabilities.records === false;
         document.getElementById("methodology-section").hidden = capabilities.records === false;
+        document.getElementById("number-one-section").hidden = (
+          capabilities.records === false || !(payload.numberOneReigns || []).length
+        );
       }
 
       function renderDatasetMenu() {
@@ -2392,6 +2581,143 @@
           wikiSummary.className = "";
           wikiSummary.textContent = t("wikiUnavailable");
         }
+      }
+
+      function leaderInitials(name) {
+        return String(name).split(/\s+/).filter(Boolean).slice(0, 2)
+          .map(part => part[0]).join("").toLocaleUpperCase();
+      }
+
+      function formatReignDate(value) {
+        if (!value) return "—";
+        const [year, month, day] = value.split("-").map(Number);
+        return new Intl.DateTimeFormat(language === "es" ? "es-AR" : "en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+          timeZone: "UTC"
+        }).format(new Date(Date.UTC(year, month - 1, day)));
+      }
+
+      async function fetchNumberOnePhoto(driver) {
+        if (numberOnePhotoCache.has(driver.id)) return numberOnePhotoCache.get(driver.id);
+        const request = (async () => {
+          const pageTitle = numberOneWikipediaTitles[driver.name] || driver.name;
+          const parameters = new URLSearchParams({
+            action: "query",
+            titles: pageTitle,
+            prop: "pageimages",
+            piprop: "thumbnail",
+            pithumbsize: "240",
+            redirects: "1",
+            format: "json",
+            formatversion: "2",
+            origin: "*"
+          });
+          try {
+            const response = await fetch(`https://en.wikipedia.org/w/api.php?${parameters}`);
+            if (!response.ok) return null;
+            const data = await response.json();
+            return data?.query?.pages?.[0]?.thumbnail?.source || null;
+          } catch (error) {
+            return null;
+          }
+        })();
+        numberOnePhotoCache.set(driver.id, request);
+        return request;
+      }
+
+      async function loadNumberOnePortrait(portrait) {
+        if (portrait.dataset.photoLoaded === "true") return;
+        portrait.dataset.photoLoaded = "true";
+        const driver = drivers[portrait.dataset.driverId];
+        if (!driver) return;
+        const source = await fetchNumberOnePhoto(driver);
+        if (!source) return;
+        for (const target of numberOneBody.querySelectorAll(".number-one-portrait")) {
+          if (target.dataset.driverId !== driver.id) continue;
+          const image = target.querySelector("img");
+          image.onload = () => {
+            target.querySelector("span").hidden = true;
+          };
+          image.onerror = () => {
+            image.hidden = true;
+            target.querySelector("span").hidden = false;
+          };
+          image.hidden = false;
+          image.src = source;
+          image.alt = tr("wikiImageAlt", { driver: driver.name });
+        }
+      }
+
+      function observeNumberOnePortraits() {
+        if (numberOnePhotoObserver) numberOnePhotoObserver.disconnect();
+        const portraits = [...numberOneBody.querySelectorAll(".number-one-portrait")];
+        if (!("IntersectionObserver" in window)) {
+          portraits.forEach(loadNumberOnePortrait);
+          return;
+        }
+        numberOnePhotoObserver = new IntersectionObserver(entries => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            numberOnePhotoObserver.unobserve(entry.target);
+            loadNumberOnePortrait(entry.target);
+          }
+        }, { rootMargin: "240px 0px" });
+        portraits.forEach(portrait => numberOnePhotoObserver.observe(portrait));
+      }
+
+      function renderNumberOneReigns() {
+        const reigns = payload.numberOneReigns || [];
+        numberOneBody.replaceChildren();
+        if (!reigns.length) {
+          const emptyState = document.createElement("div");
+          emptyState.className = "number-one-empty";
+          emptyState.textContent = t("noNumberOneHistory");
+          numberOneBody.appendChild(emptyState);
+          return;
+        }
+        const fragment = document.createDocumentFragment();
+        for (const reign of reigns) {
+          const row = document.createElement("div");
+          row.className = "number-one-row";
+          row.setAttribute("role", "row");
+          row.style.setProperty("--leader-color", colorFor(reign.driverId));
+          const raceCopy = reign.consecutiveRaces === 1
+            ? t("raceCountOne")
+            : tr("raceCountMany", { count: numberFormat.format(reign.consecutiveRaces) });
+          const dayCopy = reign.calendarDays === 1
+            ? t("dayCountOne")
+            : tr("dayCountMany", {
+                count: reign.calendarDays == null ? "—" : numberFormat.format(reign.calendarDays)
+              });
+          row.innerHTML = `
+            <div class="number-one-event" role="cell">
+              <strong>${esc(`${reign.start.season} ${reign.start.event}`)}</strong>
+              <span>${esc(formatReignDate(reign.start.date))}</span>
+            </div>
+            <button class="number-one-driver" type="button" role="cell" aria-label="${esc(tr("openProfile", { driver: reign.driver }))}">
+              <span class="number-one-portrait" data-driver-id="${esc(reign.driverId)}">
+                <span>${esc(leaderInitials(reign.driver))}</span><img alt="" hidden loading="lazy">
+              </span>
+              <span class="number-one-driver-copy">
+                <span class="number-one-driver-name">${esc(reign.driver)}</span>
+                <span class="number-one-reign${reign.current ? " number-one-current" : ""}">${esc(tr("reignNumber", { number: numberFormat.format(reign.driverReign) }))}${reign.current ? ` · ${esc(t("latestDatasetEvent"))}` : ""}</span>
+              </span>
+            </button>
+            <div class="number-one-event" role="cell">
+              <strong>${esc(`${reign.end.season} ${reign.end.event}`)}</strong>
+              <span>${esc(formatReignDate(reign.end.date))}</span>
+            </div>
+            <div class="number-one-stat" role="cell"><strong>${numberFormat.format(reign.consecutiveRaces)}</strong><span>${esc(raceCopy)}</span></div>
+            <div class="number-one-stat" role="cell"><strong>${reign.calendarDays == null ? "—" : numberFormat.format(reign.calendarDays)}</strong><span>${esc(dayCopy)}</span></div>`;
+          row.querySelector(".number-one-driver").addEventListener("click", () => {
+            openDriverProfile(reign.driverId);
+          });
+          fragment.appendChild(row);
+        }
+        numberOneBody.appendChild(fragment);
+        observeNumberOnePortraits();
       }
 
       function openDriverProfile(driverId) {

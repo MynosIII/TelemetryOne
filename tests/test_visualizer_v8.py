@@ -8,6 +8,7 @@ import pandas as pd
 from historical_xw.visualizer_cli_v8 import build_parser
 from historical_xw.visualizer_v8 import (
     add_visualizer_fields_v8,
+    build_number_one_reigns_v8,
     build_visualizer_payload_v8,
     infer_visualizer_source_label_v8,
     resolve_visualizer_inputs_v8,
@@ -29,6 +30,7 @@ def _inputs() -> tuple[pd.DataFrame, pd.DataFrame]:
                     "season": 1978 if event_index == 1 else 1981,
                     "round": 5 if event_index == 1 else 7,
                     "event": event,
+                    "date": "1978-05-07" if event_index == 1 else "1981-06-21",
                     "event_index": event_index,
                     "driver_id": driver_id,
                     "driver": "Niki Lauda" if driver_id == "lauda" else "Carlos Reutemann",
@@ -93,6 +95,41 @@ def test_event_driver_index_position_is_recalculated_each_race() -> None:
     assert spain.loc["reutemann", "driver_index_position"] == 1
 
 
+def test_number_one_reigns_merge_consecutive_leaders_and_keep_returns() -> None:
+    history, _ = _inputs()
+    first = history[history["event_index"].eq(1)].copy()
+    second = first.assign(
+        event_index=2,
+        round=6,
+        event="Belgian Grand Prix",
+        date="1978-05-21",
+    )
+    third = history[history["event_index"].eq(2)].assign(
+        event_index=3,
+        date="1981-06-21",
+    )
+    fourth = first.assign(
+        event_index=4,
+        season=1982,
+        round=1,
+        event="South African Grand Prix",
+        date="1982-01-23",
+    )
+    enriched = add_visualizer_fields_v8(pd.concat([first, second, third, fourth]))
+
+    reigns = build_number_one_reigns_v8(enriched)
+
+    assert [reign["driverId"] for reign in reigns] == [
+        "lauda",
+        "reutemann",
+        "lauda",
+    ]
+    assert reigns[0]["consecutiveRaces"] == 2
+    assert reigns[0]["calendarDays"] == 14
+    assert reigns[2]["driverReign"] == 2
+    assert reigns[2]["current"] is True
+
+
 def test_payload_contains_searchable_drivers_and_ordered_hover_fields() -> None:
     history, ranking = _inputs()
     # Expand careers so the presentation-summary cards satisfy the 25-race threshold.
@@ -109,6 +146,7 @@ def test_payload_contains_searchable_drivers_and_ordered_hover_fields() -> None:
     assert len(payload["rankings"]["drivers"]) == 2
     assert payload["metrics"]["lowestCareerRating"]["driverId"] == "reutemann"
     assert payload["metrics"]["lowestCurrentRating"]["driverId"] == "lauda"
+    assert payload["numberOneReigns"]
 
 
 def test_writer_builds_standalone_gui_from_existing_parquets(tmp_path: Path) -> None:
@@ -131,6 +169,7 @@ def test_writer_builds_standalone_gui_from_existing_parquets(tmp_path: Path) -> 
     assert "Sustained dominance" in html
     assert 'id="driver-ranking-search"' in html
     assert 'id="car-ranking-search"' in html
+    assert 'id="number-one-section"' in html
     assert "Deselect all" in html
     assert "Race names" in html
     assert "Current driver index" in html

@@ -108,6 +108,22 @@
       "capabilities": {"records": true, "driverProfiles": true}
     },
     {
+      "id": "era_balance_b8",
+      "label": "B8",
+      "title": "EraBalance median lock",
+      "titleEs": "EraBalance con mediana fija",
+      "family": "Era comparison benchmarks",
+      "familyEs": "Comparaciones entre eras",
+      "description": "Aggressively locks every Grand Prix field median to 1500 while preserving all v7.6 within-event gaps and evidence.",
+      "descriptionEs": "Fija de forma estricta la mediana de cada Gran Premio en 1500, preservando las diferencias internas y toda la evidencia de v7.6.",
+      "status": "available",
+      "sourceDir": "../data/outputs/era_balance_b8",
+      "dataFile": "data/datasets/era_balance_b8.json",
+      "metric": {"label": "EraBalance B8 ELO", "labelEs": "ELO EraBalance B8"},
+      "capabilities": {"records": true, "driverProfiles": true},
+      "experimental": true
+    },
+    {
       "id": "position_only",
       "label": "Position only",
       "labelEs": "Solo posición",

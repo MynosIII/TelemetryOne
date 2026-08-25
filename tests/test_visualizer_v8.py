@@ -214,9 +214,19 @@ def test_catalog_writer_builds_lazy_datasets_and_planned_slots(tmp_path: Path) -
                 "id": "v7_2",
                 "label": "v7.2",
                 "title": "Second model",
+                "family": "Retrospective driver ELO",
                 "status": "available",
                 "sourceDir": "v7_2",
                 "dataFile": "data/datasets/v7_2.json",
+            },
+            {
+                "id": "era_balance_b8",
+                "label": "B8",
+                "title": "EraBalance median lock",
+                "family": "Era comparison benchmarks",
+                "status": "available",
+                "sourceDir": "v7_2",
+                "dataFile": "data/datasets/era_balance_b8.json",
             },
             {
                 "id": "speed_only",
@@ -235,6 +245,8 @@ def test_catalog_writer_builds_lazy_datasets_and_planned_slots(tmp_path: Path) -
     assert 'id="dataset-catalog"' in html
     assert '"defaultId":"v7_2"' in html
     assert '"status":"planned"' in html
+    assert "Era comparison benchmarks" in html
+    assert (tmp_path / "public/data/datasets/era_balance_b8.json").is_file()
     assert "sourceDir" not in html
     assert "__DATASET_CATALOG__" not in html
 

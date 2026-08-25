@@ -3,6 +3,7 @@
 TelemetryOne is an interactive Formula 1 historical driver-rating visualizer. It can switch
 between several already-calculated retrospective ELO releases without rerunning or changing
 any analytical model. Circuit Shape + Pairwise Margin + Rookie Backcast v7.6 is the default.
+EraBalance B8 is listed separately as an experimental era-comparison benchmark.
 
 ## Live site
 
@@ -17,7 +18,8 @@ The production site is deployed as a Render Static Site from `public/index.html`
   circuit-sensitive expected-car-win view, each with its own searchable index and comparisons.
 - Searchable driver and car tables can be sorted by the best single moment or by the
   accumulated career/model area. Clicking a row sends that entity directly to the plot.
-- The database and analysis card opens a version picker for v7 through v7.6; selecting one
+- The database and analysis card groups production-style v7 releases separately from
+  comparison benchmarks. It includes v7 through v7.6 plus EraBalance B8; selecting one
   replaces the complete plot, driver index, records, and summary without reloading the page.
 - Planned position-only and speed-only analysis families are visible as disabled extension
   slots, so they can be added without redesigning the interface.

@@ -8,8 +8,8 @@ ranking output. It does not import, rerun or alter a rating engine.
 - Browse all 801 drivers in a fixed-height, scrollable index and filter it with
   accent-insensitive search.
 - Open the current database card to switch the entire page among v7, v7.1, v7.2, v7.3,
-  v7.4, v7.5, and v7.6. Each choice has bilingual methodology copy and a linkable
-  `?dataset=` URL.
+  v7.4, v7.5, and v7.6, or the separately grouped EraBalance B8 comparison benchmark.
+  Each choice has bilingual methodology copy and a linkable `?dataset=` URL.
 - See disabled placeholders for future position-only and speed-only calculation families.
 - Switch the explorer between drivers and cars. The car view plots the expected car-win
   probability at every circuit and provides the same all/top-eight/comparison workflow.

@@ -42,8 +42,11 @@
     .brand { display: inline-flex; gap: 10px; align-items: center; color: var(--ink); font-weight: 850; letter-spacing: -.03em; text-decoration: none; }
     .brand-mark { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: var(--red); color: #fff; font-size: .72rem; letter-spacing: -.06em; transform: skewX(-8deg); }
     .top-actions { display: flex; gap: 10px; align-items: center; }
-    .back-link, .lang-switch { border: 1px solid var(--line); border-radius: 999px; background: rgba(21, 22, 19, .8); color: var(--muted); font-size: .76rem; font-weight: 800; text-decoration: none; }
-    .back-link { padding: 9px 14px; }
+    .index-tabs, .lang-switch { border: 1px solid var(--line); border-radius: 999px; background: rgba(21, 22, 19, .8); color: var(--muted); font-size: .76rem; font-weight: 800; }
+    .index-tabs { display: flex; padding: 3px; }
+    .index-tab { padding: 7px 13px; border-radius: 999px; text-decoration: none; }
+    .index-tab:hover { color: var(--ink); }
+    .index-tab[aria-current="page"] { background: var(--ink); color: #10110f; }
     .lang-switch { display: flex; padding: 3px; }
     .lang-switch button { min-width: 38px; padding: 5px 8px; border: 0; border-radius: 999px; background: transparent; color: inherit; cursor: pointer; }
     .lang-switch button[aria-pressed="true"] { background: var(--ink); color: #10110f; }
@@ -141,7 +144,7 @@
       .shell { width: min(100% - 24px, 1240px); }
       .topbar { align-items: flex-start; }
       .top-actions { align-items: flex-end; flex-direction: column-reverse; }
-      .back-link { padding: 7px 11px; font-size: .68rem; }
+      .index-tab { padding: 7px 10px; font-size: .68rem; }
       .hero { padding-top: 38px; }
       h1 { font-size: clamp(3.15rem, 18vw, 5rem); }
       .winner-card { grid-template-columns: 1fr 120px; padding: 22px; }
@@ -165,7 +168,10 @@
   <header class="shell topbar">
     <a class="brand" href="../"><span class="brand-mark">T1</span> TelemetryOne</a>
     <div class="top-actions">
-      <a class="back-link" href="../" data-en="Model ranking ↗" data-es="Ranking del modelo ↗">Model ranking ↗</a>
+      <nav class="index-tabs" aria-label="TelemetryOne indices">
+        <a class="index-tab" href="../" data-en="Statistical Index" data-es="Índice estadístico">Statistical Index</a>
+        <a class="index-tab" href="./" aria-current="page">Fan Index</a>
+      </nav>
       <div class="lang-switch" role="group" aria-label="Language">
         <button type="button" data-lang="en" aria-pressed="true">EN</button>
         <button type="button" data-lang="es" aria-pressed="false">ES</button>

@@ -56,6 +56,58 @@
       margin: 0 auto;
     }
 
+    .index-bar {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: center;
+      padding: 20px 0 0;
+    }
+
+    .index-brand {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      font-weight: 850;
+      letter-spacing: -.03em;
+      text-decoration: none;
+    }
+
+    .index-brand-mark {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--red);
+      color: #fff;
+      font-size: .72rem;
+      letter-spacing: -.06em;
+      transform: skewX(-8deg);
+    }
+
+    .index-bar-actions,
+    .index-tabs { display: flex; gap: 8px; align-items: center; }
+
+    .index-tabs {
+      padding: 3px;
+      border: 1px solid #3b3c36;
+      border-radius: 999px;
+      background: #151613;
+    }
+
+    .index-tab {
+      padding: 9px 14px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: .75rem;
+      font-weight: 850;
+      text-decoration: none;
+    }
+
+    .index-tab:hover { color: var(--ink); }
+    .index-tab[aria-current="page"] { background: var(--ink); color: #11120f; }
+
     .masthead {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -1196,6 +1248,10 @@
 
     @media (max-width: 700px) {
       .shell { width: min(100% - 24px, 1500px); }
+      .index-bar { align-items: flex-start; }
+      .index-bar-actions { align-items: flex-end; flex-direction: column-reverse; }
+      .index-tab { padding: 8px 10px; font-size: .67rem; }
+      .language-toggle { min-height: 38px; }
       .masthead { padding-top: 38px; }
       .dataset-strip { grid-template-columns: 1fr 1fr; }
       .dataset-stat:nth-child(3) { border-left: 0; border-top: 1px solid var(--line); }
@@ -1255,6 +1311,19 @@
   </style>
 </head>
 <body>
+  <header class="shell index-bar">
+    <a class="index-brand" href="./"><span class="index-brand-mark">T1</span> TelemetryOne</a>
+    <div class="index-bar-actions">
+      <nav class="index-tabs" aria-label="TelemetryOne indices">
+        <a class="index-tab" href="./" aria-current="page" data-i18n="statisticalIndex">Statistical Index</a>
+        <a class="index-tab" href="opinion/" data-i18n="fanIndex">Fan Index</a>
+      </nav>
+      <button class="language-toggle" id="language-toggle" type="button" aria-label="Cambiar el sitio a español">
+        <span id="language-toggle-copy">Español</span>
+        <span class="language-code" id="language-toggle-code" aria-hidden="true">ES</span>
+      </button>
+    </div>
+  </header>
   <header class="shell masthead">
     <div>
       <p class="eyebrow" data-i18n="heroEyebrow">Historical performance model</p>
@@ -1262,12 +1331,7 @@
       <p class="intro" data-i18n="heroIntro">Explore how Formula 1 driver ratings evolved race by race after separating driver performance from car, circuit and race conditions.</p>
     </div>
     <div class="masthead-actions">
-      <button class="language-toggle" id="language-toggle" type="button" aria-label="Cambiar el sitio a español">
-        <span id="language-toggle-copy">Español</span>
-        <span class="language-code" id="language-toggle-code" aria-hidden="true">ES</span>
-      </button>
       <div class="dataset-picker" id="dataset-picker">
-        <a class="opinion-entry" href="opinion/">Fan Index / Opinión pública ↗</a>
         <button class="model-stamp model-picker-button" id="dataset-picker-button" type="button" aria-expanded="false" aria-controls="dataset-menu" aria-label="Choose database and analysis" data-i18n-aria="chooseDataset">
           <span class="model-copy">
             <span data-i18n="currentView">Database &amp; analysis</span>
@@ -1635,6 +1699,8 @@
           languageCopy: "Español",
           languageCode: "ES",
           languageAria: "Change the site to Spanish",
+          statisticalIndex: "Statistical Index",
+          fanIndex: "Fan Index",
           searchPlaceholder: "Search {count} drivers",
           plotAll: "Plot all drivers",
           plotTop: "Plot top 8",
@@ -1843,6 +1909,8 @@
           languageCopy: "English",
           languageCode: "EN",
           languageAria: "Cambiar el sitio a inglés",
+          statisticalIndex: "Índice estadístico",
+          fanIndex: "Fan Index",
           searchPlaceholder: "Buscar entre {count} pilotos",
           plotAll: "Graficar todos los pilotos",
           plotTop: "Graficar los mejores 8",

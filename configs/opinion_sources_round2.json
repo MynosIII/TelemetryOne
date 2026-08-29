@@ -1,0 +1,31 @@
+{
+  "question": "Who is the greatest Formula 1 driver of all time?",
+  "continue_on_error": true,
+  "sources": [
+    {"id":"yt-steiner-top10","platform":"youtube","url":"https://www.youtube.com/watch?v=86ZaNRPFurw","title":"Guenther Steiner Ranks His Top 10 F1 Drivers","query_family":"all-time-ranking","sort":"recent","language":"en","limit":1200},
+    {"id":"yt-es-pregunta-hq","platform":"youtube","url":"https://www.youtube.com/watch?v=HQ_T7FKilxI","title":"¿Cuál es el mejor piloto de la historia de la Fórmula 1?","query_family":"all-time-question","sort":"recent","language":"es","limit":1200},
+    {"id":"yt-es-top10-eet","platform":"youtube","url":"https://www.youtube.com/watch?v=e_EtZMh3odc","title":"Top 10 mejores pilotos de Fórmula 1 de todos los tiempos","query_family":"all-time-ranking","sort":"recent","language":"es","limit":1200},
+    {"id":"yt-es-soymotor","platform":"youtube","url":"https://www.youtube.com/watch?v=YOuRlAJjO58","title":"¿Quién es el mejor piloto de la historia? — SoyMotor","query_family":"all-time-question","sort":"recent","language":"es","limit":1200},
+    {"id":"yt-mansell-top5","platform":"youtube","url":"https://www.youtube.com/watch?v=9Dg6Lu2kk5Y","title":"Nigel Mansell’s five greatest Formula 1 drivers","query_family":"all-time-ranking","sort":"recent","language":"en","limit":1200},
+    {"id":"yt-pt-top10","platform":"youtube","url":"https://www.youtube.com/watch?v=1DitTntyjFU","title":"Quem são os maiores pilotos da Fórmula 1?","query_family":"all-time-question","sort":"recent","language":"pt","limit":1200},
+    {"id":"yt-top10-abc","platform":"youtube","url":"https://www.youtube.com/watch?v=aBCxjBXGHWE","title":"Top 10 Greatest F1 Drivers of all time","query_family":"all-time-ranking","sort":"recent","language":"en","limit":1200},
+    {"id":"yt-top20-cdo","platform":"youtube","url":"https://www.youtube.com/watch?v=CdOTohARqWQ","title":"Top 20 Greatest F1 Drivers of all Time","query_family":"all-time-ranking","sort":"recent","language":"en","limit":1200},
+    {"id":"yt-german-fan-vote","platform":"youtube","url":"https://www.youtube.com/watch?v=qP7HbhD3jWw","title":"1.126.863 Stimmen: bester Formel-1-Fahrer aller Zeiten","query_family":"all-time-question","sort":"popular","language":"de","limit":1200},
+    {"id":"yt-debate-verdict","platform":"youtube","url":"https://www.youtube.com/watch?v=wh3ybl04TXw","title":"Verstappen vs Senna vs Schumacher vs Hamilton — The F1 GOAT Verdict","query_family":"all-time-debate","sort":"popular","language":"en","limit":1200},
+    {"id":"yt-goat-three","platform":"youtube","url":"https://www.youtube.com/watch?v=veD_XohJ7d0","title":"Who’s the F1 GOAT? Schumacher, Hamilton or Senna?","query_family":"all-time-question","sort":"popular","language":"en","limit":1200},
+    {"id":"yt-goat-settled","platform":"youtube","url":"https://www.youtube.com/watch?v=KLWxurDPnms","title":"The F1 GOAT Debate Finally Settled","query_family":"all-time-debate","sort":"popular","language":"en","limit":1200},
+    {"id":"yt-impossible-debate","platform":"youtube","url":"https://www.youtube.com/watch?v=DXHTa1kUzR0","title":"F1’s Most Impossible Debate","query_family":"all-time-debate","sort":"popular","language":"en","limit":1200},
+    {"id":"yt-opinion-goat","platform":"youtube","url":"https://www.youtube.com/watch?v=_asi_8Evyck","title":"Who is Formula 1’s Greatest of All Time Driver?","query_family":"all-time-question","sort":"popular","language":"en","limit":1200},
+    {"id":"yt-fr-top10-nmb","platform":"youtube","url":"https://www.youtube.com/watch?v=nmbWzsm_z0M","title":"Top 10 des meilleurs pilotes de l’histoire de la F1","query_family":"all-time-ranking","sort":"popular","language":"fr","limit":1200},
+    {"id":"yt-fr-best-xzn","platform":"youtube","url":"https://www.youtube.com/watch?v=xzN2kdt9bBY","title":"Le meilleur pilote de F1 de tous les temps","query_family":"all-time-question","sort":"popular","language":"fr","limit":1200},
+    {"id":"yt-fr-top10-qd8","platform":"youtube","url":"https://www.youtube.com/watch?v=qD8N1XQ0M1c","title":"Les 10 meilleurs pilotes de l’histoire de la F1","query_family":"all-time-ranking","sort":"popular","language":"fr","limit":1200},
+    {"id":"yt-fr-top10-5tue","platform":"youtube","url":"https://www.youtube.com/watch?v=5TueN3b1g_I","title":"Mes 10 meilleurs pilotes de l’histoire de la F1","query_family":"all-time-ranking","sort":"popular","language":"fr","limit":1200},
+    {"id":"yt-it-top10-c6","platform":"youtube","url":"https://www.youtube.com/watch?v=C6ZwGGVYIew","title":"I 10 migliori piloti della F1","query_family":"all-time-ranking","sort":"popular","language":"it","limit":1200},
+    {"id":"yt-it-vanzini","platform":"youtube","url":"https://www.youtube.com/watch?v=ygvjvz-GiWk","title":"I 10 piloti più forti della storia della Formula 1","query_family":"all-time-ranking","sort":"popular","language":"it","limit":1200},
+    {"id":"yt-it-favorites","platform":"youtube","url":"https://www.youtube.com/watch?v=7-Rv_x8WwH8","title":"Top 10 piloti preferiti di sempre","query_family":"all-time-ranking","sort":"popular","language":"it","limit":1200},
+    {"id":"yt-uncovered","platform":"youtube","url":"https://www.youtube.com/watch?v=7bAo6iPZW3c","title":"Top 10 F1 Drivers of All Time Uncovered","query_family":"all-time-ranking","sort":"popular","language":"en","limit":1200},
+    {"id":"yt-f1-universe-goat","platform":"youtube","url":"https://www.youtube.com/watch?v=FeJu1HG_9Bg","title":"Who is the greatest F1 driver of all time?","query_family":"all-time-question","sort":"recent","language":"en","limit":1200},
+    {"id":"reddit-senna-goat-debate","platform":"reddit","url":"https://www.reddit.com/r/formula1/comments/sfluxz/","title":"Discussion: the greatest Formula 1 driver","published_date":"2022-01-28","query_family":"all-time-debate","sort":"top","limit":500},
+    {"id":"reddit-greatest-top10","platform":"reddit","url":"https://www.reddit.com/r/F1Discussions/comments/1n88z9f/","title":"Ten greatest F1 drivers of all time","published_date":"2025-09-05","query_family":"all-time-ranking","sort":"top","limit":500}
+  ]
+}

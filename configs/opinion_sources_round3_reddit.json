@@ -1,0 +1,12 @@
+{
+  "question": "Who is the greatest Formula 1 driver of all time?",
+  "continue_on_error": true,
+  "sources": [
+    {"id":"reddit-top5-best-first","platform":"reddit","url":"https://www.reddit.com/r/F1Discussions/comments/1sa4ztt/","title":"Five greatest F1 drivers, best at number one","published_date":"2026-04-02","query_family":"all-time-ranking","sort":"top","limit":500},
+    {"id":"reddit-grandprix-greatest","platform":"reddit","url":"https://www.reddit.com/r/GrandPrixRacing/comments/1dd9grv/","title":"Who is the greatest driver of all time?","published_date":"2024-06-11","query_family":"all-time-question","sort":"top","limit":500},
+    {"id":"reddit-all-time-grid","platform":"reddit","url":"https://www.reddit.com/r/formula1/comments/xrc1vz/","title":"Who makes the all-time F1 grid?","published_date":"2022-09-29","query_family":"all-time-ranking","sort":"top","limit":500},
+    {"id":"reddit-max-top5-reaction","platform":"reddit","url":"https://www.reddit.com/r/formula1/comments/1p5dqm1/","title":"Fans react to a top-five drivers in F1 history","published_date":"2025-11-24","query_family":"all-time-ranking","sort":"top","limit":500},
+    {"id":"reddit-hamilton-goat-debate","platform":"reddit","url":"https://www.reddit.com/r/formula1/comments/jdeoou/","title":"The impossible F1 greatest-driver debate","published_date":"2020-10-18","query_family":"all-time-debate","sort":"top","limit":500},
+    {"id":"reddit-toto-goat-debate","platform":"reddit","url":"https://www.reddit.com/r/formula1/comments/rdz4lo/","title":"Fans debate the greatest across generations","published_date":"2021-12-11","query_family":"all-time-debate","sort":"top","limit":500}
+  ]
+}

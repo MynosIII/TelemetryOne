@@ -1,0 +1,9 @@
+{
+  "question": "Who is the greatest Formula 1 driver of all time?",
+  "continue_on_error": true,
+  "sources": [
+    {"id":"forum-gtplanet-top3","platform":"forum","url":"https://www.gtplanet.net/forum/threads/the-3-greatest-f1-drivers-of-all-time.329171","title":"The three greatest F1 drivers of all time","published_date":"2015-05-28","query_family":"all-time-ranking","max_pages":8,"limit":500},
+    {"id":"forum-z4-goat","platform":"forum","url":"https://z4-forum.com/threads/so-who-is-the-greatest-f1-driver-of-all-time.132600","title":"So, who is the greatest F1 driver of all time?","published_date":"2021-12-14","query_family":"all-time-question","max_pages":8,"limit":500},
+    {"id":"forum-forumula1-top5","platform":"phpbb_forum","url":"https://www.forumula1.com/forum/viewtopic.php?t=2021","title":"Top five Formula 1 drivers of all time","published_date":"2007-10-23","query_family":"all-time-ranking","max_pages":30,"page_size":15,"limit":500}
+  ]
+}

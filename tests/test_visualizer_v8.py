@@ -177,6 +177,7 @@ def test_writer_builds_standalone_gui_from_existing_parquets(tmp_path: Path) -> 
     assert "Lowest career rating" in html
     assert "Lowest final rating" in html
     assert "Wikipedia" in html
+    assert 'id="wiki-link" href="drivers/" data-i18n="viewProfile"' in html
     assert 'minallowed: 0' in html
     assert 'id="language-toggle"' in html
     assert "Cada era." in html

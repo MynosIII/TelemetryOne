@@ -33,6 +33,17 @@ The production site is deployed as a Render Static Site from `public/index.html`
 - A chronological No. 1 table closes the page with every uninterrupted reign at the top,
   its starting and ending Grands Prix, race and calendar-day lengths, and driver portraits.
 - The ELO axis cannot be zoomed or panned below zero.
+- A separate **Fan Index** page ranks explicit all-time-best choices from an auditable,
+  privacy-preserving public-comment sample; it never mixes opinion votes into the ELO model.
+
+## Public-opinion scraper
+
+The optional scraper pipeline supports public YouTube comments, Reddit feeds, XenForo/phpBB
+forums, plus session-based X and Instagram
+connectors. It anonymizes authors at collection time, classifies only explicit choices, removes
+repeat voters, balances eligible sources, and writes `public/data/opinion-ranking.json` for the
+static Fan Index page. See [`docs/OPINION_POLL.md`](docs/OPINION_POLL.md) for methodology,
+reproduction steps, connector requirements, and limitations.
 
 ## Record definitions
 

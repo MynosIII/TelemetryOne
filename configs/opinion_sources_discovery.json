@@ -1,0 +1,14 @@
+{
+  "question": "Who is the greatest Formula 1 driver of all time?",
+  "continue_on_error": true,
+  "sources": [
+    {"id":"search-en-tier","platform":"youtube_search","query":"F1 drivers tier list all time","title_include_regex":"(?:tier list|ranking.*f1 driver|rank.*f1 driver)","query_family":"all-time-ranking","sort":"popular","language":"en","max_videos":30,"limit_per_video":700,"exclude_driver_titles":true},
+    {"id":"search-en-champions","platform":"youtube_search","query":"ranking every F1 world champion","title_include_regex":"(?:rank.*(?:f1|formula 1).*champion|every.*f1.*champion|all.*f1.*champion)","query_family":"all-time-ranking","sort":"popular","language":"en","max_videos":30,"limit_per_video":700,"exclude_driver_titles":true},
+    {"id":"search-en-top20","platform":"youtube_search","query":"top 20 greatest Formula 1 drivers all time","title_include_regex":"(?:top\\s*(?:10|15|20|25)|greatest.*(?:f1|formula 1).*drivers|best.*(?:f1|formula 1).*drivers)","query_family":"all-time-ranking","sort":"popular","language":"en","max_videos":30,"limit_per_video":700,"exclude_driver_titles":true},
+    {"id":"search-es-ranking","platform":"youtube_search","query":"ranking mejores pilotos F1 de la historia","title_include_regex":"(?:mejores pilotos.*historia|ranking.*pilotos.*f1|top\\s*(?:10|20).*pilotos)","query_family":"all-time-ranking","sort":"popular","language":"es","max_videos":30,"limit_per_video":700,"exclude_driver_titles":true},
+    {"id":"search-pt-ranking","platform":"youtube_search","query":"ranking melhores pilotos F1 da historia","title_include_regex":"(?:melhores pilotos.*hist[oó]ria|maiores pilotos.*f[oó]rmula|top\\s*(?:10|20).*pilotos)","query_family":"all-time-ranking","sort":"popular","language":"pt","max_videos":30,"limit_per_video":700,"exclude_driver_titles":true},
+    {"id":"search-de-ranking","platform":"youtube_search","query":"Ranking beste Formel 1 Fahrer aller Zeiten","title_include_regex":"(?:beste.*formel.?1.*fahrer|ranking.*formel.?1.*fahrer|top\\s*(?:10|20).*(?:fahrer|piloten))","query_family":"all-time-ranking","sort":"popular","language":"de","max_videos":30,"limit_per_video":700,"exclude_driver_titles":true},
+    {"id":"search-fr-ranking","platform":"youtube_search","query":"classement meilleurs pilotes F1 histoire","title_include_regex":"(?:meilleurs pilotes.*histoire|classement.*pilotes.*f1|top\\s*(?:10|20).*pilotes)","query_family":"all-time-ranking","sort":"popular","language":"fr","max_videos":30,"limit_per_video":700,"exclude_driver_titles":true},
+    {"id":"search-it-ranking","platform":"youtube_search","query":"classifica migliori piloti F1 storia","title_include_regex":"(?:migliori piloti.*storia|classifica.*piloti.*f1|top\\s*(?:10|20).*piloti)","query_family":"all-time-ranking","sort":"popular","language":"it","max_videos":30,"limit_per_video":700,"exclude_driver_titles":true}
+  ]
+}

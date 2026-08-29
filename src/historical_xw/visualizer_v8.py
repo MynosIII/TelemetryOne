@@ -712,6 +712,8 @@ def write_visualizer_catalog_v8(catalog_path: Path, output_dir: Path) -> Path:
 
     output_dir = output_dir.resolve()
     default_payload: dict[str, Any] | None = None
+    default_history: pd.DataFrame | None = None
+    default_ranking: pd.DataFrame | None = None
     public_datasets: list[dict[str, Any]] = []
     for dataset in datasets:
         public_entry = {key: value for key, value in dataset.items() if key != "sourceDir"}
@@ -742,6 +744,8 @@ def write_visualizer_catalog_v8(catalog_path: Path, output_dir: Path) -> Path:
         )
         if str(dataset["id"]) == default_id:
             default_payload = payload
+            default_history = history
+            default_ranking = ranking
 
     if default_payload is None:
         raise ValueError("The default catalog dataset must be available")
@@ -755,4 +759,18 @@ def write_visualizer_catalog_v8(catalog_path: Path, output_dir: Path) -> Path:
     output_path.write_text(
         _render_visualizer_html_v8(default_payload, public_catalog), encoding="utf-8"
     )
+    f1db_candidates = (
+        catalog_path.parent / "data" / "cache" / "f1db" / "src" / "data",
+        catalog_path.parent.parent / "data" / "cache" / "f1db" / "src" / "data",
+    )
+    f1db_root = next((candidate for candidate in f1db_candidates if candidate.is_dir()), f1db_candidates[0])
+    if f1db_root.is_dir() and default_history is not None and default_ranking is not None:
+        from .driver_profiles_v8 import write_driver_profiles_v8
+
+        write_driver_profiles_v8(
+            default_history,
+            default_ranking,
+            output_dir,
+            f1db_root,
+        )
     return output_path

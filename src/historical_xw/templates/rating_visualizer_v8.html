@@ -106,6 +106,18 @@
       width: min(420px, calc(100vw - 40px));
     }
 
+    .opinion-entry {
+      display: inline-flex;
+      margin: 0 0 10px 2px;
+      color: var(--blue);
+      font-size: .72rem;
+      font-weight: 850;
+      letter-spacing: .04em;
+      text-decoration: none;
+    }
+
+    .opinion-entry:hover { text-decoration: underline; }
+
     .model-stamp {
       width: 100%;
       min-width: 280px;
@@ -1255,6 +1267,7 @@
         <span class="language-code" id="language-toggle-code" aria-hidden="true">ES</span>
       </button>
       <div class="dataset-picker" id="dataset-picker">
+        <a class="opinion-entry" href="opinion/">Fan Index / Opinión pública ↗</a>
         <button class="model-stamp model-picker-button" id="dataset-picker-button" type="button" aria-expanded="false" aria-controls="dataset-menu" aria-label="Choose database and analysis" data-i18n-aria="chooseDataset">
           <span class="model-copy">
             <span data-i18n="currentView">Database &amp; analysis</span>
@@ -1502,7 +1515,7 @@
         <div class="wiki-copy">
           <p class="control-label" data-i18n="fromWikipedia">From Wikipedia</p>
           <p class="wiki-loading" id="wiki-summary">Loading biography…</p>
-          <a class="wiki-link" id="wiki-link" href="https://en.wikipedia.org/" target="_blank" rel="noreferrer" data-i18n="readWikipedia">Read on Wikipedia ↗</a>
+          <a class="wiki-link" id="wiki-link" href="drivers/" data-i18n="viewProfile">View driver profile ↗</a>
         </div>
       </div>
     </div>
@@ -2553,7 +2566,6 @@
         wikiImage.removeAttribute("src");
         wikiSummary.className = "wiki-loading";
         wikiSummary.textContent = t("loadingBiography");
-        wikiLink.href = searchUrl;
 
         const parameters = new URLSearchParams({
           action: "query",
@@ -2582,7 +2594,6 @@
           if (!page || activeProfileId !== profileId || language !== profileLanguage) return;
           wikiSummary.className = "";
           wikiSummary.textContent = page.extract || t("wikiNoIntro");
-          wikiLink.href = page.fullurl || searchUrl;
           if (page.thumbnail?.source) {
             wikiImage.src = page.thumbnail.source;
             wikiImage.alt = tr("wikiImageAlt", { driver: driver.name });
@@ -2736,6 +2747,7 @@
         const driver = drivers[driverId];
         if (!driver) return;
         activeProfileId = driverId;
+        wikiLink.href = `drivers/${encodeURIComponent(driverId)}/`;
         dialogTitle.textContent = driver.name;
         dialogSubtitle.textContent = `${driver.debut}–${driver.lastSeason} · ${numberFormat.format(driver.races)} ${t("recordedStarts")} · ${payload.meta.model}`;
         profileStats.innerHTML = [

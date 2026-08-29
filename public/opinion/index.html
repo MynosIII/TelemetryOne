@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An auditable public-comment ranking of Formula 1's greatest drivers, built from explicit fan choices.">
+  <title>Fan Index · TelemetryOne</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0c0a;
+      --surface: #151613;
+      --surface-2: #1c1e19;
+      --line: #33362f;
+      --ink: #f5f4ee;
+      --muted: #a8a9a1;
+      --faint: #777970;
+      --lime: #c7f36b;
+      --red: #ff5148;
+      --blue: #74baff;
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        radial-gradient(circle at 82% 3%, rgba(255, 81, 72, .16), transparent 29rem),
+        radial-gradient(circle at 5% 38%, rgba(199, 243, 107, .08), transparent 28rem),
+        var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    a { color: inherit; }
+    button, select { font: inherit; }
+    :focus-visible { outline: 3px solid rgba(116, 186, 255, .75); outline-offset: 3px; }
+    .shell { width: min(1240px, calc(100% - 40px)); margin: 0 auto; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; padding: 24px 0; }
+    .brand { display: inline-flex; gap: 10px; align-items: center; color: var(--ink); font-weight: 850; letter-spacing: -.03em; text-decoration: none; }
+    .brand-mark { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: var(--red); color: #fff; font-size: .72rem; letter-spacing: -.06em; transform: skewX(-8deg); }
+    .top-actions { display: flex; gap: 10px; align-items: center; }
+    .back-link, .lang-switch { border: 1px solid var(--line); border-radius: 999px; background: rgba(21, 22, 19, .8); color: var(--muted); font-size: .76rem; font-weight: 800; text-decoration: none; }
+    .back-link { padding: 9px 14px; }
+    .lang-switch { display: flex; padding: 3px; }
+    .lang-switch button { min-width: 38px; padding: 5px 8px; border: 0; border-radius: 999px; background: transparent; color: inherit; cursor: pointer; }
+    .lang-switch button[aria-pressed="true"] { background: var(--ink); color: #10110f; }
+
+    .hero { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr); gap: clamp(36px, 7vw, 96px); align-items: end; padding: 72px 0 54px; }
+    .eyebrow { display: flex; gap: 10px; align-items: center; margin: 0 0 18px; color: var(--lime); font-size: .72rem; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+    .eyebrow::before { width: 28px; height: 2px; background: currentColor; content: ""; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 790px; margin-bottom: 22px; font-size: clamp(3rem, 7.7vw, 7rem); font-weight: 900; letter-spacing: -.075em; line-height: .86; }
+    h1 em { color: var(--red); font-style: normal; }
+    .lede { max-width: 690px; margin-bottom: 0; color: #c4c5bd; font-size: clamp(1rem, 1.5vw, 1.22rem); }
+    .winner-card { position: relative; display: grid; overflow: hidden; min-height: 300px; padding: 28px; grid-template-columns: minmax(0, 1fr) minmax(150px, .72fr); grid-template-rows: auto 1fr auto; gap: 10px 24px; border: 1px solid #464a40; border-radius: 28px; background: linear-gradient(145deg, #23261e, #131411 72%); box-shadow: 0 34px 80px rgba(0, 0, 0, .28); }
+    .winner-card::after { position: absolute; right: -42px; bottom: -88px; width: 230px; height: 230px; border: 46px solid rgba(199, 243, 107, .08); border-radius: 50%; content: ""; }
+    .winner-kicker { position: relative; z-index: 2; color: var(--faint); font-size: .67rem; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; }
+    .winner-portrait { position: relative; z-index: 1; grid-column: 2; grid-row: 1 / -1; min-height: 244px; overflow: hidden; border-radius: 12px; background: #0d0e0c; }
+    .winner-portrait::after { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 58%, rgba(10, 11, 9, .8)); content: ""; pointer-events: none; }
+    .winner-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 38%; filter: saturate(.86) contrast(1.05); }
+    .photo-credit { position: absolute; z-index: 2; right: 9px; bottom: 7px; color: rgba(255,255,255,.72); font-size: .52rem; text-decoration: none; }
+    .winner-rank { margin: 18px 0 6px; color: var(--lime); font-size: 1rem; font-weight: 900; }
+    .winner-name { position: relative; z-index: 1; max-width: 330px; margin: 0 0 26px; font-size: clamp(2.15rem, 5vw, 4.3rem); font-weight: 900; letter-spacing: -.065em; line-height: .88; }
+    .winner-score { display: flex; gap: 12px; align-items: baseline; }
+    .winner-score strong { font-size: 2rem; letter-spacing: -.04em; }
+    .winner-score span { color: var(--muted); font-size: .76rem; }
+
+    .quality-strip { display: grid; grid-template-columns: repeat(4, 1fr); overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(21, 22, 19, .8); }
+    .quality-stat { padding: 22px 24px; }
+    .quality-stat + .quality-stat { border-left: 1px solid var(--line); }
+    .quality-stat strong { display: block; font-size: clamp(1.35rem, 2.5vw, 2rem); letter-spacing: -.045em; }
+    .quality-stat span { color: var(--muted); font-size: .72rem; }
+
+    main { padding: 78px 0 100px; }
+    .section-head { display: flex; justify-content: space-between; gap: 30px; align-items: end; margin-bottom: 28px; }
+    .section-head h2 { margin-bottom: 0; font-size: clamp(2rem, 4.4vw, 4rem); letter-spacing: -.06em; line-height: .95; }
+    .section-head > p { max-width: 520px; margin-bottom: 0; color: var(--muted); font-size: .9rem; }
+    .ranking-layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(290px, .55fr); gap: 20px; }
+    .panel { border: 1px solid var(--line); border-radius: var(--radius); background: rgba(21, 22, 19, .9); }
+    .ranking-panel { overflow: hidden; }
+    .ranking-row { display: grid; grid-template-columns: 42px minmax(140px, 230px) minmax(130px, 1fr) 72px; gap: 16px; align-items: center; min-height: 74px; padding: 13px 20px; border-top: 1px solid #2b2d28; }
+    .ranking-row:first-child { border-top: 0; }
+    .ranking-row.is-leader { background: linear-gradient(90deg, rgba(199, 243, 107, .09), transparent 60%); }
+    .rank { color: var(--faint); font-size: .76rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .driver-name { font-weight: 850; letter-spacing: -.02em; }
+    .driver-meta { display: block; margin-top: 2px; color: var(--faint); font-size: .66rem; font-weight: 600; }
+    .bar-track { height: 9px; overflow: hidden; border-radius: 99px; background: #292c25; }
+    .bar { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--lime), #91d96d); transform-origin: left; }
+    .share { color: var(--lime); font-weight: 900; text-align: right; font-variant-numeric: tabular-nums; }
+    .side-stack { display: grid; gap: 20px; align-content: start; }
+    .insight-card { padding: 24px; }
+    .insight-card h3 { margin-bottom: 9px; font-size: 1rem; }
+    .insight-card p { margin-bottom: 0; color: var(--muted); font-size: .83rem; }
+    .insight-number { display: block; margin: 12px 0 7px; color: var(--blue); font-size: 2.2rem; font-weight: 900; letter-spacing: -.055em; }
+    .warning { border-color: rgba(255, 81, 72, .45); background: rgba(255, 81, 72, .055); }
+    .warning .insight-number { color: var(--red); }
+
+    .sources-section, .method-section { margin-top: 88px; }
+    .source-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .source-card { display: grid; min-height: 230px; overflow: hidden; grid-template-columns: minmax(160px, .82fr) minmax(0, 1.18fr); }
+    .source-card:not(.has-media) { grid-template-columns: 1fr; }
+    .source-media { position: relative; display: block; min-height: 100%; overflow: hidden; background: #0d0e0c; }
+    .source-media::after { position: absolute; inset: 0; border-right: 1px solid var(--line); background: linear-gradient(90deg, transparent 70%, rgba(15,16,14,.4)); content: ""; pointer-events: none; }
+    .source-media img { width: 100%; height: 100%; object-fit: cover; transition: transform .25s ease; }
+    .source-media:hover img { transform: scale(1.025); }
+    .source-body { display: flex; min-width: 0; padding: 22px; flex-direction: column; }
+    .source-platform { color: var(--red); font-size: .65rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .source-card h3 { margin: 14px 0 10px; font-size: 1.1rem; line-height: 1.2; }
+    .source-card p { color: var(--muted); font-size: .77rem; }
+    .source-result { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: auto; padding-top: 18px; border-top: 1px solid var(--line); }
+    .source-result strong, .source-result span { display: block; }
+    .source-result strong { font-size: 1.05rem; }
+    .source-result span { color: var(--faint); font-size: .63rem; }
+    .source-link { margin-top: 16px; color: var(--blue); font-size: .72rem; font-weight: 800; text-decoration: none; }
+    .source-link:hover { text-decoration: underline; }
+
+    .method-grid { display: grid; grid-template-columns: repeat(4, 1fr); overflow: hidden; }
+    .method-step { position: relative; padding: 27px; }
+    .method-step + .method-step { border-left: 1px solid var(--line); }
+    .method-step b { display: block; margin-bottom: 28px; color: var(--lime); font-size: .68rem; letter-spacing: .1em; }
+    .method-step h3 { font-size: 1rem; }
+    .method-step p { margin-bottom: 0; color: var(--muted); font-size: .76rem; }
+    .formula { margin-top: 18px; padding: 13px; border-radius: 10px; background: #0f100e; color: #d9dad2; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .67rem; }
+    .status { min-height: 220px; display: grid; place-items: center; color: var(--muted); }
+    .status.error { color: #ff8e87; }
+    footer { padding: 30px 0 54px; border-top: 1px solid #232520; color: var(--faint); font-size: .72rem; }
+    .footer-inner { display: flex; justify-content: space-between; gap: 24px; }
+
+    @media (max-width: 900px) {
+      .hero, .ranking-layout { grid-template-columns: 1fr; }
+      .winner-card { min-height: 260px; }
+      .source-grid { grid-template-columns: 1fr; }
+      .method-grid { grid-template-columns: 1fr 1fr; }
+      .method-step:nth-child(3) { border-left: 0; border-top: 1px solid var(--line); }
+      .method-step:nth-child(4) { border-top: 1px solid var(--line); }
+    }
+    @media (max-width: 620px) {
+      .shell { width: min(100% - 24px, 1240px); }
+      .topbar { align-items: flex-start; }
+      .top-actions { align-items: flex-end; flex-direction: column-reverse; }
+      .back-link { padding: 7px 11px; font-size: .68rem; }
+      .hero { padding-top: 38px; }
+      h1 { font-size: clamp(3.15rem, 18vw, 5rem); }
+      .winner-card { grid-template-columns: 1fr 120px; padding: 22px; }
+      .winner-portrait { min-height: 220px; }
+      .quality-strip { grid-template-columns: 1fr 1fr; }
+      .quality-stat:nth-child(3) { border-top: 1px solid var(--line); border-left: 0; }
+      .quality-stat:nth-child(4) { border-top: 1px solid var(--line); }
+      .section-head { align-items: flex-start; flex-direction: column; }
+      .ranking-row { grid-template-columns: 28px minmax(0, 1fr) 62px; gap: 10px; }
+      .ranking-row .bar-track { grid-column: 2 / -1; grid-row: 2; }
+      .source-card { grid-template-columns: 1fr; }
+      .source-media { min-height: 0; aspect-ratio: 16 / 9; }
+      .source-media::after { border-right: 0; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, transparent 70%, rgba(15,16,14,.4)); }
+      .method-grid { grid-template-columns: 1fr; }
+      .method-step + .method-step { border-top: 1px solid var(--line); border-left: 0; }
+      .footer-inner { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="shell topbar">
+    <a class="brand" href="../"><span class="brand-mark">T1</span> TelemetryOne</a>
+    <div class="top-actions">
+      <a class="back-link" href="../" data-en="Model ranking ↗" data-es="Ranking del modelo ↗">Model ranking ↗</a>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="es" aria-pressed="false">ES</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="shell hero">
+    <div>
+      <p class="eyebrow" data-en="Public-comment Fan Index" data-es="Fan Index de comentarios públicos">Public-comment Fan Index</p>
+      <h1 data-en="The internet’s <em>F1 GOAT.</em>" data-es="El <em>GOAT de F1</em> según internet.">The internet’s <em>F1 GOAT.</em></h1>
+      <p class="lede" data-en="A ranking built from Formula 1 fan opinion across public conversations on the internet." data-es="Un ranking construido a partir de la opinión de los fans de Fórmula 1 en internet.">A ranking built from Formula 1 fan opinion across public conversations on the internet.</p>
+    </div>
+    <article class="winner-card" aria-live="polite">
+      <span class="winner-kicker" data-en="Sample leader" data-es="Líder de la muestra">Sample leader</span>
+      <div class="winner-portrait">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Senna_monaco91.jpg/570px-Senna_monaco91.jpg" alt="Ayrton Senna at the 1991 Monaco Grand Prix" width="570" height="599" />
+        <a class="photo-credit" href="https://commons.wikimedia.org/wiki/File:Senna_monaco91.jpg" target="_blank" rel="noopener noreferrer">Jmex60 · CC BY-SA 3.0</a>
+      </div>
+      <div class="winner-rank">P1</div>
+      <h2 class="winner-name" id="winner-name">Loading…</h2>
+      <div class="winner-score"><strong id="winner-score">—</strong><span data-en="Fan Index score" data-es="puntaje del Fan Index">Fan Index score</span></div>
+    </article>
+  </section>
+
+  <section class="shell quality-strip" aria-label="Sample summary">
+    <div class="quality-stat"><strong id="stat-votes">—</strong><span data-en="verified fan choices" data-es="elecciones verificadas">verified fan choices</span></div>
+    <div class="quality-stat"><strong id="stat-sources">—</strong><span data-en="conversations with choices" data-es="conversaciones con elecciones">conversations with choices</span></div>
+    <div class="quality-stat"><strong id="stat-platforms">—</strong><span data-en="public platforms" data-es="plataformas públicas">public platforms</span></div>
+    <div class="quality-stat"><strong id="stat-drivers">—</strong><span data-en="drivers receiving votes" data-es="pilotos con votos">drivers receiving votes</span></div>
+  </section>
+
+  <main class="shell">
+    <section aria-labelledby="ranking-title">
+      <div class="section-head">
+        <div><p class="eyebrow" data-en="Results" data-es="Resultados">Results</p><h2 id="ranking-title" data-en="The fan grid" data-es="La grilla de los fans">The fan grid</h2></div>
+        <p data-en="The positions summarize explicit preferences identified across the selected public conversations." data-es="Las posiciones resumen las preferencias explícitas identificadas en las conversaciones públicas seleccionadas.">The positions summarize explicit preferences identified across the selected public conversations.</p>
+      </div>
+      <div class="ranking-layout">
+        <div class="panel ranking-panel" id="ranking"><div class="status">Reading the dataset…</div></div>
+        <aside class="side-stack">
+          <article class="panel insight-card"><h3 data-en="What the sample says" data-es="Qué dice la muestra">What the sample says</h3><strong class="insight-number" id="lead-margin">—</strong><p id="lead-copy">—</p></article>
+          <article class="panel insight-card"><h3 data-en="Cross-platform corpus" data-es="Corpus multiplataforma">Cross-platform corpus</h3><strong class="insight-number" id="platform-count">—</strong><p data-en="The corpus brings together public conversations from YouTube, Reddit, and independent Formula 1 forums." data-es="El corpus reúne conversaciones públicas de YouTube, Reddit y foros independientes de Fórmula 1.">The corpus brings together public conversations from YouTube, Reddit, and independent Formula 1 forums.</p></article>
+        </aside>
+      </div>
+    </section>
+
+    <section class="sources-section" aria-labelledby="sources-title">
+      <div class="section-head">
+        <div><p class="eyebrow" data-en="Provenance" data-es="Procedencia">Provenance</p><h2 id="sources-title" data-en="Where the votes came from" data-es="De dónde salieron los votos">Where the votes came from</h2></div>
+        <p data-en="The source register documents every public conversation included in the corpus, together with its platform, sample size, and number of coded choices." data-es="El registro documenta cada conversación pública incluida en el corpus, junto con su plataforma, el tamaño de la muestra y la cantidad de elecciones codificadas.">The source register documents every public conversation included in the corpus, together with its platform, sample size, and number of coded choices.</p>
+      </div>
+      <div class="source-grid" id="sources"></div>
+    </section>
+
+    <section class="method-section" aria-labelledby="method-title">
+      <div class="section-head"><div><p class="eyebrow" data-en="Research method" data-es="Metodología de investigación">Research method</p><h2 id="method-title" data-en="From public corpus to Fan Index" data-es="Del corpus público al Fan Index">From public corpus to Fan Index</h2></div><p data-en="The study uses purposive sampling of public conversations centered on the greatest-driver question. Its unit of analysis is one explicit preference per anonymized author, with a documented corpus and coding protocol." data-es="El estudio utiliza un muestreo intencional de conversaciones públicas centradas en la pregunta por el mejor piloto de la historia. La unidad de análisis es una preferencia explícita por autor anonimizado, con un corpus y un protocolo de codificación documentados.">The study uses purposive sampling of public conversations centered on the greatest-driver question. Its unit of analysis is one explicit preference per anonymized author, with a documented corpus and coding protocol.</p></div>
+      <div class="panel method-grid">
+        <article class="method-step"><b>01 / CORPUS</b><h3 data-en="Sampling frame" data-es="Marco muestral">Sampling frame</h3><p data-en="Select public threads and videos whose central prompt asks, ranks, or debates the greatest Formula 1 driver of all time. Record URL, platform, date, and collection limit for every source." data-es="Seleccionar hilos y videos públicos cuya consigna central pregunte, ordene o debata quién es el mejor piloto de Fórmula 1 de la historia. Registrar URL, plataforma, fecha y límite de recolección de cada fuente.">Select public threads and videos whose central prompt asks, ranks, or debates the greatest Formula 1 driver of all time. Record URL, platform, date, and collection limit for every source.</p></article>
+        <article class="method-step"><b>02 / UNIT</b><h3 data-en="Anonymized respondents" data-es="Respondentes anonimizados">Anonymized respondents</h3><p data-en="Hash author identifiers at collection time, collapse repeated answers, and remove conflicting choices. Names, profile images, and account links are excluded from the research dataset." data-es="Hashear los identificadores al recolectar, consolidar respuestas repetidas y remover elecciones contradictorias. Los nombres, fotos y enlaces de cuenta quedan fuera de la base de investigación.">Hash author identifiers at collection time, collapse repeated answers, and remove conflicting choices. Names, profile images, and account links are excluded from the research dataset.</p></article>
+        <article class="method-step"><b>03 / CODING</b><h3 data-en="Predefined decision rules" data-es="Reglas de decisión predefinidas">Predefined decision rules</h3><p data-en="Apply an auditable multilingual codebook to direct endorsements, first-place rankings, and short prompt answers. Ambiguous mentions, negations, and relative comparisons are excluded." data-es="Aplicar un libro de códigos multilingüe y auditable a apoyos directos, primeros puestos y respuestas breves a la consigna. Se excluyen menciones ambiguas, negaciones y comparaciones relativas.">Apply an auditable multilingual codebook to direct endorsements, first-place rankings, and short prompt answers. Ambiguous mentions, negations, and relative comparisons are excluded.</p></article>
+        <article class="method-step"><b>04 / SYNTHESIS</b><h3 data-en="Source-level estimates" data-es="Estimaciones por fuente">Source-level estimates</h3><p data-en="Calculate driver shares in conversations with at least five coded choices, consolidate them into the Fan Index, and publish raw counts, source coverage, and uncertainty intervals alongside the result." data-es="Calcular la proporción de cada piloto en conversaciones con al menos cinco elecciones codificadas, consolidarlas en el Fan Index y publicar junto al resultado los conteos, la cobertura de fuentes y los intervalos de incertidumbre.">Calculate driver shares in conversations with at least five coded choices, consolidate them into the Fan Index, and publish raw counts, source coverage, and uncertainty intervals alongside the result.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="shell footer-inner"><span data-en="TelemetryOne Fan Index · public conversation, measured carefully." data-es="TelemetryOne Fan Index · conversación pública, medida con cuidado.">TelemetryOne Fan Index · public conversation, measured carefully.</span><span id="updated">—</span></div></footer>
+
+  <script>
+    const state = { lang: 'en', data: null };
+    const copy = {
+      en: { rawVotes: 'raw votes', sources: 'sources', updated: 'Dataset built', view: 'Open source ↗',
+        lead: (a, b, n) => `${a} leads ${b} by ${n} percentage points in the Fan Index.` },
+      es: { rawVotes: 'votos crudos', sources: 'fuentes', updated: 'Base construida', view: 'Abrir fuente ↗',
+        lead: (a, b, n) => `${a} supera a ${b} por ${n} puntos porcentuales en el Fan Index.` }
+    };
+    const pct = value => `${(Number(value) * 100).toFixed(1)}%`;
+    const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+    const youtubeThumbnail = source => {
+      if (source.platform !== 'youtube') return '';
+      try {
+        const url = new URL(source.url);
+        const videoId = url.hostname === 'youtu.be' ? url.pathname.slice(1) : url.searchParams.get('v');
+        return videoId && /^[A-Za-z0-9_-]{11}$/.test(videoId)
+          ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
+          : '';
+      } catch {
+        return '';
+      }
+    };
+
+    function render() {
+      if (!state.data) return;
+      const data = state.data;
+      const t = copy[state.lang];
+      const contributingSources = data.sources.filter(source => source.validVotes > 0);
+      document.documentElement.lang = state.lang;
+      document.querySelectorAll('[data-en]').forEach(node => { node.innerHTML = node.dataset[state.lang]; });
+      document.querySelectorAll('[data-lang]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.lang === state.lang)));
+      const [leader, runnerUp] = data.ranking;
+      document.querySelector('#winner-name').textContent = leader.name;
+      document.querySelector('#winner-score').textContent = pct(leader.balancedShare);
+      document.querySelector('#stat-votes').textContent = data.quality.validVotes.toLocaleString();
+      document.querySelector('#stat-sources').textContent = contributingSources.length;
+      document.querySelector('#stat-platforms').textContent = Object.keys(data.quality.platforms).length;
+      document.querySelector('#stat-drivers').textContent = data.ranking.length;
+      const margin = ((leader.balancedShare - runnerUp.balancedShare) * 100).toFixed(1);
+      document.querySelector('#lead-margin').textContent = `+${margin} pp`;
+      document.querySelector('#lead-copy').textContent = t.lead(leader.name, runnerUp.name, margin);
+      document.querySelector('#platform-count').textContent = Object.keys(data.quality.platforms).length;
+      document.querySelector('#updated').textContent = `${t.updated}: ${new Date(data.generatedAt).toLocaleDateString(state.lang, {year:'numeric', month:'long', day:'numeric'})}`;
+      const max = Math.max(...data.ranking.map(row => row.balancedShare));
+      document.querySelector('#ranking').innerHTML = data.ranking.map(row => `
+        <div class="ranking-row ${row.rank === 1 ? 'is-leader' : ''}">
+          <span class="rank">${String(row.rank).padStart(2, '0')}</span>
+          <span class="driver-name">${escapeHtml(row.name)}<small class="driver-meta">${row.votes} ${t.rawVotes} · ${row.sources} ${t.sources}</small></span>
+          <span class="bar-track" aria-hidden="true"><span class="bar" style="display:block;width:${(row.balancedShare / max * 100).toFixed(1)}%"></span></span>
+          <span class="share">${pct(row.balancedShare)}</span>
+        </div>`).join('');
+      document.querySelector('#sources').innerHTML = contributingSources.map(source => {
+        const thumbnail = youtubeThumbnail(source);
+        const media = thumbnail ? `<a class="source-media" href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer" aria-label="${escapeHtml(source.title)}"><img src="${thumbnail}" alt="${escapeHtml(source.title)}" width="480" height="360" loading="lazy" decoding="async"></a>` : '';
+        return `<article class="panel source-card ${thumbnail ? 'has-media' : ''}">
+          ${media}
+          <div class="source-body">
+            <span class="source-platform">${escapeHtml(source.platform)} · ${escapeHtml(source.publishedDate || '—')}</span>
+            <h3>${escapeHtml(source.title)}</h3>
+            <p>${escapeHtml(source.queryFamily)}</p>
+            <div class="source-result"><div><strong>${source.sampled}</strong><span>${state.lang === 'es' ? 'muestreados' : 'sampled'}</span></div><div><strong>${source.validVotes}</strong><span>${state.lang === 'es' ? 'votos válidos' : 'valid votes'}</span></div></div>
+            <a class="source-link" href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${t.view}</a>
+          </div>
+        </article>`;
+      }).join('');
+    }
+
+    document.querySelectorAll('[data-lang]').forEach(button => button.addEventListener('click', () => { state.lang = button.dataset.lang; render(); }));
+    fetch('../data/opinion-ranking.json')
+      .then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); })
+      .then(data => { state.data = data; render(); })
+      .catch(error => { document.querySelector('#ranking').innerHTML = `<div class="status error">Could not load the opinion dataset: ${escapeHtml(error.message)}</div>`; });
+  </script>
+</body>
+</html>

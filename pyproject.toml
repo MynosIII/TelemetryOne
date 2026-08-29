@@ -8,14 +8,20 @@ version = "1.0.0"
 description = "Interactive historical Formula 1 driver ELO visualizer"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["numpy>=2.0", "pandas>=2.2,<3", "pyarrow>=17"]
+dependencies = ["numpy>=2.0", "pandas>=2.2,<3", "pyarrow>=17", "pyyaml>=6"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.3", "ruff>=0.6"]
+scrape = [
+  "instaloader>=4.14,<5",
+  "twscrape>=0.17,<1",
+  "youtube-comment-downloader>=0.1.76,<1",
+]
 
 [project.scripts]
 telemetry-one-build = "historical_xw.visualizer_cli_v8:main"
 telemetry-one-catalog = "historical_xw.catalog_cli_v8:main"
+telemetry-one-opinion = "historical_xw.opinion_cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/historical_xw"]

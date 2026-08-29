@@ -1,9 +1,16 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.pytest-tmp-*/
+.test-tmp*/
 .ruff_cache/
 .venv/
 dist/
 build/
 *.egg-info/
 
+# Raw research comments and local authentication material are never published.
+data/opinion/
+accounts.db
+*.session
+.env

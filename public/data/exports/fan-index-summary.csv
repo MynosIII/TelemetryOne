@@ -1,0 +1,2 @@
+﻿generated_at,question,unit_of_analysis,ranking_method,comments_sampled,unique_comments,valid_votes,source_records,sources_with_votes,platform_groups,drivers_with_votes
+2026-08-29T04:36:40.724508+00:00,Who is the greatest Formula 1 driver of all time?,one explicit choice per anonymized author and platform,"mean source vote share within each platform, then equal-weight mean across eligible platforms; sources require at least five valid votes",22358,16364,1632,61,48,3,32

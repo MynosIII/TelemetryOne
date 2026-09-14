@@ -140,7 +140,7 @@ export const surveyVariables = [
 
 const preferredSurnameAliases = [
   ["Juan Manuel Fangio", ["juan fangio", "juan manuel fangio", "fangio"]],
-  ["Ayrton Senna", ["senna"]],
+  ["Ayrton Senna", ["senna", "sena"]],
   ["Michael Schumacher", ["schumacher", "schumi"]],
   ["Lewis Hamilton", ["hamilton"]],
   ["Max Verstappen", ["verstappen", "verstapen", "vesrtappen"]],
@@ -198,8 +198,7 @@ export function extractDriverVotes(answer, driverNames) {
 }
 
 function headerIndex(headers, fragment) {
-  const needle = key(fragment);
-  return headers.findIndex((header) => key(header).includes(needle));
+  return headers.findIndex((header) => containsPhrase(header, fragment));
 }
 
 function localizedValue(row, indexes, language) {
@@ -246,4 +245,53 @@ export function weightedRanking(records) {
   const counts = new Map();
   weightedVoteRows(records).forEach(({ driver, weight }) => counts.set(driver, (counts.get(driver) ?? 0) + weight));
   return [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "es"));
+}
+
+function orderedCategories(records, variableKey) {
+  const counts = new Map();
+  records.forEach((record) => {
+    const value = record.values[variableKey];
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  });
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "es"))
+    .map(([value]) => value);
+}
+
+export function categoricalAssociation(records, rowKey, columnKey) {
+  if (!rowKey || !columnKey || rowKey === columnKey) {
+    return { value: null, sampleSize: 0, rowLabels: [], columnLabels: [], table: [] };
+  }
+  const completeRecords = records.filter((record) => {
+    const rowValue = record.values[rowKey];
+    const columnValue = record.values[columnKey];
+    return rowValue && columnValue && rowValue !== "Sin respuesta" && columnValue !== "Sin respuesta";
+  });
+  const rowLabels = orderedCategories(completeRecords, rowKey);
+  const columnLabels = orderedCategories(completeRecords, columnKey);
+  const table = rowLabels.map((rowLabel) => columnLabels.map((columnLabel) => completeRecords.filter((record) => (
+    record.values[rowKey] === rowLabel && record.values[columnKey] === columnLabel
+  )).length));
+  if (rowLabels.length < 2 || columnLabels.length < 2 || !completeRecords.length) {
+    return { value: 0, sampleSize: completeRecords.length, rowLabels, columnLabels, table };
+  }
+  const rowTotals = table.map((row) => row.reduce((sum, count) => sum + count, 0));
+  const columnTotals = columnLabels.map((_, columnIndex) => table.reduce((sum, row) => sum + row[columnIndex], 0));
+  const total = completeRecords.length;
+  let chiSquare = 0;
+  table.forEach((row, rowIndex) => row.forEach((observed, columnIndex) => {
+    const expected = rowTotals[rowIndex] * columnTotals[columnIndex] / total;
+    if (expected > 0) chiSquare += ((observed - expected) ** 2) / expected;
+  }));
+  const denominator = total * Math.min(rowLabels.length - 1, columnLabels.length - 1);
+  const value = denominator > 0 ? Math.min(1, Math.sqrt(chiSquare / denominator)) : 0;
+  return { value, sampleSize: total, rowLabels, columnLabels, table };
+}
+
+export function correlationMatrix(records, variables = surveyVariables) {
+  return variables.map((rowVariable) => variables.map((columnVariable) => (
+    rowVariable.key === columnVariable.key
+      ? { value: null, sampleSize: 0 }
+      : categoricalAssociation(records, rowVariable.key, columnVariable.key)
+  )));
 }

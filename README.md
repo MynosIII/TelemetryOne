@@ -35,6 +35,8 @@ The production site is deployed as a Render Static Site from `public/index.html`
 - The ELO axis cannot be zoomed or panned below zero.
 - A separate **Fan Index** page ranks explicit all-time-best choices from an auditable,
   privacy-preserving public-comment sample; it never mixes opinion votes into the ELO model.
+- The Fan Index page also shows a separate live bilingual Google Forms survey, normalizing
+  equivalent EN/ES answers and splitting one respondent's vote equally across multiple drivers.
 
 ## Public-opinion scraper
 

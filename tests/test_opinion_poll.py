@@ -204,5 +204,12 @@ def test_published_fan_index_has_page_and_valid_payload() -> None:
     )
     assert "The internet’s <em>F1 GOAT.</em>" in page
     assert "../data/opinion-ranking.json" in page
+    assert "./live-survey.js" in page
+    assert "The survey vote" in page
+    survey_script = (project / "public" / "opinion" / "live-survey.js").read_text(
+        encoding="utf-8"
+    )
+    assert "13p58SpkkGQqmZIS4VREej0Kqhi14y8rQmCkzGmx40QU" in survey_script
+    assert "weightedVoteRows" in survey_script
     assert payload["quality"]["commentsSampled"] > payload["quality"]["validVotes"] > 0
     assert payload["ranking"][0]["name"] == "Ayrton Senna"

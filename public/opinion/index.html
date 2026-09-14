@@ -101,7 +101,37 @@
     .warning { border-color: rgba(255, 81, 72, .45); background: rgba(255, 81, 72, .055); }
     .warning .insight-number { color: var(--red); }
 
-    .findings-section, .sources-section, .method-section { margin-top: 88px; }
+    .live-survey-section, .findings-section, .sources-section, .method-section { margin-top: 88px; }
+    .live-survey { overflow: hidden; }
+    .survey-summary { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 28px; padding: 28px; }
+    .survey-total { display: flex; flex-direction: column; justify-content: center; }
+    .survey-total strong { font-size: clamp(3.8rem, 8vw, 6.6rem); letter-spacing: -.075em; line-height: .86; }
+    .survey-total span { max-width: 170px; margin-top: 14px; color: var(--muted); font-size: .72rem; }
+    .survey-ranking { display: grid; gap: 11px; align-content: center; }
+    .survey-rank-row { display: grid; grid-template-columns: 24px minmax(135px, 220px) minmax(100px, 1fr) 48px 52px; gap: 11px; align-items: center; font-size: .75rem; }
+    .survey-rank-row > span { color: var(--faint); font-weight: 800; }
+    .survey-rank-row > b, .survey-rank-row > em { text-align: right; font-variant-numeric: tabular-nums; }
+    .survey-rank-row > em { color: var(--muted); font-style: normal; }
+    .survey-track, .survey-stack { overflow: hidden; border-radius: 99px; background: #292c25; }
+    .survey-track { height: 9px; }
+    .survey-track i, .survey-stack i { display: block; height: 100%; }
+    .survey-control { display: flex; justify-content: space-between; gap: 18px; align-items: center; padding: 18px 28px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--surface-2); }
+    .survey-control label { font-size: .78rem; font-weight: 850; }
+    .survey-control select { width: min(390px, 52vw); padding: 10px 12px; border: 1px solid #4a4d44; border-radius: 8px; background: #10110f; color: var(--ink); }
+    #survey-correlation { padding: 26px 28px 30px; }
+    .survey-association { display: flex; justify-content: space-between; gap: 28px; align-items: flex-start; }
+    .survey-association span { display: block; color: var(--red); font-size: .62rem; font-weight: 900; letter-spacing: .11em; }
+    .survey-association strong { display: block; margin-top: 6px; font-size: 1.12rem; }
+    .survey-association p { max-width: 480px; margin: 0; color: var(--muted); font-size: .72rem; text-align: right; }
+    .survey-legend { display: flex; flex-wrap: wrap; gap: 10px 17px; margin: 22px 0; color: var(--muted); font-size: .67rem; }
+    .survey-legend span { display: inline-flex; gap: 6px; align-items: center; }
+    .survey-legend i { width: 9px; height: 9px; }
+    .survey-groups { display: grid; gap: 14px; }
+    .survey-group { display: grid; grid-template-columns: minmax(180px, 330px) minmax(0, 1fr); gap: 18px; align-items: center; }
+    .survey-group strong, .survey-group span { display: block; }
+    .survey-group strong { font-size: .75rem; }
+    .survey-group span { margin-top: 3px; color: var(--faint); font-size: .62rem; }
+    .survey-stack { display: flex; height: 13px; }
     .finding-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
     .finding-card { min-height: 240px; padding: 25px; }
     .finding-card:nth-child(1) { border-color: rgba(199, 243, 107, .42); background: linear-gradient(145deg, rgba(199, 243, 107, .08), rgba(21, 22, 19, .92) 65%); }
@@ -144,6 +174,8 @@
 
     @media (max-width: 900px) {
       .hero, .ranking-layout { grid-template-columns: 1fr; }
+      .survey-summary { grid-template-columns: 1fr; }
+      .survey-total { align-items: flex-start; }
       .winner-card { min-height: 260px; }
       .source-grid { grid-template-columns: 1fr; }
       .finding-grid { grid-template-columns: 1fr 1fr; }
@@ -164,6 +196,15 @@
       .quality-stat:nth-child(3) { border-top: 1px solid var(--line); border-left: 0; }
       .quality-stat:nth-child(4) { border-top: 1px solid var(--line); }
       .section-head { align-items: flex-start; flex-direction: column; }
+      .survey-summary, #survey-correlation { padding: 22px 18px; }
+      .survey-rank-row { grid-template-columns: 20px minmax(105px, 1fr) 38px; gap: 8px; }
+      .survey-rank-row .survey-track { grid-column: 2 / -1; grid-row: 2; }
+      .survey-rank-row > em { display: none; }
+      .survey-control, .survey-association { align-items: flex-start; flex-direction: column; }
+      .survey-control { padding: 16px 18px; }
+      .survey-control select { width: 100%; }
+      .survey-association p { text-align: left; }
+      .survey-group { grid-template-columns: 1fr; gap: 7px; }
       .ranking-row { grid-template-columns: 28px minmax(0, 1fr) 62px; gap: 10px; }
       .ranking-row .bar-track { grid-column: 2 / -1; grid-row: 2; }
       .source-card { grid-template-columns: 1fr; }
@@ -231,6 +272,14 @@
           <article class="panel insight-card"><h3 data-en="Cross-platform corpus" data-es="Corpus multiplataforma">Cross-platform corpus</h3><strong class="insight-number" id="platform-count">—</strong><p data-en="The corpus brings together public conversations from YouTube, Reddit, and independent Formula 1 forums." data-es="El corpus reúne conversaciones públicas de YouTube, Reddit y foros independientes de Fórmula 1.">The corpus brings together public conversations from YouTube, Reddit, and independent Formula 1 forums.</p></article>
         </aside>
       </div>
+    </section>
+
+    <section class="live-survey-section" aria-labelledby="live-survey-title">
+      <div class="section-head">
+        <div><p class="eyebrow" data-en="Live form" data-es="Formulario en vivo">Live form</p><h2 id="live-survey-title" data-en="The survey vote" data-es="El voto de la encuesta">The survey vote</h2></div>
+        <p data-en="Direct responses from the bilingual Google Form. Each person contributes one total vote, divided equally when several drivers are named." data-es="Respuestas directas del Google Forms bilingüe. Cada persona aporta un voto total, dividido en partes iguales cuando menciona a varios pilotos.">Direct responses from the bilingual Google Form. Each person contributes one total vote, divided equally when several drivers are named.</p>
+      </div>
+      <div class="panel live-survey" id="live-survey"><div class="status" data-en="Reading the live survey…" data-es="Leyendo la encuesta en vivo…">Reading the live survey…</div></div>
     </section>
 
     <section class="findings-section" aria-labelledby="findings-title">
@@ -359,5 +408,6 @@
       .then(data => { state.data = data; render(); })
       .catch(error => { document.querySelector('#ranking').innerHTML = `<div class="status error">Could not load the opinion dataset: ${escapeHtml(error.message)}</div>`; });
   </script>
+  <script type="module" src="./live-survey.js"></script>
 </body>
 </html>

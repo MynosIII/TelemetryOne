@@ -211,8 +211,12 @@ def test_published_fan_index_has_page_and_valid_payload() -> None:
     )
     assert "13p58SpkkGQqmZIS4VREej0Kqhi14y8rQmCkzGmx40QU" in survey_script
     assert "categoricalAssociation" in survey_script
+    assert "optionCorrelationMatrix" in survey_script
+    assert "strongestOptionCorrelations" in survey_script
+    assert 'goat: "Best driver"' in survey_script
     assert 'id="survey-variable-a"' in survey_script
     assert 'id="survey-variable-b"' in survey_script
     assert 'id="survey-matrix"' in survey_script
+    assert "survey-matrix-highlights" in survey_script
     assert payload["quality"]["commentsSampled"] > payload["quality"]["validVotes"] > 0
     assert payload["ranking"][0]["name"] == "Ayrton Senna"

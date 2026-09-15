@@ -1,4 +1,4 @@
-import { categoricalAssociation, correlationMatrix, surveyRecords, surveyVariables, weightedRanking } from "./survey.js";
+import { categoricalAssociation, optionCorrelationMatrix, strongestOptionCorrelations, surveyRecords, surveyVariables, weightedRanking } from "./survey.js";
 
 const SURVEY_URL = "https://docs.google.com/spreadsheets/d/13p58SpkkGQqmZIS4VREej0Kqhi14y8rQmCkzGmx40QU/gviz/tq?tqx=out:csv&gid=1975671607";
 const target = document.querySelector("#live-survey");
@@ -11,7 +11,7 @@ const currentDriverNames = [
   "Oliver Bearman", "Isack Hadjar", "Franco Colapinto", "Jack Doohan"
 ];
 const variableLabels = {
-  country: "Country", gender: "Gender", age: "Age", follows: "Follows F1",
+  goat: "Best driver", country: "Country", gender: "Gender", age: "Age", follows: "Follows F1",
   discovery: "How they found F1", years: "Time as a fan", media: "Media used",
   otherSeries: "Other series", criteria: "GOAT criterion", carWeight: "Car vs. driver weight",
   fairness: "Are title comparisons unfair?", statistics: "Weight given to statistics"
@@ -84,6 +84,17 @@ function heatStyle(value) {
   return `background:rgba(199,243,107,${alpha.toFixed(3)});color:${alpha > 0.52 ? "#0f100e" : "#f3f4ee"}`;
 }
 
+function optionHeatStyle(value) {
+  const alpha = Math.abs(value) ? 0.08 + Math.abs(value) * 0.72 : 0.02;
+  const color = value < 0 ? "94,171,255" : "199,243,107";
+  return `background:rgba(${color},${alpha.toFixed(3)});color:${alpha > 0.53 ? "#0f100e" : "#f3f4ee"}`;
+}
+
+function signedCorrelation(value) {
+  const rounded = Math.abs(value) < 0.005 ? 0 : value;
+  return `${rounded > 0 ? "+" : ""}${rounded.toFixed(2)}`;
+}
+
 function renderCorrelation(language) {
   const correlation = document.querySelector("#survey-correlation");
   const firstVariable = variableFor(activeVariables[0]);
@@ -95,10 +106,10 @@ function renderCorrelation(language) {
   }
   const rowTotals = association.table.map((row) => row.reduce((sum, count) => sum + count, 0));
   const completeLabel = language === "es" ? "RESPUESTAS COMPLETAS" : "COMPLETE RESPONSES";
-  correlation.innerHTML = `<div class="survey-association"><div><span>${language === "es" ? "ASOCIACIÓN EXPLORATORIA" : "EXPLORATORY ASSOCIATION"} · ${association.sampleSize} ${completeLabel}</span><strong>Cramér's V ${association.value.toFixed(2)} · ${associationLabel(association.value, language)}</strong></div><p>${language === "es" ? `Distribución de <strong>${escapeHtml(variableLabel(secondVariable, language))}</strong> dentro de cada respuesta de <strong>${escapeHtml(variableLabel(firstVariable, language))}</strong>.` : `Distribution of <strong>${escapeHtml(variableLabel(secondVariable, language))}</strong> within each <strong>${escapeHtml(variableLabel(firstVariable, language))}</strong> response.`}</p></div><div class="survey-table-scroll"><table class="survey-cross-table"><thead><tr><th scope="col">${escapeHtml(variableLabel(firstVariable, language))} ↓ / ${escapeHtml(variableLabel(secondVariable, language))} →</th>${association.columnLabels.map((label) => `<th scope="col">${escapeHtml(translatedValue(label, language))}</th>`).join("")}</tr></thead><tbody>${association.rowLabels.map((rowLabel, rowIndex) => `<tr><th scope="row">${escapeHtml(translatedValue(rowLabel, language))}<span>n=${rowTotals[rowIndex]}</span></th>${association.columnLabels.map((columnLabel, columnIndex) => {
+  correlation.innerHTML = `<div class="survey-association"><div><span>${language === "es" ? "ASOCIACIÓN EXPLORATORIA" : "EXPLORATORY ASSOCIATION"} · ${association.sampleSize} ${completeLabel}</span><strong>Cramér's V ${association.value.toFixed(2)} · ${associationLabel(association.value, language)}</strong></div><p>${language === "es" ? `Distribución de <strong>${escapeHtml(variableLabel(secondVariable, language))}</strong> dentro de cada respuesta de <strong>${escapeHtml(variableLabel(firstVariable, language))}</strong>.` : `Distribution of <strong>${escapeHtml(variableLabel(secondVariable, language))}</strong> within each <strong>${escapeHtml(variableLabel(firstVariable, language))}</strong> response.`}</p></div><div class="survey-table-scroll"><table class="survey-cross-table"><thead><tr><th scope="col">${escapeHtml(variableLabel(firstVariable, language))} ↓ / ${escapeHtml(variableLabel(secondVariable, language))} →</th>${association.columnLabels.map((label) => `<th scope="col">${escapeHtml(translatedValue(label, language))}</th>`).join("")}</tr></thead><tbody>${association.rowLabels.map((rowLabel, rowIndex) => `<tr><th scope="row">${escapeHtml(translatedValue(rowLabel, language))}<span>n=${voteFormat.format(rowTotals[rowIndex])}</span></th>${association.columnLabels.map((columnLabel, columnIndex) => {
     const count = association.table[rowIndex][columnIndex];
     const share = rowTotals[rowIndex] ? count / rowTotals[rowIndex] : 0;
-    return `<td style="${heatStyle(share)}" title="${escapeHtml(translatedValue(rowLabel, language))} × ${escapeHtml(translatedValue(columnLabel, language))}: ${count} (${percentFormat.format(share)})"><strong>${count}</strong><span>${percentFormat.format(share)}</span></td>`;
+    return `<td style="${heatStyle(share)}" title="${escapeHtml(translatedValue(rowLabel, language))} × ${escapeHtml(translatedValue(columnLabel, language))}: ${voteFormat.format(count)} (${percentFormat.format(share)})"><strong>${voteFormat.format(count)}</strong><span>${percentFormat.format(share)}</span></td>`;
   }).join("")}</tr>`).join("")}</tbody></table></div>`;
 }
 
@@ -115,12 +126,34 @@ function syncSelectors(firstSelect, secondSelect, changedSelect = null) {
 
 function renderMatrix(language, firstSelect, secondSelect) {
   const matrixTarget = document.querySelector("#survey-matrix");
-  const matrix = correlationMatrix(records);
-  matrixTarget.innerHTML = `<div class="survey-matrix-head"><div><span>${language === "es" ? "MAPA GENERAL" : "OVERVIEW"}</span><h3>${language === "es" ? "Matriz de correlaciones entre preguntas" : "Correlation matrix across questions"}</h3></div><p>${language === "es" ? "V de Cramér va de 0 a 1 y no implica causalidad." : "Cramér's V ranges from 0 to 1 and does not imply causation."}</p></div><div class="survey-matrix-scroll"><table class="survey-matrix-table"><thead><tr><th scope="col">${language === "es" ? "Pregunta" : "Question"}</th>${surveyVariables.map((variable) => `<th scope="col" title="${escapeHtml(variableLabel(variable, language))}">${escapeHtml(variableLabel(variable, language))}</th>`).join("")}</tr></thead><tbody>${surveyVariables.map((rowVariable, rowIndex) => `<tr><th scope="row">${escapeHtml(variableLabel(rowVariable, language))}</th>${surveyVariables.map((columnVariable, columnIndex) => {
-    const cell = matrix[rowIndex][columnIndex];
-    if (cell.value === null) return `<td class="survey-matrix-diagonal" aria-label="${escapeHtml(variableLabel(rowVariable, language))}">—</td>`;
-    return `<td style="${heatStyle(cell.value)}"><button type="button" data-matrix-row="${rowVariable.key}" data-matrix-column="${columnVariable.key}" title="${escapeHtml(variableLabel(rowVariable, language))} × ${escapeHtml(variableLabel(columnVariable, language))}: V=${cell.value.toFixed(2)}; n=${cell.sampleSize}">${cell.value.toFixed(2)}</button></td>`;
-  }).join("")}</tr>`).join("")}</tbody></table></div><p class="survey-matrix-note">${language === "es" ? "Se excluyen respuestas faltantes en cada par. Las selecciones múltiples se comparan como la combinación completa elegida por cada persona." : "Missing responses are excluded pair by pair. Multiple selections are compared as each respondent's complete selected combination."}</p>`;
+  const detail = optionCorrelationMatrix(records);
+  const optionIndex = new Map(detail.options.map((option, index) => [option.key, index]));
+  const columnGroups = detail.groups.map((group) => `<th class="survey-matrix-question-group" scope="colgroup" colspan="${group.categories.length}">${escapeHtml(variableLabel(group, language))}</th>`).join("");
+  const columnOptions = detail.options.map((option) => `<th class="survey-matrix-option-head" scope="col" title="${escapeHtml(variableLabel(variableFor(option.variableKey), language))}: ${escapeHtml(translatedValue(option.label, language))}"><span>${escapeHtml(translatedValue(option.label, language))}</span></th>`).join("");
+  const rows = detail.groups.flatMap((group) => group.categories.map((label, categoryIndex) => {
+    const rowOption = detail.options.find((option) => option.variableKey === group.key && option.label === label);
+    const rowIndex = optionIndex.get(rowOption.key);
+    const groupLabel = variableLabel(group, language);
+    const optionLabel = translatedValue(label, language);
+    const groupHeader = categoryIndex === 0 ? `<th class="survey-matrix-row-question" scope="rowgroup" rowspan="${group.categories.length}">${escapeHtml(groupLabel)}</th>` : "";
+    const cells = detail.options.map((columnOption, columnIndex) => {
+      const cell = detail.matrix[rowIndex][columnIndex];
+      if (cell.value === null) return `<td class="survey-matrix-diagonal" aria-label="${escapeHtml(groupLabel)}: ${escapeHtml(optionLabel)}">—</td>`;
+      const value = signedCorrelation(cell.value);
+      const columnGroupLabel = variableLabel(variableFor(columnOption.variableKey), language);
+      const columnOptionLabel = translatedValue(columnOption.label, language);
+      const title = `${groupLabel}: ${optionLabel} × ${columnGroupLabel}: ${columnOptionLabel}: φ=${value}; n=${cell.sampleSize}`;
+      if (group.key === columnOption.variableKey) return `<td class="survey-matrix-same-question" style="${optionHeatStyle(cell.value)}"><span title="${escapeHtml(title)}">${value}</span></td>`;
+      return `<td style="${optionHeatStyle(cell.value)}"><button type="button" data-matrix-row="${group.key}" data-matrix-column="${columnOption.variableKey}" title="${escapeHtml(title)}">${value}</button></td>`;
+    }).join("");
+    return `<tr>${groupHeader}<th class="survey-matrix-row-option" scope="row">${escapeHtml(optionLabel)}</th>${cells}</tr>`;
+  })).join("");
+  const strongest = strongestOptionCorrelations(records);
+  const highlights = strongest.length ? `<div class="survey-matrix-highlights"><div class="survey-matrix-highlights-head"><div><span>${language === "es" ? "CRUCES DESTACADOS" : "HIGHLIGHTED PAIRS"}</span><h4>${language === "es" ? "Correlaciones más altas entre opciones" : "Strongest option-level correlations"}</h4></div><p>${language === "es" ? "Se omiten cruces dentro de la misma pregunta y opciones con menos de dos respuestas ponderadas." : "Pairs within the same question and options with fewer than two weighted responses are omitted."}</p></div><ol>${strongest.map((pair, index) => `<li><span>${String(index + 1).padStart(2, "0")}</span><div><strong>${escapeHtml(variableLabel(variableFor(pair.rowOption.variableKey), language))}: ${escapeHtml(translatedValue(pair.rowOption.label, language))}</strong><em>× ${escapeHtml(variableLabel(variableFor(pair.columnOption.variableKey), language))}: ${escapeHtml(translatedValue(pair.columnOption.label, language))}</em></div><b>φ ${signedCorrelation(pair.value)}</b><small>n=${pair.sampleSize}</small></li>`).join("")}</ol></div>` : "";
+  const title = language === "es" ? "Matriz de correlaciones por opción" : "Option-level correlation matrix";
+  const intro = language === "es" ? "Cada bloque pertenece a una pregunta y cada celda compara dos respuestas concretas. φ va de −1 a +1; el signo indica la dirección y no implica causalidad." : "Each block belongs to one question and every cell compares two concrete answers. φ ranges from −1 to +1; its sign shows direction and does not imply causation.";
+  const note = language === "es" ? "Se excluyen respuestas faltantes en cada par. En selección múltiple, cada opción se evalúa como elegida/no elegida. Si una persona nombra varios pilotos como GOAT, su voto se divide antes de calcular φ." : "Missing responses are excluded pair by pair. Multiple-choice options are evaluated as selected/not selected. If someone names several GOAT drivers, their vote is split before φ is calculated.";
+  matrixTarget.innerHTML = `<div class="survey-matrix-head"><div><span>${language === "es" ? "MAPA DETALLADO" : "DETAILED MAP"}</span><h3>${title}</h3></div><p>${intro}</p></div><div class="survey-matrix-scroll"><table class="survey-matrix-table"><thead><tr><th rowspan="2" scope="col">${language === "es" ? "Pregunta" : "Question"}</th><th rowspan="2" scope="col">${language === "es" ? "Opción" : "Option"}</th>${columnGroups}</tr><tr>${columnOptions}</tr></thead><tbody>${rows}</tbody></table></div><p class="survey-matrix-note">${note}</p>${highlights}`;
   matrixTarget.querySelectorAll("[data-matrix-row]").forEach((button) => button.addEventListener("click", () => {
     firstSelect.value = button.dataset.matrixRow;
     secondSelect.value = button.dataset.matrixColumn;

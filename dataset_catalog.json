@@ -124,16 +124,19 @@
       "experimental": true
     },
     {
-      "id": "position_only",
-      "label": "Position only",
-      "labelEs": "Solo posición",
-      "title": "Classified-position analysis",
-      "titleEs": "Análisis por posición clasificada",
+      "id": "v8",
+      "label": "v8",
+      "title": "Position-based, fault-aware, bootstrapped rookies",
+      "titleEs": "Basado en posición, con culpa de abandono y novatos con arranque estimado",
       "family": "Alternative analyses",
       "familyEs": "Análisis alternativos",
-      "description": "Reserved for a future ranking based only on classified finishing position.",
-      "descriptionEs": "Reservado para una futura clasificación basada solo en la posición final.",
-      "status": "planned"
+      "description": "Replaces v7's win-only update with a full expected-finishing-percentile comparison (a driver expected to win who finishes 15th now registers differently from one who finishes 2nd, not just \"didn't win\"), excludes mechanical DNFs from the rating update while accident DNFs still count, and estimates each rookie's starting rating from their earliest races instead of a flat default. Car identity is not F1DB-model-resolved for this release (grouped by constructor per season instead), and there is no independent qualifying-vs-race split -- see the companion f1-driver-ranking repo's docs/ranking-architecture-v8.md for the full methodology, including two real calibration bugs found and fixed by validating against this exact dataset.",
+      "descriptionEs": "Reemplaza la actualización basada solo en victorias de v7 por una comparación completa del percentil de llegada esperado (un piloto que se esperaba que ganara y termina 15° ahora se registra distinto de uno que termina 2°, no solo \"no ganó\"), excluye los abandonos mecánicos de la actualización de valoración mientras que los accidentes sí cuentan, y estima la valoración inicial de cada novato a partir de sus primeras carreras en vez de un valor fijo. La identidad del auto no está resuelta a nivel de modelo F1DB en esta versión (se agrupa por escudería y temporada), y no hay una división independiente entre clasificación y carrera -- ver docs/ranking-architecture-v8.md en el repositorio f1-driver-ranking para la metodología completa, incluyendo dos errores de calibración reales encontrados y corregidos al validar contra este mismo conjunto de datos.",
+      "status": "available",
+      "sourceDir": "../data/outputs/position_based_v8",
+      "dataFile": "data/datasets/v8.json",
+      "metric": {"label": "Position-based retrospective rating (v8)", "labelEs": "Valoración retrospectiva basada en posición (v8)"},
+      "capabilities": {"records": true, "driverProfiles": true}
     },
     {
       "id": "speed_only",

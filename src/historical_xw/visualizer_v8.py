@@ -245,7 +245,7 @@ def _career_curve_areas(data: pd.DataFrame, minimum_races: int = 25) -> pd.DataF
 def _car_win_column(data: pd.DataFrame) -> str:
     """Use the newest available car-strength estimate for the selected release."""
 
-    for column in ("expected_car_win_v7_6", "expected_car_win_v6"):
+    for column in ("expected_car_win_v8", "expected_car_win_v7_6", "expected_car_win_v6"):
         if column in data.columns and pd.to_numeric(data[column], errors="coerce").notna().any():
             return column
     raise ValueError("Rating history has no usable expected-car-win column")
